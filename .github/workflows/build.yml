@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: Apache-2.0
+
+name: build
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  build-java-21:
+    name: Java 21
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Sources
+        uses: actions/checkout@v4
+      - name: Setup Java JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'liberica'
+          cache: 'maven'
+      - name: Build
+        run: ./mvnw --batch-mode verify

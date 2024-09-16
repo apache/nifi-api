@@ -1,0 +1,26 @@
+# SPDX-License-Identifier: Apache-2.0
+
+github:
+  description: "Apache NiFi API"
+  homepage: https://nifi.apache.org
+  labels:
+    - apache
+    - nifi
+  features:
+    wiki: false
+    issues: false
+    projects: false
+  enabled_merge_buttons:
+    squash: true
+  autolink_jira:
+    - NIFI
+    - NIP
+  protected_branches:
+    main:
+      required_signatures: true
+      required_linear_history: true
+notifications:
+  commits: commits@nifi.apache.org
+  issues: issues@nifi.apache.org
+  pullrequests: issues@nifi.apache.org
+  jira_options: link worklog
