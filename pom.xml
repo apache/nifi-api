@@ -82,7 +82,7 @@
         <jacoco.version>0.8.12</jacoco.version>
         <maven-pmd-plugin.version>3.25.0</maven-pmd-plugin.version>
         <mockito.version>5.13.0</mockito.version>
-        <pmd.version>7.5.0</pmd.version>
+        <pmd.version>7.10.0</pmd.version>
         <swagger-annotations.version>2.2.23</swagger-annotations.version>
     </properties>
 
