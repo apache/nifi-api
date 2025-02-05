@@ -279,6 +279,7 @@ public class StandardValidators {
         }
     };
 
+    @SuppressWarnings("PMD.UselessOperationOnImmutable")
     public static final Validator ISO8601_INSTANT_VALIDATOR = new Validator() {
         @Override
         public ValidationResult validate(final String subject, final String input, final ValidationContext context) {
