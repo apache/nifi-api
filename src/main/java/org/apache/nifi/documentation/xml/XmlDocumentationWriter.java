@@ -112,15 +112,11 @@ public class XmlDocumentationWriter extends AbstractDocumentationWriter {
         final String[] classNames = deprecationNotice.classNames();
 
         final Set<String> alternatives = new LinkedHashSet<>();
-        if (classes != null) {
-            for (final Class<?> alternativeClass : classes) {
-                alternatives.add(alternativeClass.getName());
-            }
+        for (final Class<?> alternativeClass : classes) {
+            alternatives.add(alternativeClass.getName());
         }
 
-        if (classNames != null) {
-            Collections.addAll(alternatives, classNames);
-        }
+        Collections.addAll(alternatives, classNames);
 
         writeDeprecationNotice(deprecationNotice.reason(), alternatives);
     }

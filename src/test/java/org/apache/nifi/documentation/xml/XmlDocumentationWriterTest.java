@@ -16,6 +16,7 @@
  */
 package org.apache.nifi.documentation.xml;
 
+import org.apache.nifi.annotation.documentation.DeprecationNotice;
 import org.apache.nifi.components.ConfigurableComponent;
 import org.apache.nifi.components.PropertyDescriptor;
 import org.apache.nifi.components.resource.ResourceCardinality;
@@ -52,6 +53,7 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 @ExtendWith(MockitoExtension.class)
 class XmlDocumentationWriterTest {
@@ -149,6 +151,24 @@ class XmlDocumentationWriterTest {
         final Document document = writeDocumentation(controllerService);
 
         assertExtensionNameTypeFound(controllerService, ExtensionType.CONTROLLER_SERVICE, document);
+    }
+
+    @Test
+    void testWriteDeprecatedControllerService() throws Exception {
+        final ControllerService controllerService = new DeprecatedControllerService();
+        final Document document = writeDocumentation(controllerService);
+
+        assertExtensionNameTypeFound(controllerService, ExtensionType.CONTROLLER_SERVICE, document);
+
+        final Node deprecationNoticeReason = findNode("/extension/deprecationNotice/reason", document);
+        assertNotNull(deprecationNoticeReason);
+        final Node reasonChildNode = deprecationNoticeReason.getFirstChild();
+        assertNull(reasonChildNode.getFirstChild());
+
+        final Node deprecationNoticeAlternatives = findNode("/extension/deprecationNotice/alternatives", document);
+        assertNotNull(deprecationNoticeAlternatives);
+
+        assertNull(deprecationNoticeAlternatives.getFirstChild());
     }
 
     @Test
@@ -315,6 +335,11 @@ class XmlDocumentationWriterTest {
     }
 
     private static class MinimalControllerService extends AbstractControllerService {
+
+    }
+
+    @DeprecationNotice
+    private static class DeprecatedControllerService extends AbstractControllerService {
 
     }
 
