@@ -21,10 +21,12 @@ import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Function;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -65,13 +67,11 @@ import org.apache.nifi.documentation.ServiceAPI;
 import org.apache.nifi.processor.Relationship;
 
 /**
- * XML-based implementation of DocumentationWriter
- *
+ * XML-based implementation of DocumentationWriter.
  * Please note that while this class lives within the nifi-api, it is provided primarily as a means for documentation components within
  * the NiFi NAR Maven Plugin. Its home is the nifi-api, however, because the API is needed in order to extract the relevant information and
  * the NAR Maven Plugin cannot have a direct dependency on nifi-api (doing so would cause a circular dependency). By having this homed within
  * the nifi-api, the Maven plugin is able to discover the class dynamically and invoke the one or two methods necessary to create the documentation.
- *
  * This is a new capability in 1.9.0 in preparation for the Extension Registry and therefore, you should
  * <b>NOTE WELL:</b> At this time, while this class is part of nifi-api, it is still evolving and may change in a non-backward-compatible manner or even be
  * removed from one incremental release to the next. Use at your own risk!
@@ -108,12 +108,12 @@ public class XmlDocumentationWriter extends AbstractDocumentationWriter {
             return;
         }
 
-        final Class[] classes = deprecationNotice.alternatives();
+        final Class<?>[] classes = deprecationNotice.alternatives();
         final String[] classNames = deprecationNotice.classNames();
 
         final Set<String> alternatives = new LinkedHashSet<>();
         if (classes != null) {
-            for (final Class alternativeClass : classes) {
+            for (final Class<?> alternativeClass : classes) {
                 alternatives.add(alternativeClass.getName());
             }
         }
@@ -218,7 +218,16 @@ public class XmlDocumentationWriter extends AbstractDocumentationWriter {
 
         writeStartElement("resourceDefinition");
         writeTextElement("cardinality", resourceDefinition.getCardinality().name());
-        writeArray("resourceTypes", resourceDefinition.getResourceTypes(), this::writeResourceType);
+
+        final Set<ResourceType> resourceTypes = resourceDefinition.getResourceTypes();
+        if (resourceTypes == null) {
+            writeArray("resourceTypes", null, this::writeResourceType);
+        } else {
+            final Set<ResourceType> orderedResourceTypes = new TreeSet<>(Comparator.comparing(ResourceType::name));
+            orderedResourceTypes.addAll(resourceTypes);
+            writeArray("resourceTypes", orderedResourceTypes, this::writeResourceType);
+        }
+
         writeEndElement();
     }
 
@@ -242,7 +251,9 @@ public class XmlDocumentationWriter extends AbstractDocumentationWriter {
 
         writeStartElement("dependencies");
 
-        for (final PropertyDependency dependency : dependencies) {
+        final Set<PropertyDependency> orderedDependencies = new TreeSet<>(Comparator.comparing(PropertyDependency::getPropertyName));
+        orderedDependencies.addAll(dependencies);
+        for (final PropertyDependency dependency : orderedDependencies) {
             writeStartElement("dependency");
             writeTextElement("propertyName", dependency.getPropertyName());
             writeTextElement("propertyDisplayName", dependency.getPropertyDisplayName());
@@ -250,7 +261,8 @@ public class XmlDocumentationWriter extends AbstractDocumentationWriter {
             final Set<String> dependentValues = dependency.getDependentValues();
             if (dependentValues != null) {
                 writeStartElement("dependentValues");
-                for (final String dependentValue : dependentValues) {
+                final Collection<String> orderedDependentValues = new TreeSet<>(dependentValues);
+                for (final String dependentValue : orderedDependentValues) {
                     writeTextElement("dependentValue", dependentValue);
                 }
                 writeEndElement();
@@ -355,12 +367,12 @@ public class XmlDocumentationWriter extends AbstractDocumentationWriter {
             return;
         }
 
-        final Class[] classes = seeAlso.value();
+        final Class<?>[] classes = seeAlso.value();
         final String[] classNames = seeAlso.classNames();
 
         final Set<String> toSee = new LinkedHashSet<>();
         if (classes != null) {
-            for (final Class classToSee : classes) {
+            for (final Class<?> classToSee : classes) {
                 toSee.add(classToSee.getName());
             }
         }
@@ -434,7 +446,9 @@ public class XmlDocumentationWriter extends AbstractDocumentationWriter {
             return;
         }
 
-        writeArray("relationships", relationships, rel -> {
+        final Set<Relationship> ordered = new TreeSet<>(Comparator.comparing(Relationship::getName));
+        ordered.addAll(relationships);
+        writeArray("relationships", ordered, rel -> {
             writeStartElement("relationship");
 
             writeTextElement("name", rel.getName());
