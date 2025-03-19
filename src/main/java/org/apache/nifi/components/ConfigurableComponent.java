@@ -43,25 +43,44 @@ public interface ConfigurableComponent {
     PropertyDescriptor getPropertyDescriptor(String name);
 
     /**
+     * <p>
      * Hook method allowing subclasses to eagerly react to a configuration
      * change for the given property descriptor. This method will be invoked
      * regardless of property validity. As an alternative to using this method,
      * a component may simply get the latest value whenever it needs it and if
      * necessary lazily evaluate it. Any throwable that escapes this method will
      * simply be ignored.
+     * </p>
      *
+     * <p>
      * When NiFi is restarted, this method will be called for each 'dynamic' property that is
-     * added, as well as for each property that is not set to the default value. I.e., if the
-     * Properties are modified from the default values. If it is undesirable for your use case
+     * added, as well as for each property that has a value. I.e., even if the
+     * Properties are not modified from the default values. If it is undesirable for your use case
      * to react to properties being modified in this situation, you can add the {@link OnConfigurationRestored}
      * annotation to a method - this will allow the Processor to know when configuration has
      * been restored, so that it can determine whether or not to perform some action in the
-     * onPropertyModified method.
+     * onPropertyModified method. This can be done as follows:
+     * </p>
+     *
+     * <pre>{@code
+     *    private volatile boolean configurationRestored = false;
+     *
+     *    @OnConfigurationRestored
+     *    public void onConfigurationRestored() {
+     *        this.configurationRestored = true;
+     *    }
+     *
+     *    public void onPropertyModified(PropertyDescriptor descriptor, String oldValue, String newValue) {
+     *        if (!configurationRestored) {
+     *            return;
+     *        }
+     *    }
+     * }</pre>
      *
      * @param descriptor the descriptor for the property being modified
-     * @param oldValue the value that was previously set, or null if no value
-     *            was previously set for this property
-     * @param newValue the new property value or if null indicates the property
+     * @param oldValue the value that was previously set. Will be <code>null</code> if no value
+     *            was previously set for this property, on NiFi startup or on first modification after component is added to graph
+     * @param newValue the new property value or if <code>null</code> indicates the property
      *            was removed
      */
     void onPropertyModified(PropertyDescriptor descriptor, String oldValue, String newValue);
