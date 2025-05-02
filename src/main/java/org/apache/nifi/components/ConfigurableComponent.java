@@ -79,7 +79,7 @@ public interface ConfigurableComponent {
      *
      * @param descriptor the descriptor for the property being modified
      * @param oldValue the value that was previously set. Will be <code>null</code> if no value
-     *            was previously set for this property, on NiFi startup or on first modification after component is added to graph
+     *            was previously set for this property, on NiFi startup or on first modification after component is added to flow
      * @param newValue the new property value or if <code>null</code> indicates the property
      *            was removed
      */
