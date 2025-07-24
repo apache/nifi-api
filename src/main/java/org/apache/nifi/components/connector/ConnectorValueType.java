@@ -14,31 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nifi.action;
 
-/**
- * Defines possible components for a given action.
- */
-public enum Component {
+package org.apache.nifi.components.connector;
 
-    Controller,
-    Processor,
-    InputPort,
-    OutputPort,
-    ProcessGroup,
-    RemoteProcessGroup,
-    Funnel,
-    Connection,
-    ControllerService,
-    ReportingTask,
-    FlowAnalysisRule,
-    FlowRegistryClient,
-    ParameterContext,
-    ParameterProvider,
-    AccessPolicy,
-    User,
-    UserGroup,
-    Label,
-    Connector;
+public enum ConnectorValueType {
+    /**
+     * The value is a string literal.
+     */
+    STRING_LITERAL,
 
+    /**
+     * The value identifies an Asset
+     */
+    ASSET_REFERENCE,
+
+    /**
+     * The value identifies a Secret.
+     */
+    SECRET_REFERENCE
 }

@@ -60,7 +60,6 @@
         <module name="SimplifyBooleanReturn"/>
         <module name="InterfaceIsType"/>
         <module name="ArrayTypeStyle"/>
-        <module name="TodoComment"/>
         <module name="UpperEll"/>
         <module name="UnusedLocalVariable"/>
     </module>

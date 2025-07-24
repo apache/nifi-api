@@ -20,11 +20,13 @@ package org.apache.nifi.components;
 public class ConfigVerificationResult {
     private final Outcome outcome;
     private final String verificationStepName;
+    private final String subject;
     private final String explanation;
 
     private ConfigVerificationResult(final Builder builder) {
         outcome = builder.outcome;
         verificationStepName = builder.verificationStepName;
+        subject = builder.subject;
         explanation = builder.explanation;
     }
 
@@ -36,6 +38,10 @@ public class ConfigVerificationResult {
         return verificationStepName;
     }
 
+    public String getSubject() {
+        return subject;
+    }
+
     public String getExplanation() {
         return explanation;
     }
@@ -44,6 +50,7 @@ public class ConfigVerificationResult {
     public String toString() {
         return "ConfigVerificationResult[" +
             "outcome=" + outcome +
+            ", subject=" + (subject == null ? "null" : "'" + subject + "'") +
             ", verificationStepName='" + verificationStepName + "'" +
             ", explanation='" + explanation + "']";
     }
@@ -51,6 +58,7 @@ public class ConfigVerificationResult {
     public static class Builder {
         private Outcome outcome = Outcome.SKIPPED;
         private String verificationStepName = "Unknown Step Name";
+        private String subject;
         private String explanation;
 
         public Builder outcome(final Outcome outcome) {
@@ -60,6 +68,11 @@ public class ConfigVerificationResult {
 
         public Builder verificationStepName(final String verificationStepName) {
             this.verificationStepName = verificationStepName;
+            return this;
+        }
+
+        public Builder subject(final String subject) {
+            this.subject = subject;
             return this;
         }
 
