@@ -14,31 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nifi.action;
 
-/**
- * Defines possible components for a given action.
- */
-public enum Component {
+package org.apache.nifi.components.connector.components;
 
-    Controller,
-    Processor,
-    InputPort,
-    OutputPort,
-    ProcessGroup,
-    RemoteProcessGroup,
-    Funnel,
-    Connection,
-    ControllerService,
-    ReportingTask,
-    FlowAnalysisRule,
-    FlowRegistryClient,
-    ParameterContext,
-    ParameterProvider,
-    AccessPolicy,
-    User,
-    UserGroup,
-    Label,
-    Connector;
+import java.util.concurrent.CompletableFuture;
+
+public interface ProcessorLifecycle {
+
+    ProcessorState getState();
+
+    int getActiveThreadCount();
+
+    void terminate();
+
+    CompletableFuture<Void> stop();
+
+    CompletableFuture<Void> start();
+
+    void disable();
+
+    void enable();
 
 }

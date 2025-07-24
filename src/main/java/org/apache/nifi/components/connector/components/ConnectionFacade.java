@@ -14,31 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nifi.action;
 
-/**
- * Defines possible components for a given action.
- */
-public enum Component {
+package org.apache.nifi.components.connector.components;
 
-    Controller,
-    Processor,
-    InputPort,
-    OutputPort,
-    ProcessGroup,
-    RemoteProcessGroup,
-    Funnel,
-    Connection,
-    ControllerService,
-    ReportingTask,
-    FlowAnalysisRule,
-    FlowRegistryClient,
-    ParameterContext,
-    ParameterProvider,
-    AccessPolicy,
-    User,
-    UserGroup,
-    Label,
-    Connector;
+import org.apache.nifi.controller.queue.QueueSize;
+import org.apache.nifi.flow.VersionedConnection;
+
+public interface ConnectionFacade {
+
+    VersionedConnection getDefinition();
+
+    /**
+     * Returns the size of the Connection's queue.
+     * @return the size of the Connection's queue
+     */
+    QueueSize getQueueSize();
+
+    /**
+     * Purges all data from the connection.
+     */
+    void purge();
 
 }

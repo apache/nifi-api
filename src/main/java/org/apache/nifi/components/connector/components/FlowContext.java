@@ -14,31 +14,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nifi.action;
 
-/**
- * Defines possible components for a given action.
- */
-public enum Component {
+package org.apache.nifi.components.connector.components;
 
-    Controller,
-    Processor,
-    InputPort,
-    OutputPort,
-    ProcessGroup,
-    RemoteProcessGroup,
-    Funnel,
-    Connection,
-    ControllerService,
-    ReportingTask,
-    FlowAnalysisRule,
-    FlowRegistryClient,
-    ParameterContext,
-    ParameterProvider,
-    AccessPolicy,
-    User,
-    UserGroup,
-    Label,
-    Connector;
+import org.apache.nifi.components.connector.ConnectorConfigurationContext;
+import org.apache.nifi.flow.Bundle;
 
+public interface FlowContext {
+
+    ProcessGroupFacade getRootGroup();
+
+    ParameterContextFacade getParameterContext();
+
+    ConnectorConfigurationContext getConfigurationContext();
+
+    FlowContextType getType();
+
+    /**
+     * Returns the bundle that indicates the version/coordinates that were used to create the
+     * configuration represented by this FlowContext.
+     *
+     * @return the bundle
+     */
+    Bundle getBundle();
 }
