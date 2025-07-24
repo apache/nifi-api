@@ -23,7 +23,10 @@ import org.apache.nifi.migration.PropertyConfiguration;
 import org.apache.nifi.reporting.InitializationException;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Defines a provider that is responsible for fetching from an external source Parameters with
@@ -101,5 +104,58 @@ public interface ParameterProvider extends ConfigurableComponent {
      * @param config the current property configuration
      */
     default void migrateProperties(PropertyConfiguration config) {
+    }
+
+    /**
+     * Fetches named groups of parameters from an external source, filtering to only include the specified parameter names.
+     * It is up to the implementation to determine how a fully qualified parameter name maps to a group and parameter name
+     * and to optimize the fetching accordingly. The default implementation fetches all parameters and filters them, assuming
+     * that the fully qualified parameter name is of the form "GroupName.ParameterName".
+     *
+     * @param context The <code>ConfigurationContext</code>for the provider
+     * @param fullyQualifiedParameterNames the fully qualified names of the parameters to fetch
+     * @return A list of fetched Parameter groups containing only the specified parameters
+     * @throws IOException if there is an I/O problem while fetching the Parameters
+     */
+    default List<ParameterGroup> fetchParameters(final ConfigurationContext context, final List<String> fullyQualifiedParameterNames) throws IOException {
+        final List<ParameterGroup> allGroups = fetchParameters(context);
+        final List<ParameterGroup> filteredGroups = new ArrayList<>();
+
+        for (final ParameterGroup group : allGroups) {
+            // Determine which parameter names are desired from this group
+            final List<String> desiredParameterNames = new ArrayList<>();
+            final String name = context.getName();
+            final String prefix = name + "." + group.getGroupName() + ".";
+            for (final String fullyQualifiedParameterName : fullyQualifiedParameterNames) {
+                if (fullyQualifiedParameterName.startsWith(prefix)) {
+                    final String secretName = fullyQualifiedParameterName.substring(prefix.length());
+                    desiredParameterNames.add(secretName);
+                }
+            }
+
+            // If no parameters are desired from this group, skip it
+            if (desiredParameterNames.isEmpty()) {
+                continue;
+            }
+
+            // Create a HashSet for quick lookup
+            final Set<String> parameterNameSet = new HashSet<>(desiredParameterNames);
+            final List<Parameter> filteredParameters = new ArrayList<>();
+            for (final Parameter parameter : group.getParameters()) {
+                if (!parameterNameSet.contains(parameter.getDescriptor().getName())) {
+                    continue;
+                }
+
+                filteredParameters.add(parameter);
+            }
+
+            // If we found any desired parameters, add them to the result
+            if (!filteredParameters.isEmpty()) {
+                filteredGroups.add(new ParameterGroup(group.getGroupName(), filteredParameters));
+            }
+        }
+
+        // Return the filtered groups
+        return filteredGroups;
     }
 }

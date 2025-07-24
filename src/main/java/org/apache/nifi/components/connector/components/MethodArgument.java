@@ -14,31 +14,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nifi.action;
+
+package org.apache.nifi.components.connector.components;
 
 /**
- * Defines possible components for a given action.
+ * Annotation that can be provided as part of a {@link ConnectorMethod} definition to describe the arguments
+ * that the method accepts. This annotation is used to provide metadata about the method's arguments
+ * to facilitate dynamic invocation and documentation generation.
  */
-public enum Component {
+public @interface MethodArgument {
+    String name();
 
-    Controller,
-    Processor,
-    InputPort,
-    OutputPort,
-    ProcessGroup,
-    RemoteProcessGroup,
-    Funnel,
-    Connection,
-    ControllerService,
-    ReportingTask,
-    FlowAnalysisRule,
-    FlowRegistryClient,
-    ParameterContext,
-    ParameterProvider,
-    AccessPolicy,
-    User,
-    UserGroup,
-    Label,
-    Connector;
+    Class<?> type();
 
+    String description() default "";
+
+    boolean required() default true;
 }

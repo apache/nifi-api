@@ -14,31 +14,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nifi.action;
 
-/**
- * Defines possible components for a given action.
- */
-public enum Component {
+package org.apache.nifi.flow;
 
-    Controller,
-    Processor,
-    InputPort,
-    OutputPort,
-    ProcessGroup,
-    RemoteProcessGroup,
-    Funnel,
-    Connection,
-    ControllerService,
-    ReportingTask,
-    FlowAnalysisRule,
-    FlowRegistryClient,
-    ParameterContext,
-    ParameterProvider,
-    AccessPolicy,
-    User,
-    UserGroup,
-    Label,
-    Connector;
+import java.util.Map;
 
+public class VersionedConnectorPropertyGroup {
+    private String name;
+    private Map<String, VersionedConnectorValueReference> properties;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(final String name) {
+        this.name = name;
+    }
+
+    public Map<String, VersionedConnectorValueReference> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(final Map<String, VersionedConnectorValueReference> properties) {
+        this.properties = properties;
+    }
 }
