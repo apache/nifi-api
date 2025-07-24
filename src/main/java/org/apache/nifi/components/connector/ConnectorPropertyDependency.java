@@ -14,31 +14,30 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nifi.action;
 
-/**
- * Defines possible components for a given action.
- */
-public enum Component {
+package org.apache.nifi.components.connector;
 
-    Controller,
-    Processor,
-    InputPort,
-    OutputPort,
-    ProcessGroup,
-    RemoteProcessGroup,
-    Funnel,
-    Connection,
-    ControllerService,
-    ReportingTask,
-    FlowAnalysisRule,
-    FlowRegistryClient,
-    ParameterContext,
-    ParameterProvider,
-    AccessPolicy,
-    User,
-    UserGroup,
-    Label,
-    Connector;
+import java.util.Set;
 
+public final class ConnectorPropertyDependency {
+    private final String propertyName;
+    private final Set<String> dependentValues;
+
+    public ConnectorPropertyDependency(final String propertyName, final Set<String> dependentValues) {
+        this.propertyName = propertyName;
+        this.dependentValues = Set.copyOf(dependentValues);
+    }
+
+    public ConnectorPropertyDependency(final String propertyName) {
+        this.propertyName = propertyName;
+        this.dependentValues = null;
+    }
+
+    public String getPropertyName() {
+        return propertyName;
+    }
+
+    public Set<String> getDependentValues() {
+        return dependentValues;
+    }
 }

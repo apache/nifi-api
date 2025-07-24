@@ -14,31 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nifi.action;
+
+package org.apache.nifi.components.connector;
 
 /**
- * Defines possible components for a given action.
+ * Represents a value reference for a connector property. A value can be a string literal,
+ * a reference to an asset, or a reference to a secret.
  */
-public enum Component {
+public sealed interface ConnectorValueReference permits StringLiteralValue, AssetReference, SecretReference {
 
-    Controller,
-    Processor,
-    InputPort,
-    OutputPort,
-    ProcessGroup,
-    RemoteProcessGroup,
-    Funnel,
-    Connection,
-    ControllerService,
-    ReportingTask,
-    FlowAnalysisRule,
-    FlowRegistryClient,
-    ParameterContext,
-    ParameterProvider,
-    AccessPolicy,
-    User,
-    UserGroup,
-    Label,
-    Connector;
-
+    /**
+     * Returns the type of value reference.
+     *
+     * @return the value type
+     */
+    ConnectorValueType getValueType();
 }
