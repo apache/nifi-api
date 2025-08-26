@@ -120,14 +120,14 @@ public interface FlowFile extends Comparable<FlowFile> {
             if (key == null) {
                 throw new IllegalArgumentException("Invalid attribute key: null");
             }
-            if (key.trim().isEmpty()) {
+            if (key.isBlank()) {
                 throw new IllegalArgumentException("Invalid attribute key: <Empty String>");
             }
             return key;
         }
 
         public static boolean isValid(final String key) {
-            return key != null && !key.trim().isEmpty();
+            return key != null && !key.isBlank();
         }
     }
 }
