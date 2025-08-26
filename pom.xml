@@ -75,7 +75,7 @@
         <maven.compiler.release>21</maven.compiler.release>
         <maven.compiler.showDeprecation>true</maven.compiler.showDeprecation>
         <minimalJavaBuildVersion>21</minimalJavaBuildVersion>
-        <minimalMavenBuildVersion>3.9.10</minimalMavenBuildVersion>
+        <minimalMavenBuildVersion>3.9.11</minimalMavenBuildVersion>
 
         <checkstyle.version>10.26.1</checkstyle.version>
         <junit-bom.version>5.13.2</junit-bom.version>
