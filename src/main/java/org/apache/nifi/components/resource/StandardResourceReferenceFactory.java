@@ -30,6 +30,7 @@ public class StandardResourceReferenceFactory implements ResourceReferenceFactor
 
     private static final ResourceReferences EMPTY_RESOURCE_REFERENCES = new StandardResourceReferences(Collections.emptyList());
 
+    @Override
     public ResourceReferences createResourceReferences(final String value, final ResourceDefinition resourceDefinition) {
         if (value == null) {
             return EMPTY_RESOURCE_REFERENCES;
@@ -52,6 +53,7 @@ public class StandardResourceReferenceFactory implements ResourceReferenceFactor
         return new StandardResourceReferences(references);
     }
 
+    @Override
     public ResourceReference createResourceReference(final String value, final ResourceDefinition resourceDefinition) {
         if (value == null) {
             return null;

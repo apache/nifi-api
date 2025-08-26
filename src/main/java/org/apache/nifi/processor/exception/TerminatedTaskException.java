@@ -31,7 +31,4 @@ import org.apache.nifi.processor.ProcessSessionFactory;
  * Process Sessions
  */
 public class TerminatedTaskException extends ProcessException {
-    public TerminatedTaskException() {
-        super();
-    }
 }

@@ -140,7 +140,7 @@ public class DurationFormat {
         // If the value is already a whole number, return it and the current time unit
         if (decimal == Math.rint(decimal)) {
             final long rounded = Math.round(decimal);
-            return Arrays.asList(new Object[]{rounded, timeUnit});
+            return Arrays.asList(rounded, timeUnit);
         } else if (TimeUnit.NANOSECONDS == timeUnit) {
             // The time unit is as small as possible
             if (decimal < 1.0) {
@@ -148,7 +148,7 @@ public class DurationFormat {
             } else {
                 decimal = Math.rint(decimal);
             }
-            return Arrays.asList(new Object[]{(long) decimal, timeUnit});
+            return Arrays.asList((long) decimal, timeUnit);
         } else {
             // Determine the next time unit and the respective multiplier
             TimeUnit smallerTimeUnit = getSmallerTimeUnit(timeUnit);

@@ -116,7 +116,7 @@ public final class VariableDescriptor implements Comparable<VariableDescriptor> 
          * @param name of the property
          */
         public Builder(final String name) {
-            if (null == name || name.trim().isEmpty()) {
+            if (null == name || name.isBlank()) {
                 throw new IllegalArgumentException("Name must not be null or empty");
             }
             this.name = name.trim();

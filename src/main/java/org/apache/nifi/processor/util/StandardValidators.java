@@ -224,7 +224,7 @@ public class StandardValidators {
         @Override
         public ValidationResult validate(final String subject, final String value, final ValidationContext context) {
             return new ValidationResult.Builder().subject(subject).input(value)
-                    .valid(value != null && !value.trim().isEmpty())
+                    .valid(value != null && !value.isBlank())
                     .explanation(subject
                             + " must contain at least one character that is not white space").build();
         }
@@ -426,7 +426,7 @@ public class StandardValidators {
         }
 
         Optional<ValidationResult> invalidUri = Arrays.stream(input.split(","))
-                .filter(uri -> uri != null && !uri.trim().isEmpty())
+                .filter(uri -> uri != null && !uri.isBlank())
                 .map(String::trim)
                 .map((uri) -> URI_VALIDATOR.validate(subject, uri, context)).filter((uri) -> !uri.isValid()).findFirst();
 
@@ -939,7 +939,7 @@ public class StandardValidators {
                             .explanation("Not a valid Expression Language value: " + e.getMessage()).build();
                 }
 
-                if (substituted.trim().isEmpty() && !value.trim().isEmpty()) {
+                if (substituted.isBlank() && !value.isBlank()) {
                     // User specified an Expression and nothing more... assume valid.
                     return new ValidationResult.Builder().subject(subject).input(value).valid(true).build();
                 }

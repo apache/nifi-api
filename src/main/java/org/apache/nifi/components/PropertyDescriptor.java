@@ -428,7 +428,7 @@ public final class PropertyDescriptor implements Comparable<PropertyDescriptor> 
          * @param <E>        generic parameter for an enum class, that may implement the DescribedValue interface
          * @return the builder
          */
-        public <E extends Enum<E>> Builder allowableValues(final EnumSet<E> enumValues) {
+        public <E extends Enum<E>> Builder allowableValues(final EnumSet<E> enumValues) { //NOPMD
             if (null != enumValues) {
                 this.allowableValues = enumValues.stream()
                         .map(enumValue -> enumValue instanceof DescribedValue describedValue

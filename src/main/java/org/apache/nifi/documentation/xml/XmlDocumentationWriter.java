@@ -401,6 +401,7 @@ public class XmlDocumentationWriter extends AbstractDocumentationWriter {
         writeEndElement();
     }
 
+    @Override
     protected void writeMultiProcessorUseCases(final List<MultiProcessorUseCase> multiProcessorUseCases) throws IOException {
         if (multiProcessorUseCases.isEmpty()) {
             return;
