@@ -16,6 +16,8 @@
  */
 package org.apache.nifi.reporting;
 
+import java.util.Collection;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -106,4 +108,24 @@ public interface BulletinRepository {
      * @return the max ID of any bulletin that has been added, or -1 if no bulletins have been added
      */
     long getMaxBulletinId();
+
+    /**
+     * Clears bulletins for the specified component that were created on or before the given timestamp.
+     *
+     * @param sourceId the ID of the source component whose bulletins should be cleared
+     * @param fromTimestamp the timestamp from which bulletins should be cleared (inclusive)
+     * @return the number of bulletins that were cleared
+     * @throws IllegalArgumentException if the sourceId is null or empty or if fromTimestamp is null
+     */
+    int clearBulletinsForComponent(String sourceId, Date fromTimestamp) throws IllegalArgumentException;
+
+    /**
+     * Clears bulletins for the specified components that were created on or before the given timestamp.
+     *
+     * @param sourceIds the collection of source component IDs whose bulletins should be cleared
+     * @param fromTimestamp the timestamp from which bulletins should be cleared (inclusive)
+     * @return the total number of bulletins that were cleared across all specified components
+     * @throws IllegalArgumentException if sourceIds is null or empty or if fromTimestamp is null
+     */
+    int clearBulletinsForComponents(Collection<String> sourceIds, Date fromTimestamp) throws IllegalArgumentException;
 }
