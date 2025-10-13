@@ -112,20 +112,30 @@ public interface BulletinRepository {
     /**
      * Clears bulletins for the specified component that were created on or before the given timestamp.
      *
+     * @since 2.4.0
+     *
      * @param sourceId the ID of the source component whose bulletins should be cleared
      * @param fromTimestamp the timestamp from which bulletins should be cleared (inclusive)
      * @return the number of bulletins that were cleared
      * @throws IllegalArgumentException if the sourceId is null or empty or if fromTimestamp is null
+     * @throws UnsupportedOperationException Thrown in the default implementation when clearing Bulletins is not implemented
      */
-    int clearBulletinsForComponent(String sourceId, Instant fromTimestamp) throws IllegalArgumentException;
+    default int clearBulletinsForComponent(String sourceId, Instant fromTimestamp) throws IllegalArgumentException {
+        throw new UnsupportedOperationException("Clear Bulletins for Component not supported");
+    }
 
     /**
      * Clears bulletins for the specified components that were created on or before the given timestamp.
+     *
+     * @since 2.4.0
      *
      * @param sourceIds the collection of source component IDs whose bulletins should be cleared
      * @param fromTimestamp the timestamp from which bulletins should be cleared (inclusive)
      * @return the total number of bulletins that were cleared across all specified components
      * @throws IllegalArgumentException if sourceIds is null or empty or if fromTimestamp is null
+     * @throws UnsupportedOperationException Thrown in the default implementation when clearing Bulletins is not implemented
      */
-    int clearBulletinsForComponents(Collection<String> sourceIds, Instant fromTimestamp) throws IllegalArgumentException;
+    default int clearBulletinsForComponents(Collection<String> sourceIds, Instant fromTimestamp) throws IllegalArgumentException {
+        throw new UnsupportedOperationException("Clear Bulletins for Components not supported");
+    }
 }
