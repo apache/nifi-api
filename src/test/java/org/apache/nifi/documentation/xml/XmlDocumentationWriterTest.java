@@ -19,6 +19,7 @@ package org.apache.nifi.documentation.xml;
 import org.apache.nifi.annotation.documentation.DeprecationNotice;
 import org.apache.nifi.components.ConfigurableComponent;
 import org.apache.nifi.components.PropertyDescriptor;
+import org.apache.nifi.components.listen.TransportProtocol;
 import org.apache.nifi.components.resource.ResourceCardinality;
 import org.apache.nifi.components.resource.ResourceType;
 import org.apache.nifi.controller.AbstractControllerService;
@@ -103,6 +104,7 @@ class XmlDocumentationWriterTest {
 
     private static final PropertyDescriptor THIRD_PROPERTY = new PropertyDescriptor.Builder()
             .name("Third Property")
+            .identifiesListenPort(TransportProtocol.TCP, "http/1.1", "h2")
             .dependsOn(SECOND_PROPERTY)
             .dependsOn(FIRST_PROPERTY)
             .build();
@@ -136,6 +138,14 @@ class XmlDocumentationWriterTest {
             ResourceType.TEXT.name(),
             ResourceType.URL.name()
     );
+
+    private static final String EXPECTED_LISTEN_PORT_TRANSPORT_PROTOCOL = TransportProtocol.TCP.name();
+
+    private static final List<String> EXPECTED_LISTEN_PORT_APPLICATION_PROTOCOLS = List.of(
+        "http/1.1",
+        "h2"
+    );
+
 
     @Test
     void testWriteMinimalProcessor() throws Exception {
@@ -190,6 +200,7 @@ class XmlDocumentationWriterTest {
         assertDependentPropertyNamesMatched(document);
         assertDependentPropertyValuesMatched(document);
         assertResourceTypesMatched(document);
+        assertListenPortPropertiesMatched(document);
     }
 
     private void assertRelationshipsMatched(final Document document) throws XPathExpressionException {
@@ -281,6 +292,27 @@ class XmlDocumentationWriterTest {
         }
 
         assertEquals(EXPECTED_RESOURCE_TYPE_NAMES, resourceTypeNames);
+    }
+
+    private void assertListenPortPropertiesMatched(final Document document) throws XPathExpressionException {
+        final Node listenPortTransportProtocol = findNode("/extension/properties/property[name='Third Property']/listenPortDefinition/transportProtocol", document);
+        assertNotNull(listenPortTransportProtocol);
+        final String transportProtocol = listenPortTransportProtocol.getTextContent();
+        assertEquals(EXPECTED_LISTEN_PORT_TRANSPORT_PROTOCOL, transportProtocol);
+
+        final Node listenPortApplicationProtocolsNode = findNode("/extension/properties/property[name='Third Property']/listenPortDefinition/applicationProtocols", document);
+        assertNotNull(listenPortApplicationProtocolsNode);
+
+        final NodeList listenPortApplicationProtocols = listenPortApplicationProtocolsNode.getChildNodes();
+        final List<String> applicationProtocolNames = new ArrayList<>();
+        for (int i = 0; i < listenPortApplicationProtocols.getLength(); i++) {
+            final Node applicationProtocolNode = listenPortApplicationProtocols.item(i);
+            assertEquals("applicationProtocol", applicationProtocolNode.getNodeName());
+            final String applicationProtocol = applicationProtocolNode.getTextContent();
+            applicationProtocolNames.add(applicationProtocol);
+        }
+
+        assertEquals(EXPECTED_LISTEN_PORT_APPLICATION_PROTOCOLS, applicationProtocolNames);
     }
 
 

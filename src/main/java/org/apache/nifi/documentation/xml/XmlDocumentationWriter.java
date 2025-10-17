@@ -56,6 +56,7 @@ import org.apache.nifi.annotation.documentation.SeeAlso;
 import org.apache.nifi.annotation.documentation.UseCase;
 import org.apache.nifi.components.AllowableValue;
 import org.apache.nifi.components.ConfigurableComponent;
+import org.apache.nifi.components.listen.ListenPortDefinition;
 import org.apache.nifi.components.PropertyDependency;
 import org.apache.nifi.components.PropertyDescriptor;
 import org.apache.nifi.components.RequiredPermission;
@@ -202,6 +203,7 @@ public class XmlDocumentationWriter extends AbstractDocumentationWriter {
         writeBooleanElement("dynamicallyModifiesClasspath", property.isDynamicClasspathModifier());
         writeBooleanElement("dynamic", property.isDynamic());
         writeResourceDefinition(property.getResourceDefinition());
+        writeListenPortDefinition(property.getListenPortDefinition());
         writeDependencies(property);
 
         writeEndElement();
@@ -223,6 +225,19 @@ public class XmlDocumentationWriter extends AbstractDocumentationWriter {
             orderedResourceTypes.addAll(resourceTypes);
             writeArray("resourceTypes", orderedResourceTypes, this::writeResourceType);
         }
+
+        writeEndElement();
+    }
+
+    private void writeListenPortDefinition(final ListenPortDefinition listenPortDefinition) throws IOException {
+        if (listenPortDefinition == null) {
+            return;
+        }
+
+        writeStartElement("listenPortDefinition");
+
+        writeTextElement("transportProtocol", listenPortDefinition.getTransportProtocol().name());
+        writeTextArray("applicationProtocols", "applicationProtocol", listenPortDefinition.getApplicationProtocols());
 
         writeEndElement();
     }

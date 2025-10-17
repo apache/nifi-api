@@ -150,6 +150,9 @@ public class StandardValidators {
         }
     };
 
+    /**
+     * {@link Validator} that ensures the value is an integer between 0 and 65535
+     */
     public static final Validator PORT_VALIDATOR = createLongValidator(0, 65535, true);
 
     /**

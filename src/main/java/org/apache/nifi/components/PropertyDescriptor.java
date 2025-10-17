@@ -16,6 +16,9 @@
  */
 package org.apache.nifi.components;
 
+import org.apache.nifi.components.listen.ListenPortDefinition;
+import org.apache.nifi.components.listen.StandardListenPortDefinition;
+import org.apache.nifi.components.listen.TransportProtocol;
 import org.apache.nifi.components.resource.ResourceCardinality;
 import org.apache.nifi.components.resource.ResourceDefinition;
 import org.apache.nifi.components.resource.ResourceReference;
@@ -117,6 +120,11 @@ public final class PropertyDescriptor implements Comparable<PropertyDescriptor> 
      */
     private final ResourceDefinition resourceDefinition;
 
+    /**
+     * Metadata about the listen port that this property specifies, if applicable
+     */
+    private final ListenPortDefinition listenPortDefinition;
+
     protected PropertyDescriptor(final Builder builder) {
         this.displayName = builder.displayName == null ? builder.name : builder.displayName;
         this.name = builder.name;
@@ -132,6 +140,7 @@ public final class PropertyDescriptor implements Comparable<PropertyDescriptor> 
         this.validators = List.copyOf(builder.validators);
         this.dependencies = builder.dependencies == null ? Collections.emptySet() : Set.copyOf(builder.dependencies);
         this.resourceDefinition = builder.resourceDefinition;
+        this.listenPortDefinition = builder.listenPortDefinition;
     }
 
     @Override
@@ -217,6 +226,7 @@ public final class PropertyDescriptor implements Comparable<PropertyDescriptor> 
         private boolean dynamicallyModifiesClasspath = false;
         private Class<? extends ControllerService> controllerServiceDefinition;
         private ResourceDefinition resourceDefinition;
+        private ListenPortDefinition listenPortDefinition;
         private List<Validator> validators = new ArrayList<>();
 
         public Builder fromPropertyDescriptor(final PropertyDescriptor specDescriptor) {
@@ -234,6 +244,7 @@ public final class PropertyDescriptor implements Comparable<PropertyDescriptor> 
             this.validators = new ArrayList<>(specDescriptor.validators);
             this.dependencies = new HashSet<>(specDescriptor.dependencies);
             this.resourceDefinition = specDescriptor.resourceDefinition;
+            this.listenPortDefinition = specDescriptor.listenPortDefinition;
             return this;
         }
 
@@ -578,6 +589,28 @@ public final class PropertyDescriptor implements Comparable<PropertyDescriptor> 
         }
 
         /**
+         * Specifies that this property defines a numbered host port that a server will bind to and listen for client-initiated connections.
+         * <p>
+         * This enables discoverability of Listen Ports when deploying NiFi as part of a system, which can simplify the dynamic creation of external network components that need to facilitate
+         * inbound connections to NiFi, such as gateways, ingress controllers, load balancers, and reverse proxies.
+         * <p>
+         * See {@link ListenPortDefinition} for guidance on how to specify protocols.
+         * <p>
+         * Properties that identify Listen Ports should use the PORT_VALIDATOR from {@link org.apache.nifi.processor.util.StandardValidators} to guarantee the value is a valid port number.
+         *
+         * @param transportProtocol     specifies the layer 4 protocol used at the host operating system level for the port specified by this Property.
+         * @param applicationProtocols  optionally specifies one or more layer 7 protocols supported by the NiFi component listening on the port specified by this Property.
+         * @return the builder
+         */
+        public Builder identifiesListenPort(final TransportProtocol transportProtocol, final String... applicationProtocols) {
+            Objects.requireNonNull(transportProtocol);
+            final List<String> appProtocols = applicationProtocols != null ? Arrays.asList(applicationProtocols) : new ArrayList<>();
+
+            this.listenPortDefinition = new StandardListenPortDefinition(transportProtocol, appProtocols);
+            return this;
+        }
+
+        /**
          * Establishes a relationship between this Property and the given property by declaring that this Property is only relevant if the given Property has a non-null value.
          * Furthermore, if one or more explicit Allowable Values are provided, this Property will not be relevant unless the given Property's value is equal to one of the given Allowable Values.
          * If this method is called multiple times, each with a different dependency, then a relationship is established such that this Property is relevant only if all dependencies are satisfied.
@@ -754,6 +787,10 @@ public final class PropertyDescriptor implements Comparable<PropertyDescriptor> 
 
     public ResourceDefinition getResourceDefinition() {
         return resourceDefinition;
+    }
+
+    public ListenPortDefinition getListenPortDefinition() {
+        return listenPortDefinition;
     }
 
     @Override

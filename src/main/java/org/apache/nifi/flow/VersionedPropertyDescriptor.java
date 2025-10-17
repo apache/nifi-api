@@ -26,6 +26,7 @@ public class VersionedPropertyDescriptor {
     private boolean sensitive;
     private boolean dynamic;
     private VersionedResourceDefinition resourceDefinition;
+    private VersionedListenPortDefinition listenPortDefinition;
 
     @Schema(description = "The name of the property")
     public String getName() {
@@ -79,5 +80,14 @@ public class VersionedPropertyDescriptor {
 
     public void setResourceDefinition(final VersionedResourceDefinition resourceDefinition) {
         this.resourceDefinition = resourceDefinition;
+    }
+
+    @Schema(description = "Returns the Listen Port Definition for the port this property specifies, if applicable")
+    public VersionedListenPortDefinition getListenPortDefinition() {
+        return listenPortDefinition;
+    }
+
+    public void setListenPortDefinition(final VersionedListenPortDefinition listenPortDefinition) {
+        this.listenPortDefinition = listenPortDefinition;
     }
 }

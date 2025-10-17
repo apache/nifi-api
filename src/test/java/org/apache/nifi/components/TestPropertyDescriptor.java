@@ -16,6 +16,8 @@
  */
 package org.apache.nifi.components;
 
+import org.apache.nifi.components.listen.ListenPortDefinition;
+import org.apache.nifi.components.listen.TransportProtocol;
 import org.apache.nifi.components.PropertyDescriptor.Builder;
 import org.apache.nifi.components.resource.ResourceCardinality;
 import org.apache.nifi.components.resource.ResourceType;
@@ -25,6 +27,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
@@ -212,6 +215,62 @@ public class TestPropertyDescriptor {
 
         private List<String> descriptionsOf(final List<AllowableValue> allowableValues) {
             return allowableValues.stream().map(AllowableValue::getDescription).toList();
+        }
+    }
+
+    @Nested
+    class RegardingListenPortDefinitions {
+
+        @Test
+        void testListenPortDefinitionNullByDefault() {
+            final PropertyDescriptor descriptor = new PropertyDescriptor.Builder()
+                .name("My Property")
+                .required(false)
+                .build();
+
+            assertNull(descriptor.getListenPortDefinition());
+        }
+
+        @Test
+        void testTcpWithoutApplicationProtocols() {
+            final PropertyDescriptor descriptor = new PropertyDescriptor.Builder()
+                .name("TCP Port")
+                .identifiesListenPort(TransportProtocol.TCP)
+                .required(true)
+                .build();
+
+            final ListenPortDefinition actualListenPortDefinition = descriptor.getListenPortDefinition();
+
+            assertEquals(TransportProtocol.TCP, actualListenPortDefinition.getTransportProtocol());
+            assertEquals(Collections.emptyList(), actualListenPortDefinition.getApplicationProtocols());
+        }
+
+        @Test
+        void testTcpWithApplicationProtocols() {
+            final PropertyDescriptor descriptor = new PropertyDescriptor.Builder()
+                .name("HTTP Port")
+                .identifiesListenPort(TransportProtocol.TCP, "http/1.1", "h2")
+                .required(true)
+                .build();
+
+            final ListenPortDefinition actualListenPortDefinition = descriptor.getListenPortDefinition();
+
+            assertEquals(TransportProtocol.TCP, actualListenPortDefinition.getTransportProtocol());
+            assertEquals(List.of("http/1.1", "h2"), actualListenPortDefinition.getApplicationProtocols());
+        }
+
+        @Test
+        void testUdpWithApplicationProtocols() {
+            final PropertyDescriptor descriptor = new PropertyDescriptor.Builder()
+                .name("Port")
+                .identifiesListenPort(TransportProtocol.UDP, "syslog")
+                .required(true)
+                .build();
+
+            final ListenPortDefinition actualListenPortDefinition = descriptor.getListenPortDefinition();
+
+            assertEquals(TransportProtocol.UDP, actualListenPortDefinition.getTransportProtocol());
+            assertEquals(List.of("syslog"), actualListenPortDefinition.getApplicationProtocols());
         }
     }
 
