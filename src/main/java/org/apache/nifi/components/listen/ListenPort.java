@@ -30,11 +30,11 @@ public interface ListenPort {
     int getPortNumber();
 
     /**
-     * Get the name of the property that defines the listen port.
+     * Get the name of the listen port.
      *
-     * @return the name of the port propert corresponding to this listen port, or null if it is not defined by a property
+     * @return A descriptive name of the listen port. Useful for {@link ListenComponent}s that provide more than one port.
      */
-    String getPortPropertyName();
+    String getPortName();
 
     /**
      * Get the layer 4 transport protocol that is used at the OS networking level for this port.

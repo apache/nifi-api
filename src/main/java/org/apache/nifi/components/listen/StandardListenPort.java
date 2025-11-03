@@ -21,17 +21,18 @@ import java.util.Objects;
 
 public class StandardListenPort implements ListenPort {
 
+    private final String portName;
     private final int portNumber;
-    private final String portPropertyName;
     private final TransportProtocol transportProtocol;
     private final List<String> applicationProtocols;
 
     private StandardListenPort(final Builder builder) {
+        Objects.requireNonNull(builder.portName, "Port name is required");
         Objects.requireNonNull(builder.transportProtocol, "Transport protocol is required");
         Objects.requireNonNull(builder.applicationProtocols, "Application protocols is required. Use empty list if there are no application protocols.");
 
+        this.portName = builder.portName;
         this.portNumber = builder.portNumber;
-        this.portPropertyName = builder.portPropertyName;
         this.transportProtocol = builder.transportProtocol;
         this.applicationProtocols = builder.applicationProtocols;
     }
@@ -42,8 +43,8 @@ public class StandardListenPort implements ListenPort {
     }
 
     @Override
-    public String getPortPropertyName() {
-        return portPropertyName;
+    public String getPortName() {
+        return portName;
     }
 
     @Override
@@ -58,7 +59,7 @@ public class StandardListenPort implements ListenPort {
 
     @Override
     public String toString() {
-        return "StandardListenPort[portNumber=%s, transportProtocol=%s, applicationProtocols=%s]".formatted(portNumber, transportProtocol, applicationProtocols);
+        return "StandardListenPort[portName=%s, portNumber=%s, transportProtocol=%s, applicationProtocols=%s]".formatted(portName, portNumber, transportProtocol, applicationProtocols);
     }
 
     @Override
@@ -68,13 +69,14 @@ public class StandardListenPort implements ListenPort {
         }
         final StandardListenPort that = (StandardListenPort) o;
         return portNumber == that.portNumber
+            && Objects.equals(portName, that.portName)
             && transportProtocol == that.transportProtocol
             && Objects.equals(applicationProtocols, that.applicationProtocols);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(portNumber, transportProtocol, applicationProtocols);
+        return Objects.hash(portName, portNumber, transportProtocol, applicationProtocols);
     }
 
     public static Builder builder() {
@@ -82,8 +84,8 @@ public class StandardListenPort implements ListenPort {
     }
 
     public static final class Builder {
+        private String portName;
         private int portNumber;
-        private String portPropertyName;
         private TransportProtocol transportProtocol;
         private List<String> applicationProtocols = Collections.emptyList();
 
@@ -92,8 +94,8 @@ public class StandardListenPort implements ListenPort {
             return this;
         }
 
-        public Builder portPropertyName(final String portPropertyName) {
-            this.portPropertyName = portPropertyName;
+        public Builder portName(final String portName) {
+            this.portName = portName;
             return this;
         }
 
