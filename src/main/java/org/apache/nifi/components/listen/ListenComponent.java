@@ -27,7 +27,7 @@ import java.util.List;
  * <p>
  *   Typically, components implementing this interface should have at least one property described using a {@link org.apache.nifi.components.PropertyDescriptor}
  *   that identifies a {@link ListenPortDefinition}. The Property Descriptor identifies a possible Listen Port that could be created.
- *   This interface provides actual the port(s) configured based on component property values, along with additional ingress metadata.
+ *   This interface provides actual the ports configured based on component property values, along with additional ingress metadata.
  * </p>
  */
 public interface ListenComponent {
@@ -36,7 +36,7 @@ public interface ListenComponent {
      * A list of listen ports provided by this component based on its current configuration.
      *
      * @param context provides access to convenience methods for obtaining property values
-     * @return one or more listen ports that are actively configured to be provided by this component.
+     * @return a list of zero or more listen ports that are actively configured to be provided by this component.
      */
     List<ListenPort> getListenPorts(final ConfigurationContext context);
 }

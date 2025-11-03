@@ -37,7 +37,7 @@ public interface ListenPort {
     TransportProtocol getTransportProtocol();
 
     /**
-     * Get the currently configured application protocol(s) that this port supports.
+     * Get the currently configured application protocols that this port supports.
      * <p>
      *   Note that this is not always the same as the application protocols that could be supported. For example, if this port could support http/1.1 or h2 (HTTP 2),
      *   but is currently configured to require h2, then this method should return [h2], not [http1.1, h2].
@@ -47,7 +47,7 @@ public interface ListenPort {
      *   This method should return a subset of application protocol values specified by the corresponding PropertyDescriptor {@link ListenPortDefinition}.
      * </p>
      *
-     * @return the application protocol(s) supported by this listen port, if applicable; otherwise an empty list.
+     * @return the application protocols supported by this listen port, if applicable; otherwise an empty list.
      */
     List<String> getApplicationProtocols();
 

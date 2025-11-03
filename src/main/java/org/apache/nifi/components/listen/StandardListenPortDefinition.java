@@ -32,13 +32,14 @@ public class StandardListenPortDefinition implements ListenPortDefinition {
      * Create a {@link ListenPortDefinition}.
      *
      * @param transportProtocol - the layer 4 transport protocol used by the listen port
-     * @param applicationProtocols - if applicable, one or more application protocols supported by the listen port
+     * @param applicationProtocols - application protocols supported by the listen port or empty list
      */
     public StandardListenPortDefinition(TransportProtocol transportProtocol, List<String> applicationProtocols) {
         Objects.requireNonNull(transportProtocol, "Transport protocol is required.");
+        Objects.requireNonNull(applicationProtocols, "Application protocols or empty list is required.");
 
         this.transportProtocol = transportProtocol;
-        this.applicationProtocols = applicationProtocols != null ? applicationProtocols : Collections.emptyList();
+        this.applicationProtocols = applicationProtocols;
     }
 
     /**
@@ -62,10 +63,7 @@ public class StandardListenPortDefinition implements ListenPortDefinition {
 
     @Override
     public String toString() {
-        return "StandardListenPortDefinition{" +
-            "transportProtocol=" + transportProtocol +
-            ", applicationProtocols=" + applicationProtocols +
-            '}';
+        return "StandardListenPortDefinition[transportProtocol=%s, applicationProtocols=%s]".formatted(transportProtocol, applicationProtocols);
     }
 
     @Override

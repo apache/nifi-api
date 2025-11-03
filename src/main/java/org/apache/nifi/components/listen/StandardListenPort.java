@@ -51,11 +51,7 @@ public class StandardListenPort implements ListenPort {
 
     @Override
     public String toString() {
-        return "StandardListenPort{" +
-            "portNumber=" + portNumber +
-            ", transportProtocol=" + transportProtocol +
-            ", applicationProtocols=" + applicationProtocols +
-            '}';
+        return "StandardListenPort[portNumber=%s, transportProtocol=%s, applicationProtocols=%s]".formatted(portNumber, transportProtocol, applicationProtocols);
     }
 
     @Override
