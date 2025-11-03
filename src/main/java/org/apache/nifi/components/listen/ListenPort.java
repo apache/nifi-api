@@ -23,11 +23,18 @@ import java.util.List;
 public interface ListenPort {
 
     /**
-     * Get The operating system numbered port that is listening for network traffic.
+     * Get the operating system numbered port that is listening for network traffic.
      *
      * @return the port number
      */
     int getPortNumber();
+
+    /**
+     * Get the name of the property that defines the listen port.
+     *
+     * @return the name of the port propert corresponding to this listen port, or null if it is not defined by a property
+     */
+    String getPortPropertyName();
 
     /**
      * Get the layer 4 transport protocol that is used at the OS networking level for this port.

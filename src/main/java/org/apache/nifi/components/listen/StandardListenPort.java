@@ -22,6 +22,7 @@ import java.util.Objects;
 public class StandardListenPort implements ListenPort {
 
     private final int portNumber;
+    private final String portPropertyName;
     private final TransportProtocol transportProtocol;
     private final List<String> applicationProtocols;
 
@@ -30,6 +31,7 @@ public class StandardListenPort implements ListenPort {
         Objects.requireNonNull(builder.applicationProtocols, "Application protocols is required. Use empty list if there are no application protocols.");
 
         this.portNumber = builder.portNumber;
+        this.portPropertyName = builder.portPropertyName;
         this.transportProtocol = builder.transportProtocol;
         this.applicationProtocols = builder.applicationProtocols;
     }
@@ -37,6 +39,11 @@ public class StandardListenPort implements ListenPort {
     @Override
     public int getPortNumber() {
         return portNumber;
+    }
+
+    @Override
+    public String getPortPropertyName() {
+        return portPropertyName;
     }
 
     @Override
@@ -76,11 +83,17 @@ public class StandardListenPort implements ListenPort {
 
     public static final class Builder {
         private int portNumber;
+        private String portPropertyName;
         private TransportProtocol transportProtocol;
         private List<String> applicationProtocols = Collections.emptyList();
 
         public Builder portNumber(final int portNumber) {
             this.portNumber = portNumber;
+            return this;
+        }
+
+        public Builder portPropertyName(final String portPropertyName) {
+            this.portPropertyName = portPropertyName;
             return this;
         }
 
