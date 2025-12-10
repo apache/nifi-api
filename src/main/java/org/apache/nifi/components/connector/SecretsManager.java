@@ -19,9 +19,12 @@ package org.apache.nifi.components.connector;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 public interface SecretsManager {
+
+    Optional<Secret> getSecret(SecretReference secretReference) throws IOException;
 
     List<Secret> getAllSecrets() throws IOException;
 

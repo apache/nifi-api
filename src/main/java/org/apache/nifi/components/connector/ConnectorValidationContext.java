@@ -26,6 +26,6 @@ public interface ConnectorValidationContext {
 
     ValidationContext createValidationContext(String stepName, String groupName);
 
-    List<DescribedValue> fetchAllowableValues(String stepName, String groupName, String propertyName);
+    List<DescribedValue> fetchAllowableValues(String stepName, String propertyName);
 
 }

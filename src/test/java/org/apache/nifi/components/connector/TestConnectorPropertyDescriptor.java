@@ -221,7 +221,7 @@ public class TestConnectorPropertyDescriptor {
         }
 
         @Override
-        public List<DescribedValue> fetchAllowableValues(final String stepName, final String groupName, final String propertyName) {
+        public List<DescribedValue> fetchAllowableValues(final String stepName, final String propertyName) {
             // Return empty list as we don't need to fetch dynamic allowable values in these tests
             return Collections.emptyList();
         }
