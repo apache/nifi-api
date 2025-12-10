@@ -99,7 +99,7 @@ public final class ConnectorPropertyDescriptor {
         final List<DescribedValue> fetchedAllowableValues;
         if (isAllowableValuesFetchable()) {
             try {
-                fetchedAllowableValues = validationContext.fetchAllowableValues(stepName, groupName, getName());
+                fetchedAllowableValues = validationContext.fetchAllowableValues(stepName, getName());
             } catch (final Exception e) {
                 return new ValidationResult.Builder()
                     .subject(name)

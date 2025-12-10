@@ -17,11 +17,11 @@
 
 package org.apache.nifi.flow;
 
-import java.util.List;
+import java.util.Map;
 
 public class VersionedConfigurationStep {
     private String name;
-    private List<VersionedConnectorPropertyGroup> propertyGroups;
+    private Map<String, VersionedConnectorValueReference> properties;
 
     public String getName() {
         return name;
@@ -31,11 +31,11 @@ public class VersionedConfigurationStep {
         this.name = name;
     }
 
-    public List<VersionedConnectorPropertyGroup> getPropertyGroups() {
-        return propertyGroups;
+    public Map<String, VersionedConnectorValueReference> getProperties() {
+        return properties;
     }
 
-    public void setPropertyGroups(final List<VersionedConnectorPropertyGroup> propertyGroups) {
-        this.propertyGroups = propertyGroups;
+    public void setProperties(final Map<String, VersionedConnectorValueReference> properties) {
+        this.properties = properties;
     }
 }

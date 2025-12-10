@@ -17,21 +17,21 @@
 
 package org.apache.nifi.components.connector;
 
-import java.util.List;
+import java.util.Map;
 
 public interface ConnectorConfigurationContext extends Cloneable {
 
-    ConnectorPropertyValue getProperty(String configurationStepName, String groupName, String propertyName);
+    ConnectorPropertyValue getProperty(String configurationStepName, String propertyName);
 
-    ConnectorPropertyValue getProperty(ConfigurationStep configurationStep, ConnectorPropertyGroup propertyGroup, ConnectorPropertyDescriptor propertyDescriptor);
+    ConnectorPropertyValue getProperty(ConfigurationStep configurationStep, ConnectorPropertyDescriptor propertyDescriptor);
 
     /**
      * Creates a new ConnectorConfigurationContext based on this context's values but with the provided property overrides applied.
      * @param stepName the name of the configuration step for which the overrides should be applied
-     * @param groupConfigurations the list of PropertyGroupConfiguration objects containing the overrides
+     * @param propertyValues a map of property name to property value containing the overrides
      * @return a new ConnectorConfigurationContext with the overrides applied
      */
-    ConnectorConfigurationContext createWithOverrides(String stepName, List<PropertyGroupConfiguration> groupConfigurations);
+    ConnectorConfigurationContext createWithOverrides(String stepName, Map<String, String> propertyValues);
 
     ConnectorConfigurationContext clone();
 }
