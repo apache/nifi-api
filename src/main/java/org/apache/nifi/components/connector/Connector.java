@@ -24,6 +24,7 @@ import org.apache.nifi.components.connector.components.FlowContext;
 import org.apache.nifi.flow.VersionedExternalFlow;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>
@@ -133,7 +134,7 @@ public interface Connector {
      * @return a list of ConfigVerificationResults, each of which may indicate a check that was performed and any associated explanation
      * as to why the configuration step verification succeeded, failed, or was skipped.
      */
-    List<ConfigVerificationResult> verifyConfigurationStep(String stepName, List<PropertyGroupConfiguration> propertyValueOverrides, FlowContext flowContext);
+    List<ConfigVerificationResult> verifyConfigurationStep(String stepName, Map<String, String> propertyValueOverrides, FlowContext flowContext);
 
     /**
      * Verifies the overall configuration of the Connector based on the configuration that has already been provided for the given Flow Context.
@@ -192,7 +193,7 @@ public interface Connector {
      */
     void applyUpdate(FlowContext workingFlowContext, FlowContext activeFlowContext) throws FlowUpdateException;
 
-    List<AllowableValue> fetchAllowableValues(String stepName, String groupName, String propertyName, FlowContext flowContext);
+    List<AllowableValue> fetchAllowableValues(String stepName, String propertyName, FlowContext flowContext);
 
-    List<AllowableValue> fetchAllowableValues(String stepName, String groupName, String propertyName, FlowContext flowContext, String filter);
+    List<AllowableValue> fetchAllowableValues(String stepName, String propertyName, FlowContext flowContext, String filter);
 }

@@ -18,8 +18,10 @@
 package org.apache.nifi.components.connector;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 public final class ConnectorPropertyGroup {
     private final String name;
@@ -186,6 +188,14 @@ public final class ConnectorPropertyGroup {
         public ConnectorPropertyGroup build() {
             if (description != null && (name == null || name.isBlank())) {
                 throw new IllegalStateException("Property Group's name must be provided if a description is set");
+            }
+
+            // Ensure that all Property Descriptor names are unique within this group
+            final Set<String> propertyNames = new HashSet<>();
+            for (final ConnectorPropertyDescriptor property : properties) {
+                if (!propertyNames.add(property.getName())) {
+                    throw new IllegalStateException("All Property Descriptor names must be unique within a Property Group. Duplicate name found: " + property.getName());
+                }
             }
 
             return new ConnectorPropertyGroup(this);

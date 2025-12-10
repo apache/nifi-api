@@ -19,7 +19,9 @@ package org.apache.nifi.components.connector;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public final class ConfigurationStep {
     private final String name;
@@ -68,6 +70,16 @@ public final class ConfigurationStep {
         public ConfigurationStep build() {
             if (name == null) {
                 throw new IllegalStateException("Configuration Step's name must be provided");
+            }
+
+            // Ensure that all Property Descriptor names are unique
+            final Set<String> propertyNames = new HashSet<>();
+            for (final ConnectorPropertyGroup propertyGroup : propertyGroups) {
+                for (final ConnectorPropertyDescriptor descriptor : propertyGroup.getProperties()) {
+                    if (!propertyNames.add(descriptor.getName())) {
+                        throw new IllegalStateException("All Property Descriptor names must be unique within a Configuration Step. Duplicate name found: " + descriptor.getName());
+                    }
+                }
             }
 
             return new ConfigurationStep(this);

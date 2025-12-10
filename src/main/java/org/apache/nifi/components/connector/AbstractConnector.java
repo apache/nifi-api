@@ -275,7 +275,7 @@ public abstract class AbstractConnector implements Connector {
 
         final List<ConfigurationStep> configSteps = getConfigurationSteps(flowContext);
         for (final ConfigurationStep configStep : configSteps) {
-            final List<ConfigVerificationResult> stepResults = verifyConfigurationStep(configStep.getName(), List.of(), flowContext);
+            final List<ConfigVerificationResult> stepResults = verifyConfigurationStep(configStep.getName(), Map.of(), flowContext);
             results.addAll(stepResults);
         }
 
@@ -461,7 +461,7 @@ public abstract class AbstractConnector implements Connector {
             final Map<String, ConnectorPropertyDescriptor> descriptorMap = descriptors.stream()
                 .collect(Collectors.toMap(ConnectorPropertyDescriptor::getName, Function.identity()));
 
-            final Function<String, ConnectorPropertyValue> propertyValueLookup = name -> configurationContext.getProperty(stepName, propertyGroup.getName(), name);
+            final Function<String, ConnectorPropertyValue> propertyValueLookup = name -> configurationContext.getProperty(stepName, name);
 
             for (final ConnectorPropertyDescriptor descriptor : descriptors) {
                 final boolean dependencySatisfied = isDependencySatisfied(descriptor, descriptorMap::get, propertyValueLookup);
@@ -471,7 +471,7 @@ public abstract class AbstractConnector implements Connector {
                     continue;
                 }
 
-                final ConnectorPropertyValue propertyValue = configurationContext.getProperty(stepName, propertyGroup.getName(), descriptor.getName());
+                final ConnectorPropertyValue propertyValue = configurationContext.getProperty(stepName, descriptor.getName());
                 if (propertyValue == null || !propertyValue.isSet()) {
                     if (descriptor.isRequired()) {
                         final ValidationResult invalidResult = new ValidationResult.Builder()
@@ -564,13 +564,13 @@ public abstract class AbstractConnector implements Connector {
     }
 
     @Override
-    public List<AllowableValue> fetchAllowableValues(final String stepName, final String groupName, final String propertyName, final FlowContext flowContext) {
-        throw new UnsupportedOperationException("Property %s of Property Group %s in Configuration Step %s does not support fetching Allowable Values.".formatted(propertyName, groupName, stepName));
+    public List<AllowableValue> fetchAllowableValues(final String stepName, final String propertyName, final FlowContext flowContext) {
+        throw new UnsupportedOperationException("Property %s in Configuration Step %s does not support fetching Allowable Values.".formatted(propertyName, stepName));
     }
 
     @Override
-    public List<AllowableValue> fetchAllowableValues(final String stepName, final String groupName, final String propertyName, final FlowContext flowContext, final String filter) {
-        final List<AllowableValue> allowableValues = fetchAllowableValues(stepName, groupName, propertyName, flowContext);
+    public List<AllowableValue> fetchAllowableValues(final String stepName, final String propertyName, final FlowContext flowContext, final String filter) {
+        final List<AllowableValue> allowableValues = fetchAllowableValues(stepName, propertyName, flowContext);
         if (filter == null || filter.isEmpty()) {
             return allowableValues;
         } else {
