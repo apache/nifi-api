@@ -21,7 +21,14 @@ import org.apache.nifi.components.DescribedValue;
 import org.apache.nifi.components.ValidationContext;
 import org.apache.nifi.components.ValidationResult;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,6 +40,18 @@ public class TestConnectorPropertyDescriptor {
 
     private static final String TEST_STEP_NAME = "test-step";
     private static final String TEST_GROUP_NAME = "test-group";
+
+    @Test
+    void testRequiredProperty() {
+        final ConnectorPropertyDescriptor descriptor = new ConnectorPropertyDescriptor.Builder()
+            .name("Required Property")
+            .type(PropertyType.STRING)
+            .required(true)
+            .build();
+
+        final ConnectorValidationContext context = new TestConnectorValidationContext();
+        assertFalse(descriptor.validate(TEST_STEP_NAME, TEST_GROUP_NAME, null, context).isValid());
+    }
 
     @Test
     void testValidateStringType() {
@@ -208,6 +227,99 @@ public class TestConnectorPropertyDescriptor {
 
         assertFalse(descriptor.validate(TEST_STEP_NAME, TEST_GROUP_NAME, "123.", context).isValid());
         assertFalse(descriptor.validate(TEST_STEP_NAME, TEST_GROUP_NAME, ".123", context).isValid());
+    }
+
+    @Test
+    void testValidateAssetTypeWithExistingAsset(@TempDir final Path tempDir) throws IOException {
+        final File assetFile = createAssetFile(tempDir, "asset1.txt");
+
+        final ConnectorPropertyDescriptor descriptor = new ConnectorPropertyDescriptor.Builder()
+            .name("Asset Property")
+            .type(PropertyType.ASSET)
+            .build();
+
+        final ConnectorValidationContext context = new TestConnectorValidationContext();
+        assertTrue(descriptor.validate(TEST_STEP_NAME, TEST_GROUP_NAME, assetFile.getAbsolutePath(), context).isValid());
+    }
+
+    @Test
+    void testValidateAssetTypeWithMissingAsset(@TempDir final Path tempDir) throws IOException {
+        final File assetFile = new File(tempDir.toFile(), "asset1.txt");
+
+        final ConnectorPropertyDescriptor descriptor = new ConnectorPropertyDescriptor.Builder()
+            .name("Asset Property")
+            .type(PropertyType.ASSET)
+            .build();
+
+        final ConnectorValidationContext context = new TestConnectorValidationContext();
+        assertFalse(descriptor.validate(TEST_STEP_NAME, TEST_GROUP_NAME, assetFile.getAbsolutePath(), context).isValid());
+    }
+
+    @Test
+    void testValidateAssetTypeWithMultipleAssets(@TempDir final Path tempDir) throws IOException {
+        final File assetFile1 = new File(tempDir.toFile(), "asset1.txt");
+        final File assetFile2 = new File(tempDir.toFile(), "asset2.txt");
+        final String multipleAssetValue = assetFile1.getAbsolutePath() + "," + assetFile2.getAbsolutePath();
+
+        final ConnectorPropertyDescriptor descriptor = new ConnectorPropertyDescriptor.Builder()
+            .name("Asset Property")
+            .type(PropertyType.ASSET)
+            .build();
+
+        final ConnectorValidationContext context = new TestConnectorValidationContext();
+        assertFalse(descriptor.validate(TEST_STEP_NAME, TEST_GROUP_NAME, multipleAssetValue, context).isValid());
+    }
+
+    @Test
+    void testValidateAssetListTypeWithSingleExistingAsset(@TempDir final Path tempDir) throws IOException {
+        final File assetFile1 = createAssetFile(tempDir, "asset1.txt");
+
+        final ConnectorPropertyDescriptor descriptor = new ConnectorPropertyDescriptor.Builder()
+            .name("Asset List Property")
+            .type(PropertyType.ASSET_LIST)
+            .build();
+
+        final ConnectorValidationContext context = new TestConnectorValidationContext();
+        assertTrue(descriptor.validate(TEST_STEP_NAME, TEST_GROUP_NAME, assetFile1.getAbsolutePath(), context).isValid());
+    }
+
+    @Test
+    void testValidateAssetListTypeWithMultipleExistingAssets(@TempDir final Path tempDir) throws IOException {
+        final File assetFile1 = createAssetFile(tempDir, "asset1.txt");
+        final File assetFile2 = createAssetFile(tempDir, "asset2.txt");
+        final String multipleAssetValue = assetFile1.getAbsolutePath() + "," + assetFile2.getAbsolutePath();
+
+        final ConnectorPropertyDescriptor descriptor = new ConnectorPropertyDescriptor.Builder()
+            .name("Asset List Property")
+            .type(PropertyType.ASSET_LIST)
+            .build();
+
+        final ConnectorValidationContext context = new TestConnectorValidationContext();
+        assertTrue(descriptor.validate(TEST_STEP_NAME, TEST_GROUP_NAME, multipleAssetValue, context).isValid());
+    }
+
+    @Test
+    void testValidateAssetListTypeWithSomeMissingAssets(@TempDir final Path tempDir) throws IOException {
+        final File assetFile1 = createAssetFile(tempDir, "asset1.txt");
+        final File assetFile2 = new File(tempDir.toFile(), "asset2.txt"); // Never created
+        final String multipleAssetValue = assetFile1.getAbsolutePath() + "," + assetFile2.getAbsolutePath();
+
+        final ConnectorPropertyDescriptor descriptor = new ConnectorPropertyDescriptor.Builder()
+            .name("Asset List Property")
+            .type(PropertyType.ASSET_LIST)
+            .build();
+
+        final ConnectorValidationContext context = new TestConnectorValidationContext();
+        assertFalse(descriptor.validate(TEST_STEP_NAME, TEST_GROUP_NAME, multipleAssetValue, context).isValid());
+    }
+
+    private File createAssetFile(final Path parentDir, final String name) throws IOException {
+        final File assetFile = new File(parentDir.toFile(), name);
+        try (final OutputStream outputStream = new FileOutputStream(assetFile)) {
+            outputStream.write(name.getBytes(StandardCharsets.UTF_8));
+            outputStream.flush();
+        }
+        return assetFile;
     }
 
     /**

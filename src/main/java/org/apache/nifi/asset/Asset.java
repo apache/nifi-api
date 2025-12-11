@@ -37,8 +37,17 @@ public interface Asset {
      * Returns the identifier of the parameter context the Asset belongs to
      *
      * @return Parameter Context Identifier
+     * @deprecated Use {@link #getOwnerIdentifier()} instead
      */
+    @Deprecated
     String getParameterContextIdentifier();
+
+    /**
+     * Returns the identifier of the resource the Asset belongs to
+     *
+     * @return Owner Identifier
+     */
+    String getOwnerIdentifier();
 
     /**
      * Returns the name of the Asset
