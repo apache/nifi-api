@@ -283,24 +283,40 @@ public abstract class AbstractConnector implements Connector {
     }
 
     @Override
-    public List<ValidationResult> validate(final FlowContext context, final ConnectorValidationContext validationContext) {
+    public List<ValidationResult> validate(final FlowContext flowContext, final ConnectorValidationContext validationContext) {
+        final ConnectorConfigurationContext configContext = flowContext.getConfigurationContext();
+        final List<ValidationResult> results = new ArrayList<>();
+        final List<ConfigurationStep> configurationSteps = getConfigurationSteps(flowContext);
+
+        for (final ConfigurationStep configurationStep : configurationSteps) {
+            results.addAll(validateConfigurationStep(configurationStep, configContext, validationContext));
+        }
+
+        // only run customValidate if regular validation is successful. This allows Processor developers to not have to check
+        // if values are null or invalid so that they can focus only on the interaction between the properties, etc.
+        if (results.isEmpty()) {
+            final Collection<ValidationResult> customResults = customValidate(configContext);
+            if (customResults != null) {
+                for (final ValidationResult result : customResults) {
+                    if (!result.isValid()) {
+                        results.add(result);
+                    }
+                }
+            }
+        }
+
+        return results;
+    }
+
+
+    protected List<ValidationResult> validateComponents(final FlowContext context, final ProcessGroupFacade group, final ConnectorValidationContext validationContext) {
         final List<ValidationResult> validationResults = new ArrayList<>();
-        validate(context, context.getRootGroup(), validationContext, validationResults);
+        validateComponents(context, group, validationContext, validationResults);
         return validationResults;
     }
 
-    private void validate(final FlowContext context, final ProcessGroupFacade group, final ConnectorValidationContext validationContext, final List<ValidationResult> validationResults) {
-        final List<ValidationResult> connectorPropertiesResults = validate(context, context.getConfigurationContext(), validationContext);
-        if (!connectorPropertiesResults.isEmpty()) {
-            connectorPropertiesResults.stream()
-                .filter(result -> !result.isValid())
-                .forEach(validationResults::add);
-
-            // If any invalid results on the connector configuration itself, do not proceed with further validation of components
-            if (!validationResults.isEmpty()) {
-                return;
-            }
-        }
+    private void validateComponents(final FlowContext context, final ProcessGroupFacade group, final ConnectorValidationContext validationContext,
+            final List<ValidationResult> validationResults) {
 
         for (final ProcessorFacade processor : group.getProcessors()) {
             final List<ValidationResult> processorResults = processor.validate();
@@ -339,7 +355,7 @@ public abstract class AbstractConnector implements Connector {
         }
 
         for (final ProcessGroupFacade childGroup : group.getProcessGroups()) {
-            validate(context, childGroup, validationContext, validationResults);
+            validateComponents(context, childGroup, validationContext, validationResults);
         }
     }
 
@@ -425,33 +441,11 @@ public abstract class AbstractConnector implements Connector {
         }
     }
 
-    private List<ValidationResult> validate(final FlowContext workingContext, final ConnectorConfigurationContext context, final ConnectorValidationContext validationContext) {
-        final List<ValidationResult> results = new ArrayList<>();
-        final List<ConfigurationStep> configurationSteps = getConfigurationSteps(workingContext);
-
-        for (final ConfigurationStep configurationStep : configurationSteps) {
-            results.addAll(validateConfigurationStep(configurationStep, context, validationContext));
-        }
-
-        // only run customValidate if regular validation is successful. This allows Processor developers to not have to check
-        // if values are null or invalid so that they can focus only on the interaction between the properties, etc.
-        if (results.isEmpty()) {
-            final Collection<ValidationResult> customResults = customValidate(context);
-            if (customResults != null) {
-                for (final ValidationResult result : customResults) {
-                    if (!result.isValid()) {
-                        results.add(result);
-                    }
-                }
-            }
-        }
-
-        return results;
-    }
 
     @Override
     public List<ValidationResult> validateConfigurationStep(final ConfigurationStep configurationStep, final ConnectorConfigurationContext configurationContext,
-        final ConnectorValidationContext validationContext) {
+            final ConnectorValidationContext validationContext) {
+
         final String stepName = configurationStep.getName();
         final List<ValidationResult> results = new ArrayList<>();
 
