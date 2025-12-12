@@ -25,6 +25,8 @@ public interface Secret {
 
     String getName();
 
+    String getDescription();
+
     String getValue();
 
 }
