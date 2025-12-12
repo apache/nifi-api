@@ -28,6 +28,7 @@ import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -210,6 +211,24 @@ public final class ConnectorPropertyDescriptor {
             .build();
     }
 
+    @Override
+    public boolean equals(final Object o) {
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final ConnectorPropertyDescriptor that = (ConnectorPropertyDescriptor) o;
+        return Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(name);
+    }
+
+    @Override
+    public String toString() {
+        return "ConnectorPropertyDescriptor[name=" + name + "]";
+    }
 
     public static final class Builder {
         private String name;
