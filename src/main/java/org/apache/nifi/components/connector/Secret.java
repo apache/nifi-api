@@ -19,6 +19,8 @@ package org.apache.nifi.components.connector;
 
 public interface Secret {
 
+    String getProviderId();
+
     String getProviderName();
 
     String getGroupName();
