@@ -16,6 +16,8 @@
  */
 package org.apache.nifi.web;
 
+import org.apache.nifi.components.connector.components.FlowContext;
+
 /**
  * NiFi web context providing access to Connector instances for
  * connector custom UIs.
@@ -23,15 +25,28 @@ package org.apache.nifi.web;
 public interface NiFiConnectorWebContext {
 
     /**
-     * Returns the Connector instance for the given connector ID.
+     * Returns the Connector Web Context for the given connector ID.
      * The returned Connector can be cast to a connector-specific interface
      * if the custom UI's classloader has visibility to that interface
-     * (typically through the NAR classloader hierarchy).
+     * (typically through the NAR classloader hierarchy). Active and
+     * working flow context are provided for invoking connector methods
+     * on components within each of those flow contexts.
      *
      * @param <T> the expected type of the Connector
      * @param connectorId the ID of the connector to retrieve
-     * @return the Connector instance
+     * @return the ConnectorWebContext instance
      * @throws IllegalArgumentException if the connector does not exist
      */
-    <T> T getConnector(String connectorId) throws IllegalArgumentException;
+    <T> ConnectorWebContext<T> getConnectorWebContext(String connectorId) throws IllegalArgumentException;
+
+    /**
+     * Hold the context needed to work with the Connector within a custom ui
+     *
+     * @param <T> the expected type of the Connector
+     * @param connector the Connector instance
+     * @param workingFlowContext the working {@link FlowContext} for the connector instance
+     * @param activeFlowContext the active {@link FlowContext} for the connector instance
+     */
+    record ConnectorWebContext<T>(T connector, FlowContext workingFlowContext, FlowContext activeFlowContext) {
+    }
 }
