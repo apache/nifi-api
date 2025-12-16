@@ -30,6 +30,7 @@ public class VersionedConnectorValueReference {
     private String assetId;
     private String providerId;
     private String providerName;
+    private String secretGroupName;
     private String secretName;
 
     public String getValueType() {
@@ -72,6 +73,14 @@ public class VersionedConnectorValueReference {
         this.providerName = providerName;
     }
 
+    public String getSecretGroupName() {
+        return secretGroupName;
+    }
+
+    public void setSecretGroupName(final String secretGroupName) {
+        this.secretGroupName = secretGroupName;
+    }
+
     public String getSecretName() {
         return secretName;
     }
@@ -92,17 +101,18 @@ public class VersionedConnectorValueReference {
                && Objects.equals(value, other.value)
                && Objects.equals(assetId, other.assetId)
                && Objects.equals(providerId, other.providerId)
+               && Objects.equals(secretGroupName, other.secretGroupName)
                && Objects.equals(secretName, other.secretName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(valueType, value, assetId, providerId, secretName);
+        return Objects.hash(valueType, value, assetId, providerId, secretGroupName, secretName);
     }
 
     @Override
     public String toString() {
         return "VersionedConnectorValueReference[valueType=" + valueType + ", value=" + value
-               + ", assetId=" + assetId + ", providerId=" + providerId + ", secretName=" + secretName + "]";
+               + ", assetId=" + assetId + ", providerId=" + providerId + ", secretGroupName=" + secretGroupName + ", secretName=" + secretName + "]";
     }
 }

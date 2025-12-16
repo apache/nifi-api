@@ -26,11 +26,13 @@ public final class SecretReference implements ConnectorValueReference {
 
     private final String providerId;
     private final String providerName;
+    private final String secretGroupName;
     private final String secretName;
 
-    public SecretReference(final String providerId, final String providerName, final String secretName) {
+    public SecretReference(final String providerId, final String providerName, final String secretGroupName, final String secretName) {
         this.providerId = providerId;
         this.providerName = providerName;
+        this.secretGroupName = secretGroupName;
         this.secretName = secretName;
     }
 
@@ -50,6 +52,15 @@ public final class SecretReference implements ConnectorValueReference {
      */
     public String getProviderName() {
         return providerName;
+    }
+
+    /**
+     * Returns the secret group name.
+     *
+     * @return the secret group name
+     */
+    public String getSecretGroupName() {
+        return secretGroupName;
     }
 
     /**
@@ -76,16 +87,16 @@ public final class SecretReference implements ConnectorValueReference {
         }
         final SecretReference that = (SecretReference) object;
         return Objects.equals(providerId, that.providerId) && Objects.equals(providerName, that.providerName)
-               && Objects.equals(secretName, that.secretName);
+               && Objects.equals(secretGroupName, that.secretGroupName) && Objects.equals(secretName, that.secretName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(providerId, providerName, secretName);
+        return Objects.hash(providerId, providerName, secretGroupName, secretName);
     }
 
     @Override
     public String toString() {
-        return "SecretReference[providerId=" + providerId + ", providerName=" + providerName + ", secretName=" + secretName + "]";
+        return "SecretReference[providerId=" + providerId + ", providerName=" + providerName + ", secretGroupName=" + secretGroupName + ", secretName=" + secretName + "]";
     }
 }
