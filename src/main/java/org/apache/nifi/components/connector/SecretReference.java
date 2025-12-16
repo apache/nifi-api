@@ -27,11 +27,13 @@ public final class SecretReference implements ConnectorValueReference {
     private final String providerId;
     private final String providerName;
     private final String secretName;
+    private final String fullyQualifiedName;
 
-    public SecretReference(final String providerId, final String providerName, final String secretName) {
+    public SecretReference(final String providerId, final String providerName, final String secretName, final String fullyQualifiedName) {
         this.providerId = providerId;
         this.providerName = providerName;
         this.secretName = secretName;
+        this.fullyQualifiedName = fullyQualifiedName;
     }
 
     /**
@@ -53,12 +55,20 @@ public final class SecretReference implements ConnectorValueReference {
     }
 
     /**
-     * Returns the secret name.
+     * Returns the simple secret name.
      *
-     * @return the secret name
+     * @return the simple secret name
      */
     public String getSecretName() {
         return secretName;
+    }
+
+    /**
+     * Returns the fully qualified name of the secret.
+     * @return the fully qualified name
+     */
+    public String getFullyQualifiedName() {
+        return fullyQualifiedName;
     }
 
     @Override
@@ -76,12 +86,12 @@ public final class SecretReference implements ConnectorValueReference {
         }
         final SecretReference that = (SecretReference) object;
         return Objects.equals(providerId, that.providerId) && Objects.equals(providerName, that.providerName)
-               && Objects.equals(secretName, that.secretName);
+               && Objects.equals(secretName, that.secretName) && Objects.equals(fullyQualifiedName, that.fullyQualifiedName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(providerId, providerName, secretName);
+        return Objects.hash(providerId, providerName, secretName, fullyQualifiedName);
     }
 
     @Override
