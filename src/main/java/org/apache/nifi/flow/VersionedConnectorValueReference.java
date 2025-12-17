@@ -18,6 +18,7 @@
 package org.apache.nifi.flow;
 
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Represents a property value reference for a Connector in a versioned flow.
@@ -27,11 +28,11 @@ import java.util.Objects;
 public class VersionedConnectorValueReference {
     private String valueType;
     private String value;
-    private String assetId;
     private String providerId;
     private String providerName;
     private String secretName;
     private String fullyQualifiedSecretName;
+    private Set<String> assetIds;
 
     public String getValueType() {
         return valueType;
@@ -47,14 +48,6 @@ public class VersionedConnectorValueReference {
 
     public void setValue(final String value) {
         this.value = value;
-    }
-
-    public String getAssetId() {
-        return assetId;
-    }
-
-    public void setAssetId(final String assetId) {
-        this.assetId = assetId;
     }
 
     public String getProviderId() {
@@ -89,6 +82,14 @@ public class VersionedConnectorValueReference {
         this.fullyQualifiedSecretName = fullyQualifiedSecretName;
     }
 
+    public Set<String> getAssetIds() {
+        return assetIds;
+    }
+
+    public void setAssetIds(final Set<String> assetIds) {
+        this.assetIds = assetIds;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
@@ -99,7 +100,7 @@ public class VersionedConnectorValueReference {
         }
         return Objects.equals(valueType, other.valueType)
                && Objects.equals(value, other.value)
-               && Objects.equals(assetId, other.assetId)
+               && Objects.equals(assetIds, other.assetIds)
                && Objects.equals(providerId, other.providerId)
                && Objects.equals(secretName, other.secretName)
                && Objects.equals(fullyQualifiedSecretName, other.fullyQualifiedSecretName);
@@ -107,12 +108,12 @@ public class VersionedConnectorValueReference {
 
     @Override
     public int hashCode() {
-        return Objects.hash(valueType, value, assetId, providerId, secretName, fullyQualifiedSecretName);
+        return Objects.hash(valueType, value, assetIds, providerId, secretName, fullyQualifiedSecretName);
     }
 
     @Override
     public String toString() {
         return "VersionedConnectorValueReference[valueType=" + valueType + ", value=" + value
-               + ", assetId=" + assetId + ", providerId=" + providerId + ", fullyQualifiedSecretName=" + fullyQualifiedSecretName + "]";
+               + ", assetIds=" + assetIds + ", providerId=" + providerId + ", fullyQualifiedSecretName=" + fullyQualifiedSecretName + "]";
     }
 }

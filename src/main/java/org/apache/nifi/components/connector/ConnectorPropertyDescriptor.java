@@ -22,6 +22,7 @@ import org.apache.nifi.components.DescribedValue;
 import org.apache.nifi.components.ValidationResult;
 import org.apache.nifi.components.Validator;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -113,17 +114,21 @@ public final class ConnectorPropertyDescriptor {
             fetchedAllowableValues = null;
         }
 
-        if (type != PropertyType.STRING_LIST) {
-            return validateIndividual(stepName, groupName, value, validationContext, fetchedAllowableValues);
-        }
-
         if (required && value == null) {
             return new ValidationResult.Builder()
                 .subject(name)
-                .input(value)
+                .input(null)
                 .valid(false)
                 .explanation("Property is required but no value was specified")
                 .build();
+        }
+
+        if (type == PropertyType.ASSET || type == PropertyType.ASSET_LIST) {
+            return validateAssets(value);
+        }
+
+        if (type != PropertyType.STRING_LIST) {
+            return validateIndividual(stepName, groupName, value, validationContext, fetchedAllowableValues);
         }
 
         final String[] values = value.split(",");
@@ -190,10 +195,9 @@ public final class ConnectorPropertyDescriptor {
         return false;
     }
 
-
     private ValidationResult validateType(final String value) {
         final String explanation = switch (type) {
-            case SECRET, STRING, STRING_LIST -> null;
+            case SECRET, STRING, STRING_LIST, ASSET, ASSET_LIST -> null;
             case BOOLEAN -> BOOLEAN_PATTERN.matcher(value).matches() ? null : "Value must be true or false";
             case INTEGER -> INTEGER_PATTERN.matcher(value).matches() ? null : "Value must be an integer";
             case DOUBLE, FLOAT -> DOUBLE_PATTERN.matcher(value).matches() ? null : "Value must be a floating point number";
@@ -208,6 +212,41 @@ public final class ConnectorPropertyDescriptor {
             .input(value)
             .valid(false)
             .explanation(explanation)
+            .build();
+    }
+
+    private ValidationResult validateAssets(final String value) {
+        final String[] values = value.split(",");
+        if (type == PropertyType.ASSET && values.length > 1) {
+            return new ValidationResult.Builder()
+                .subject(name)
+                .input(value)
+                .valid(false)
+                .explanation("Property only supports a single asset, but " + values.length + " assets were specified")
+                .build();
+        }
+
+        final List<String> nonExistentAssets = new ArrayList<>();
+        for (final String assetValue : values) {
+            final File assetFile = new File(assetValue);
+            if (!assetFile.exists() || !assetFile.canRead()) {
+                nonExistentAssets.add(assetValue);
+            }
+        }
+
+        if (!nonExistentAssets.isEmpty()) {
+            return new ValidationResult.Builder()
+                .subject(name)
+                .input(value)
+                .valid(false)
+                .explanation("The specified resource(s) do not exist or could not be accessed: " + nonExistentAssets)
+                .build();
+        }
+
+        return new ValidationResult.Builder()
+            .subject(name)
+            .input(value)
+            .valid(true)
             .build();
     }
 

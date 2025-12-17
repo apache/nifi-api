@@ -24,5 +24,7 @@ public enum PropertyType {
     FLOAT,
     DOUBLE,
     STRING_LIST,
-    SECRET
+    SECRET,
+    ASSET,
+    ASSET_LIST
 }

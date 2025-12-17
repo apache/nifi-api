@@ -17,26 +17,29 @@
 
 package org.apache.nifi.components.connector;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
- * A ConnectorValueReference implementation representing a reference to an asset.
+ * A ConnectorValueReference implementation representing a reference to one or more assets.
  */
 public final class AssetReference implements ConnectorValueReference {
 
-    private final String assetIdentifier;
+    private final Set<String> assetIdentifiers;
 
-    public AssetReference(final String assetIdentifier) {
-        this.assetIdentifier = assetIdentifier;
+    public AssetReference(final Set<String> assetIdentifiers) {
+        this.assetIdentifiers = assetIdentifiers == null ? Collections.emptySet() : new HashSet<>(assetIdentifiers);
     }
 
     /**
-     * Returns the asset identifier.
+     * Returns the asset identifiers.
      *
-     * @return the asset identifier
+     * @return the asset identifiers
      */
-    public String getAssetIdentifier() {
-        return assetIdentifier;
+    public Set<String> getAssetIdentifiers() {
+        return assetIdentifiers;
     }
 
     @Override
@@ -53,16 +56,16 @@ public final class AssetReference implements ConnectorValueReference {
             return false;
         }
         final AssetReference that = (AssetReference) object;
-        return Objects.equals(assetIdentifier, that.assetIdentifier);
+        return Objects.equals(assetIdentifiers, that.assetIdentifiers);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hashCode(assetIdentifier);
+        return Objects.hashCode(assetIdentifiers);
     }
 
     @Override
     public String toString() {
-        return "AssetReference[assetId=" + assetIdentifier + "]";
+        return "AssetReference[assetIds=" + assetIdentifiers + "]";
     }
 }
