@@ -31,4 +31,6 @@ public interface Secret {
 
     String getValue();
 
+    String getFullyQualifiedName();
+
 }

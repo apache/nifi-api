@@ -31,6 +31,7 @@ public class VersionedConnectorValueReference {
     private String providerId;
     private String providerName;
     private String secretName;
+    private String fullyQualifiedSecretName;
 
     public String getValueType() {
         return valueType;
@@ -80,6 +81,14 @@ public class VersionedConnectorValueReference {
         this.secretName = secretName;
     }
 
+    public String getFullyQualifiedSecretName() {
+        return fullyQualifiedSecretName;
+    }
+
+    public void setFullyQualifiedSecretName(final String fullyQualifiedSecretName) {
+        this.fullyQualifiedSecretName = fullyQualifiedSecretName;
+    }
+
     @Override
     public boolean equals(final Object obj) {
         if (this == obj) {
@@ -92,17 +101,18 @@ public class VersionedConnectorValueReference {
                && Objects.equals(value, other.value)
                && Objects.equals(assetId, other.assetId)
                && Objects.equals(providerId, other.providerId)
-               && Objects.equals(secretName, other.secretName);
+               && Objects.equals(secretName, other.secretName)
+               && Objects.equals(fullyQualifiedSecretName, other.fullyQualifiedSecretName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(valueType, value, assetId, providerId, secretName);
+        return Objects.hash(valueType, value, assetId, providerId, secretName, fullyQualifiedSecretName);
     }
 
     @Override
     public String toString() {
         return "VersionedConnectorValueReference[valueType=" + valueType + ", value=" + value
-               + ", assetId=" + assetId + ", providerId=" + providerId + ", secretName=" + secretName + "]";
+               + ", assetId=" + assetId + ", providerId=" + providerId + ", fullyQualifiedSecretName=" + fullyQualifiedSecretName + "]";
     }
 }
