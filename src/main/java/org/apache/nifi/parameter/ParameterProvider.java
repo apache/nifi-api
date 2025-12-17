@@ -117,7 +117,7 @@ public interface ParameterProvider extends ConfigurableComponent {
      * @return A list of fetched Parameter groups containing only the specified parameters
      * @throws IOException if there is an I/O problem while fetching the Parameters
      */
-    default List<ParameterGroup> fetchParameters(ConfigurationContext context, List<String> fullyQualifiedParameterNames) throws IOException {
+    default List<ParameterGroup> fetchParameters(final ConfigurationContext context, final List<String> fullyQualifiedParameterNames) throws IOException {
         final List<ParameterGroup> allGroups = fetchParameters(context);
         final List<ParameterGroup> filteredGroups = new ArrayList<>();
 
