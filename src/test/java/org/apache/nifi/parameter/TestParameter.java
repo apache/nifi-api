@@ -201,6 +201,11 @@ public class TestParameter {
         }
 
         @Override
+        public String getOwnerIdentifier() {
+            return parameterContextIdentifier;
+        }
+
+        @Override
         public String getName() {
             return name;
         }
