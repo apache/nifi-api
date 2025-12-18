@@ -27,13 +27,11 @@ public final class ConfigurationStep {
     private final String name;
     private final String description;
     private final List<ConnectorPropertyGroup> propertyGroups;
-    private final String documentation;
 
     private ConfigurationStep(final Builder builder) {
         this.name = builder.name;
         this.description = builder.description;
         this.propertyGroups = Collections.unmodifiableList(builder.propertyGroups);
-        this.documentation = builder.documentation;
     }
 
     public String getName() {
@@ -48,18 +46,10 @@ public final class ConfigurationStep {
         return propertyGroups;
     }
 
-    /**
-     * @return the configuration step documentation in markdown
-     */
-    public String getDocumentation() {
-        return documentation;
-    }
-
     public static final class Builder {
         private String name;
         private String description;
         private List<ConnectorPropertyGroup> propertyGroups = Collections.emptyList();
-        private String documentation;
 
         public Builder name(String name) {
             this.name = name;
@@ -73,15 +63,6 @@ public final class ConfigurationStep {
 
         public Builder propertyGroups(final List<ConnectorPropertyGroup> propertyGroups) {
             this.propertyGroups = new ArrayList<>(propertyGroups);
-            return this;
-        }
-
-        /**
-         * @param documentation the documentation for this configuration step in markdown
-         * @return this builder
-         */
-        public Builder documentation(String documentation) {
-            this.documentation = documentation;
             return this;
         }
 
