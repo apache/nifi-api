@@ -25,6 +25,7 @@ import org.apache.nifi.components.Validator;
 import org.apache.nifi.components.connector.components.FlowContext;
 import org.apache.nifi.components.connector.components.ProcessGroupFacade;
 import org.apache.nifi.flow.VersionedExternalFlow;
+import org.apache.nifi.logging.ComponentLog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -73,6 +74,11 @@ public class TestAbstractConnector {
         when(rootGroupFacade.getControllerServices()).thenReturn(Collections.emptySet());
         when(rootGroupFacade.getConnections()).thenReturn(Collections.emptySet());
         when(flowContext.getRootGroup()).thenReturn(rootGroupFacade);
+
+        final ConnectorInitializationContext initContext = mock(ConnectorInitializationContext.class);
+        final ComponentLog logger = mock(ComponentLog.class);
+        when(initContext.getLogger()).thenReturn(logger);
+        connector.initialize(initContext);
     }
 
     @Test
@@ -430,6 +436,412 @@ public class TestAbstractConnector {
         assertTrue(connector.isCustomValidateCalled());
     }
 
+    @Test
+    void testValidateStepWithUnsatisfiedDependencyIsSkipped() {
+        final ConnectorPropertyDescriptor enabledProperty = new ConnectorPropertyDescriptor.Builder()
+            .name("Enabled")
+            .type(PropertyType.STRING)
+            .required(false)
+            .build();
+
+        final ConnectorPropertyGroup step1Group = ConnectorPropertyGroup.builder()
+            .name("Settings")
+            .addProperty(enabledProperty)
+            .build();
+
+        final ConfigurationStep step1 = new ConfigurationStep.Builder()
+            .name("Step 1")
+            .propertyGroups(List.of(step1Group))
+            .build();
+
+        final ConnectorPropertyDescriptor requiredInStep2 = new ConnectorPropertyDescriptor.Builder()
+            .name("Required When Enabled")
+            .required(true)
+            .build();
+
+        final ConnectorPropertyGroup step2Group = ConnectorPropertyGroup.builder()
+            .name("Advanced Settings")
+            .addProperty(requiredInStep2)
+            .build();
+
+        final ConfigurationStep step2 = new ConfigurationStep.Builder()
+            .name("Step 2")
+            .propertyGroups(List.of(step2Group))
+            .dependsOn(step1, enabledProperty, "true")
+            .build();
+
+        connector.setConfigurationSteps(List.of(step1, step2));
+
+        final ConnectorPropertyValue enabledValue = mock(ConnectorPropertyValue.class);
+        when(enabledValue.getValue()).thenReturn("false");
+        when(configurationContext.getProperty("Step 1", "Enabled")).thenReturn(enabledValue);
+        when(configurationContext.getProperty("Step 2", "Required When Enabled")).thenReturn(null);
+
+        final List<ValidationResult> results = connector.validate(flowContext, validationContext);
+
+        assertTrue(results.isEmpty(), "Step 2 should be skipped because its dependency is not satisfied");
+        assertTrue(connector.isCustomValidateCalled());
+    }
+
+    @Test
+    void testValidateStepWithSatisfiedDependencyIsValidated() {
+        final ConnectorPropertyDescriptor enabledProperty = new ConnectorPropertyDescriptor.Builder()
+            .name("Enabled")
+            .type(PropertyType.STRING)
+            .required(false)
+            .build();
+
+        final ConnectorPropertyGroup step1Group = ConnectorPropertyGroup.builder()
+            .name("Settings")
+            .addProperty(enabledProperty)
+            .build();
+
+        final ConfigurationStep step1 = new ConfigurationStep.Builder()
+            .name("Step 1")
+            .propertyGroups(List.of(step1Group))
+            .build();
+
+        final ConnectorPropertyDescriptor requiredInStep2 = new ConnectorPropertyDescriptor.Builder()
+            .name("Required When Enabled")
+            .required(true)
+            .build();
+
+        final ConnectorPropertyGroup step2Group = ConnectorPropertyGroup.builder()
+            .name("Advanced Settings")
+            .addProperty(requiredInStep2)
+            .build();
+
+        final ConfigurationStep step2 = new ConfigurationStep.Builder()
+            .name("Step 2")
+            .propertyGroups(List.of(step2Group))
+            .dependsOn(step1, enabledProperty, "true")
+            .build();
+
+        connector.setConfigurationSteps(List.of(step1, step2));
+
+        final ConnectorPropertyValue enabledValue = mock(ConnectorPropertyValue.class);
+        when(enabledValue.getValue()).thenReturn("true");
+        when(configurationContext.getProperty("Step 1", "Enabled")).thenReturn(enabledValue);
+        when(configurationContext.getProperty("Step 2", "Required When Enabled")).thenReturn(null);
+
+        final List<ValidationResult> results = connector.validate(flowContext, validationContext);
+
+        assertEquals(1, results.size());
+        final ValidationResult result = results.getFirst();
+        assertFalse(result.isValid());
+        assertEquals("Required When Enabled", result.getSubject());
+        assertEquals("Required When Enabled is required", result.getExplanation());
+        assertFalse(connector.isCustomValidateCalled());
+    }
+
+    @Test
+    void testValidateStepWithDependencyOnAnyValueSatisfied() {
+        final ConnectorPropertyDescriptor connectionType = new ConnectorPropertyDescriptor.Builder()
+            .name("Connection Type")
+            .type(PropertyType.STRING)
+            .required(false)
+            .build();
+
+        final ConnectorPropertyGroup step1Group = ConnectorPropertyGroup.builder()
+            .name("Connection")
+            .addProperty(connectionType)
+            .build();
+
+        final ConfigurationStep step1 = new ConfigurationStep.Builder()
+            .name("Connection Step")
+            .propertyGroups(List.of(step1Group))
+            .build();
+
+        final ConnectorPropertyDescriptor requiredProperty = new ConnectorPropertyDescriptor.Builder()
+            .name("Additional Config")
+            .required(true)
+            .build();
+
+        final ConnectorPropertyGroup step2Group = ConnectorPropertyGroup.builder()
+            .name("Config")
+            .addProperty(requiredProperty)
+            .build();
+
+        final ConfigurationStep step2 = new ConfigurationStep.Builder()
+            .name("Additional Step")
+            .propertyGroups(List.of(step2Group))
+            .dependsOn(step1, connectionType)
+            .build();
+
+        connector.setConfigurationSteps(List.of(step1, step2));
+
+        final ConnectorPropertyValue connValue = mock(ConnectorPropertyValue.class);
+        when(connValue.getValue()).thenReturn("any-value");
+        when(configurationContext.getProperty("Connection Step", "Connection Type")).thenReturn(connValue);
+        when(configurationContext.getProperty("Additional Step", "Additional Config")).thenReturn(null);
+
+        final List<ValidationResult> results = connector.validate(flowContext, validationContext);
+
+        assertEquals(1, results.size());
+        assertFalse(results.getFirst().isValid());
+        assertEquals("Additional Config", results.getFirst().getSubject());
+    }
+
+    @Test
+    void testValidateStepWithDependencyOnAnyValueNotSatisfiedWhenNull() {
+        final ConnectorPropertyDescriptor connectionType = new ConnectorPropertyDescriptor.Builder()
+            .name("Connection Type")
+            .type(PropertyType.STRING)
+            .required(false)
+            .build();
+
+        final ConnectorPropertyGroup step1Group = ConnectorPropertyGroup.builder()
+            .name("Connection")
+            .addProperty(connectionType)
+            .build();
+
+        final ConfigurationStep step1 = new ConfigurationStep.Builder()
+            .name("Connection Step")
+            .propertyGroups(List.of(step1Group))
+            .build();
+
+        final ConnectorPropertyDescriptor requiredProperty = new ConnectorPropertyDescriptor.Builder()
+            .name("Additional Config")
+            .required(true)
+            .build();
+
+        final ConnectorPropertyGroup step2Group = ConnectorPropertyGroup.builder()
+            .name("Config")
+            .addProperty(requiredProperty)
+            .build();
+
+        final ConfigurationStep step2 = new ConfigurationStep.Builder()
+            .name("Additional Step")
+            .propertyGroups(List.of(step2Group))
+            .dependsOn(step1, connectionType)
+            .build();
+
+        connector.setConfigurationSteps(List.of(step1, step2));
+
+        when(configurationContext.getProperty("Connection Step", "Connection Type")).thenReturn(null);
+        when(configurationContext.getProperty("Additional Step", "Additional Config")).thenReturn(null);
+
+        final List<ValidationResult> results = connector.validate(flowContext, validationContext);
+
+        assertTrue(results.isEmpty(), "Step with dependency should be skipped when dependent property has no value but got validation results: " + results);
+        assertTrue(connector.isCustomValidateCalled());
+    }
+
+    @Test
+    void testValidateStepWithMultipleDependencies() {
+        final ConnectorPropertyDescriptor protocol = new ConnectorPropertyDescriptor.Builder()
+            .name("Protocol")
+            .type(PropertyType.STRING)
+            .required(false)
+            .build();
+
+        final ConnectorPropertyGroup step1Group = ConnectorPropertyGroup.builder()
+            .name("Protocol Settings")
+            .addProperty(protocol)
+            .build();
+
+        final ConfigurationStep step1 = new ConfigurationStep.Builder()
+            .name("Protocol Step")
+            .propertyGroups(List.of(step1Group))
+            .build();
+
+        final ConnectorPropertyDescriptor authEnabled = new ConnectorPropertyDescriptor.Builder()
+            .name("Auth Enabled")
+            .type(PropertyType.STRING)
+            .required(false)
+            .build();
+
+        final ConnectorPropertyGroup step2Group = ConnectorPropertyGroup.builder()
+            .name("Auth Settings")
+            .addProperty(authEnabled)
+            .build();
+
+        final ConfigurationStep step2 = new ConfigurationStep.Builder()
+            .name("Auth Step")
+            .propertyGroups(List.of(step2Group))
+            .build();
+
+        final ConnectorPropertyDescriptor credentialsProperty = new ConnectorPropertyDescriptor.Builder()
+            .name("Credentials")
+            .required(true)
+            .build();
+
+        final ConnectorPropertyGroup step3Group = ConnectorPropertyGroup.builder()
+            .name("Credentials")
+            .addProperty(credentialsProperty)
+            .build();
+
+        final ConfigurationStep step3 = new ConfigurationStep.Builder()
+            .name("Credentials Step")
+            .propertyGroups(List.of(step3Group))
+            .dependsOn(step1, protocol, "HTTPS")
+            .dependsOn(step2, authEnabled, "true")
+            .build();
+
+        connector.setConfigurationSteps(List.of(step1, step2, step3));
+
+        final ConnectorPropertyValue protocolValue = mock(ConnectorPropertyValue.class);
+        when(protocolValue.getValue()).thenReturn("HTTPS");
+        when(configurationContext.getProperty("Protocol Step", "Protocol")).thenReturn(protocolValue);
+
+        final ConnectorPropertyValue authValue = mock(ConnectorPropertyValue.class);
+        when(authValue.getValue()).thenReturn("false");
+        when(configurationContext.getProperty("Auth Step", "Auth Enabled")).thenReturn(authValue);
+
+        final List<ValidationResult> results = connector.validate(flowContext, validationContext);
+
+        assertTrue(results.isEmpty(), "Step 3 should be skipped because auth dependency is not satisfied");
+        assertTrue(connector.isCustomValidateCalled());
+
+        connector.resetCustomValidateCalled();
+        when(authValue.getValue()).thenReturn("true");
+
+        final List<ValidationResult> resultsWithAuthEnabled = connector.validate(flowContext, validationContext);
+
+        assertEquals(1, resultsWithAuthEnabled.size());
+        assertFalse(resultsWithAuthEnabled.getFirst().isValid());
+        assertEquals("Credentials", resultsWithAuthEnabled.getFirst().getSubject());
+    }
+
+    @Test
+    void testValidateStepWithAbsenceDependencySatisfiedWhenPropertyIsNull() {
+        final ConnectorPropertyDescriptor customConfig = new ConnectorPropertyDescriptor.Builder()
+            .name("Custom Config")
+            .type(PropertyType.STRING)
+            .required(false)
+            .build();
+
+        final ConnectorPropertyGroup step1Group = ConnectorPropertyGroup.builder()
+            .name("Custom Settings")
+            .addProperty(customConfig)
+            .build();
+
+        final ConfigurationStep step1 = new ConfigurationStep.Builder()
+            .name("Custom Step")
+            .propertyGroups(List.of(step1Group))
+            .build();
+
+        final ConnectorPropertyDescriptor defaultRequired = new ConnectorPropertyDescriptor.Builder()
+            .name("Default Required")
+            .required(true)
+            .build();
+
+        final ConnectorPropertyGroup step2Group = ConnectorPropertyGroup.builder()
+            .name("Default Settings")
+            .addProperty(defaultRequired)
+            .build();
+
+        final ConfigurationStep step2 = new ConfigurationStep.Builder()
+            .name("Default Step")
+            .propertyGroups(List.of(step2Group))
+            .dependsOn(step1, customConfig, DescribedValue.NULL)
+            .build();
+
+        connector.setConfigurationSteps(List.of(step1, step2));
+
+        when(configurationContext.getProperty("Custom Step", "Custom Config")).thenReturn(null);
+        when(configurationContext.getProperty("Default Step", "Default Required")).thenReturn(null);
+
+        final List<ValidationResult> results = connector.validate(flowContext, validationContext);
+
+        assertEquals(1, results.size());
+        assertFalse(results.getFirst().isValid());
+        assertEquals("Default Required", results.getFirst().getSubject());
+        assertFalse(connector.isCustomValidateCalled());
+    }
+
+    @Test
+    void testValidateStepWithAbsenceDependencyNotSatisfiedWhenPropertyHasValue() {
+        final ConnectorPropertyDescriptor customConfig = new ConnectorPropertyDescriptor.Builder()
+            .name("Custom Config")
+            .type(PropertyType.STRING)
+            .required(false)
+            .build();
+
+        final ConnectorPropertyGroup step1Group = ConnectorPropertyGroup.builder()
+            .name("Custom Settings")
+            .addProperty(customConfig)
+            .build();
+
+        final ConfigurationStep step1 = new ConfigurationStep.Builder()
+            .name("Custom Step")
+            .propertyGroups(List.of(step1Group))
+            .build();
+
+        final ConnectorPropertyDescriptor defaultRequired = new ConnectorPropertyDescriptor.Builder()
+            .name("Default Required")
+            .required(true)
+            .build();
+
+        final ConnectorPropertyGroup step2Group = ConnectorPropertyGroup.builder()
+            .name("Default Settings")
+            .addProperty(defaultRequired)
+            .build();
+
+        final ConfigurationStep step2 = new ConfigurationStep.Builder()
+            .name("Default Step")
+            .propertyGroups(List.of(step2Group))
+            .dependsOn(step1, customConfig, DescribedValue.NULL)
+            .build();
+
+        connector.setConfigurationSteps(List.of(step1, step2));
+
+        final ConnectorPropertyValue customValue = mock(ConnectorPropertyValue.class);
+        when(customValue.getValue()).thenReturn("some-custom-value");
+        when(configurationContext.getProperty("Custom Step", "Custom Config")).thenReturn(customValue);
+        when(configurationContext.getProperty("Default Step", "Default Required")).thenReturn(null);
+
+        final List<ValidationResult> results = connector.validate(flowContext, validationContext);
+
+        assertTrue(results.isEmpty(), "Default Step should be skipped because Custom Config has a value");
+        assertTrue(connector.isCustomValidateCalled());
+    }
+
+    @Test
+    void testValidateStepWithAbsenceDependencyUsesDefaultValue() {
+        final ConnectorPropertyDescriptor propertyWithDefault = new ConnectorPropertyDescriptor.Builder()
+            .name("Property With Default")
+            .type(PropertyType.STRING)
+            .defaultValue("default-value")
+            .required(false)
+            .build();
+
+        final ConnectorPropertyGroup step1Group = ConnectorPropertyGroup.builder()
+            .name("Settings")
+            .addProperty(propertyWithDefault)
+            .build();
+
+        final ConfigurationStep step1 = new ConfigurationStep.Builder()
+            .name("Step 1")
+            .propertyGroups(List.of(step1Group))
+            .build();
+
+        final ConnectorPropertyDescriptor requiredProperty = new ConnectorPropertyDescriptor.Builder()
+            .name("Required Property")
+            .required(true)
+            .build();
+
+        final ConnectorPropertyGroup step2Group = ConnectorPropertyGroup.builder()
+            .name("Dependent Settings")
+            .addProperty(requiredProperty)
+            .build();
+
+        final ConfigurationStep step2 = new ConfigurationStep.Builder()
+            .name("Step 2")
+            .propertyGroups(List.of(step2Group))
+            .dependsOn(step1, propertyWithDefault, DescribedValue.NULL)
+            .build();
+
+        connector.setConfigurationSteps(List.of(step1, step2));
+
+        when(configurationContext.getProperty("Step 1", "Property With Default")).thenReturn(null);
+
+        final List<ValidationResult> results = connector.validate(flowContext, validationContext);
+
+        assertTrue(results.isEmpty(), "Step 2 should be skipped because Property With Default has a default value");
+        assertTrue(connector.isCustomValidateCalled());
+    }
+
     private static class TestableAbstractConnector extends AbstractConnector {
         private List<ConfigurationStep> configurationSteps = Collections.emptyList();
         private Collection<ValidationResult> customValidationResults = Collections.emptyList();
@@ -447,13 +859,17 @@ public class TestAbstractConnector {
             return customValidateCalled;
         }
 
+        public void resetCustomValidateCalled() {
+            this.customValidateCalled = false;
+        }
+
         @Override
         public VersionedExternalFlow getInitialFlow() {
             return null;
         }
 
         @Override
-        public List<ConfigurationStep> getConfigurationSteps(final FlowContext workingContext) {
+        public List<ConfigurationStep> getConfigurationSteps() {
             return configurationSteps;
         }
 
