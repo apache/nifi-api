@@ -150,10 +150,9 @@ public interface Connector {
      * represents a logical grouping of properties that should be configured together. The order of the steps
      * in the list represents the order in which the steps should be configured.
      *
-     * @param flowContext the flow context that houses the configuration being used to drive the available configuration steps
      * @return the list of configuration steps
      */
-    List<ConfigurationStep> getConfigurationSteps(FlowContext flowContext);
+    List<ConfigurationStep> getConfigurationSteps();
 
     /**
      * Called whenever a specific configuration step has been configured. This allows the Connector to perform any necessary

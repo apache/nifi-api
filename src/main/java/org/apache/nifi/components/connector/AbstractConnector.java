@@ -273,7 +273,7 @@ public abstract class AbstractConnector implements Connector {
     public List<ConfigVerificationResult> verify(final FlowContext flowContext) {
         final List<ConfigVerificationResult> results = new ArrayList<>();
 
-        final List<ConfigurationStep> configSteps = getConfigurationSteps(flowContext);
+        final List<ConfigurationStep> configSteps = getConfigurationSteps();
         for (final ConfigurationStep configStep : configSteps) {
             final List<ConfigVerificationResult> stepResults = verifyConfigurationStep(configStep.getName(), Map.of(), flowContext);
             results.addAll(stepResults);
@@ -286,9 +286,14 @@ public abstract class AbstractConnector implements Connector {
     public List<ValidationResult> validate(final FlowContext flowContext, final ConnectorValidationContext validationContext) {
         final ConnectorConfigurationContext configContext = flowContext.getConfigurationContext();
         final List<ValidationResult> results = new ArrayList<>();
-        final List<ConfigurationStep> configurationSteps = getConfigurationSteps(flowContext);
+        final List<ConfigurationStep> configurationSteps = getConfigurationSteps();
 
         for (final ConfigurationStep configurationStep : configurationSteps) {
+            if (!isStepDependencySatisfied(configurationStep, configurationSteps, configContext)) {
+                getLogger().debug("Skipping validation for Configuration Step [{}] because its dependencies are not satisfied", configurationStep.getName());
+                continue;
+            }
+
             results.addAll(validateConfigurationStep(configurationStep, configContext, validationContext));
         }
 
@@ -543,6 +548,72 @@ public abstract class AbstractConnector implements Connector {
         } finally {
             propertiesSeen.remove(propertyDescriptor.getName());
         }
+    }
+
+    private boolean isStepDependencySatisfied(final ConfigurationStep step, final List<ConfigurationStep> allSteps,
+            final ConnectorConfigurationContext configContext) {
+
+        final Set<ConfigurationStepDependency> dependencies = step.getDependencies();
+        if (dependencies.isEmpty()) {
+            return true;
+        }
+
+        for (final ConfigurationStepDependency dependency : dependencies) {
+            final String dependentStepName = dependency.getStepName();
+            final String dependentPropertyName = dependency.getPropertyName();
+
+            final ConfigurationStep dependentStep = findStepByName(allSteps, dependentStepName);
+            if (dependentStep == null) {
+                getLogger().debug("Dependency of step {} is not satisfied because it depends on step {} which could not be found", step.getName(), dependentStepName);
+                return false;
+            }
+
+            final ConnectorPropertyDescriptor dependentProperty = findPropertyInStep(dependentStep, dependentPropertyName);
+            if (dependentProperty == null) {
+                getLogger().debug("Dependency of step {} is not satisfied because it depends on property {} in step {} which could not be found",
+                    step.getName(), dependentPropertyName, dependentStepName);
+                return false;
+            }
+
+            final ConnectorPropertyValue propertyValue = configContext.getProperty(dependentStepName, dependentPropertyName);
+            final String value = propertyValue == null ? dependentProperty.getDefaultValue() : propertyValue.getValue();
+
+            final Set<String> dependentValues = dependency.getDependentValues();
+            if (dependentValues == null) {
+                // Dependency is satisfied as long as the property has any value configured.
+                if (value == null) {
+                    return false;
+                }
+
+                continue;
+            }
+
+            if (!dependentValues.contains(value)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private ConfigurationStep findStepByName(final List<ConfigurationStep> steps, final String stepName) {
+        for (final ConfigurationStep step : steps) {
+            if (step.getName().equals(stepName)) {
+                return step;
+            }
+        }
+        return null;
+    }
+
+    private ConnectorPropertyDescriptor findPropertyInStep(final ConfigurationStep step, final String propertyName) {
+        for (final ConnectorPropertyGroup group : step.getPropertyGroups()) {
+            for (final ConnectorPropertyDescriptor descriptor : group.getProperties()) {
+                if (descriptor.getName().equals(propertyName)) {
+                    return descriptor;
+                }
+            }
+        }
+        return null;
     }
 
     @Override
