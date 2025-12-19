@@ -17,21 +17,28 @@
 
 package org.apache.nifi.components.connector;
 
+import org.apache.nifi.components.AllowableValue;
+import org.apache.nifi.components.DescribedValue;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public final class ConfigurationStep {
     private final String name;
     private final String description;
     private final List<ConnectorPropertyGroup> propertyGroups;
+    private final Set<ConfigurationStepDependency> dependencies;
 
     private ConfigurationStep(final Builder builder) {
         this.name = builder.name;
         this.description = builder.description;
         this.propertyGroups = Collections.unmodifiableList(builder.propertyGroups);
+        this.dependencies = Collections.unmodifiableSet(builder.dependencies);
     }
 
     public String getName() {
@@ -46,17 +53,25 @@ public final class ConfigurationStep {
         return propertyGroups;
     }
 
+    /**
+     * @return the set of dependencies that this step has on other steps' properties
+     */
+    public Set<ConfigurationStepDependency> getDependencies() {
+        return dependencies;
+    }
+
     public static final class Builder {
         private String name;
         private String description;
         private List<ConnectorPropertyGroup> propertyGroups = Collections.emptyList();
+        private final Set<ConfigurationStepDependency> dependencies = new HashSet<>();
 
-        public Builder name(String name) {
+        public Builder name(final String name) {
             this.name = name;
             return this;
         }
 
-        public Builder description(String description) {
+        public Builder description(final String description) {
             this.description = description;
             return this;
         }
@@ -64,6 +79,75 @@ public final class ConfigurationStep {
         public Builder propertyGroups(final List<ConnectorPropertyGroup> propertyGroups) {
             this.propertyGroups = new ArrayList<>(propertyGroups);
             return this;
+        }
+
+        /**
+         * Sets a dependency on another ConfigurationStep's property having some (any) value configured.
+         *
+         * @param step the ConfigurationStep that this step depends on
+         * @param property the property within the specified step that must have a value
+         * @return this Builder for method chaining
+         */
+        public Builder dependsOn(final ConfigurationStep step, final ConnectorPropertyDescriptor property) {
+            dependencies.add(new ConfigurationStepDependency(step.getName(), property.getName()));
+            return this;
+        }
+
+        /**
+         * Sets a dependency on another ConfigurationStep's property having one of the specified values.
+         *
+         * @param step the ConfigurationStep that this step depends on
+         * @param property the property within the specified step that must have one of the specified values
+         * @param dependentValues the list of values that satisfy this dependency
+         * @return this Builder for method chaining
+         */
+        public Builder dependsOn(final ConfigurationStep step, final ConnectorPropertyDescriptor property, final List<DescribedValue> dependentValues) {
+            if (dependentValues == null || dependentValues.isEmpty()) {
+                dependencies.add(new ConfigurationStepDependency(step.getName(), property.getName()));
+            } else {
+                final Set<String> dependentValueSet = dependentValues.stream()
+                    .map(DescribedValue::getValue)
+                    .collect(Collectors.toSet());
+
+                dependencies.add(new ConfigurationStepDependency(step.getName(), property.getName(), dependentValueSet));
+            }
+
+            return this;
+        }
+
+        /**
+         * Sets a dependency on another ConfigurationStep's property having one of the specified values.
+         *
+         * @param step the ConfigurationStep that this step depends on
+         * @param property the property within the specified step that must have one of the specified values
+         * @param firstDependentValue the first value that satisfies this dependency
+         * @param additionalDependentValues additional values that satisfy this dependency
+         * @return this Builder for method chaining
+         */
+        public Builder dependsOn(final ConfigurationStep step, final ConnectorPropertyDescriptor property,
+                final DescribedValue firstDependentValue, final DescribedValue... additionalDependentValues) {
+
+            final List<DescribedValue> dependentValues = new ArrayList<>();
+            dependentValues.add(firstDependentValue);
+            dependentValues.addAll(Arrays.asList(additionalDependentValues));
+            return dependsOn(step, property, dependentValues);
+        }
+
+        /**
+         * Sets a dependency on another ConfigurationStep's property having one of the specified string values.
+         *
+         * @param step the ConfigurationStep that this step depends on
+         * @param property the property within the specified step that must have one of the specified values
+         * @param dependentValues the string values that satisfy this dependency
+         * @return this Builder for method chaining
+         */
+        public Builder dependsOn(final ConfigurationStep step, final ConnectorPropertyDescriptor property, final String... dependentValues) {
+            final List<DescribedValue> describedValues = Arrays.stream(dependentValues)
+                .map(AllowableValue::new)
+                .map(DescribedValue.class::cast)
+                .toList();
+
+            return dependsOn(step, property, describedValues);
         }
 
         public ConfigurationStep build() {

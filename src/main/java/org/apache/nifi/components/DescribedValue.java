@@ -35,4 +35,21 @@ public interface DescribedValue {
      * @return the property description as a string
      */
     String getDescription();
+
+    DescribedValue NULL = new DescribedValue() {
+        @Override
+        public String getValue() {
+            return null;
+        }
+
+        @Override
+        public String getDisplayName() {
+            return "NULL";
+        }
+
+        @Override
+        public String getDescription() {
+            return "A null value";
+        }
+    };
 }
