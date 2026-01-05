@@ -38,6 +38,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -838,8 +839,61 @@ public class TestAbstractConnector {
 
         final List<ValidationResult> results = connector.validate(flowContext, validationContext);
 
-        assertTrue(results.isEmpty(), "Step 2 should be skipped because Property With Default has a default value");
+        assertTrue(results.isEmpty(), "Step 2 should be skipped because Property 'With Default' has a default value");
         assertTrue(connector.isCustomValidateCalled());
+    }
+
+    @Test
+    void testValidateWithUndefinedPropertiesConfigured() {
+        final ConnectorPropertyDescriptor validProperty = new ConnectorPropertyDescriptor.Builder()
+            .name("Valid Property")
+            .description("A valid property")
+            .required(true)
+            .build();
+
+        final ConnectorPropertyGroup propertyGroup = ConnectorPropertyGroup.builder()
+            .name("Test Group")
+            .addProperty(validProperty)
+            .build();
+
+        final ConfigurationStep configStep = new ConfigurationStep.Builder()
+            .name("Test Step")
+            .propertyGroups(List.of(propertyGroup))
+            .build();
+
+        connector.setConfigurationSteps(List.of(configStep));
+
+        // Mock the configuration context to return property names including multiple undefined properties
+        when(configurationContext.getPropertyNames("Test Step"))
+            .thenReturn(Set.of("Valid Property", "undefined.one", "undefined.two"));
+
+        final ConnectorPropertyValue validValue = mock(ConnectorPropertyValue.class);
+        when(validValue.getValue()).thenReturn("valid-value");
+        when(validValue.isSet()).thenReturn(true);
+        when(configurationContext.getProperty("Test Step", "Valid Property")).thenReturn(validValue);
+
+        final ConnectorPropertyValue undefinedValue = mock(ConnectorPropertyValue.class);
+        when(undefinedValue.getValue()).thenReturn("some-value");
+        when(undefinedValue.isSet()).thenReturn(true);
+        when(configurationContext.getProperty("Test Step", "undefined.one")).thenReturn(undefinedValue);
+        when(configurationContext.getProperty("Test Step", "undefined.two")).thenReturn(undefinedValue);
+
+        final List<ValidationResult> results = connector.validate(flowContext, validationContext);
+
+        assertEquals(2, results.size());
+
+        // Verify both undefined properties are reported as invalid
+        final List<String> invalidSubjects = results.stream()
+            .map(ValidationResult::getSubject)
+            .toList();
+        assertTrue(invalidSubjects.contains("undefined.one"));
+        assertTrue(invalidSubjects.contains("undefined.two"));
+
+        for (final ValidationResult result : results) {
+            assertFalse(result.isValid());
+        }
+
+        assertFalse(connector.isCustomValidateCalled());
     }
 
     private static class TestableAbstractConnector extends AbstractConnector {
