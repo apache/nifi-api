@@ -156,7 +156,7 @@ public abstract class AbstractConnector implements Connector {
      * @param flowContext the FlowContext to use for drainage
      * @return a CompletableFuture that will be completed when drainage is complete
      */
-    protected CompletableFuture<Void> drainFlowFiles(final FlowContext flowContext) {
+    public CompletableFuture<Void> drainFlowFiles(final FlowContext flowContext) {
         final CompletableFuture<Void> result = new CompletableFuture<>();
         final QueueSize initialQueueSize = flowContext.getRootGroup().getQueueSize();
         if (initialQueueSize.getObjectCount() == 0) {
@@ -454,7 +454,32 @@ public abstract class AbstractConnector implements Connector {
         final String stepName = configurationStep.getName();
         final List<ValidationResult> results = new ArrayList<>();
 
+        // Build a set of all valid property names defined by this configuration step
         final List<ConnectorPropertyGroup> propertyGroups = configurationStep.getPropertyGroups();
+        final Set<String> validPropertyNames = new HashSet<>();
+        for (final ConnectorPropertyGroup propertyGroup : propertyGroups) {
+            final List<ConnectorPropertyDescriptor> descriptors = propertyGroup.getProperties();
+            for (final ConnectorPropertyDescriptor descriptor : descriptors) {
+                validPropertyNames.add(descriptor.getName());
+            }
+        }
+
+        // Check for any properties that have been set but are not defined by this configuration step
+        final Set<String> configuredPropertyNames = configurationContext.getPropertyNames(stepName);
+        for (final String configuredPropertyName : configuredPropertyNames) {
+            if (!validPropertyNames.contains(configuredPropertyName)) {
+                final String configuredValue = configurationContext.getProperty(stepName, configuredPropertyName).getValue();
+
+                final ValidationResult invalidResult = new ValidationResult.Builder()
+                    .valid(false)
+                    .input(configuredValue)
+                    .subject(configuredPropertyName)
+                    .explanation("Property '" + configuredPropertyName + "' is not defined by Connector for Configuration Step '" + stepName + "'")
+                    .build();
+                results.add(invalidResult);
+            }
+        }
+
         for (final ConnectorPropertyGroup propertyGroup : propertyGroups) {
             final List<ConnectorPropertyDescriptor> descriptors = propertyGroup.getProperties();
             final Map<String, ConnectorPropertyDescriptor> descriptorMap = descriptors.stream()
