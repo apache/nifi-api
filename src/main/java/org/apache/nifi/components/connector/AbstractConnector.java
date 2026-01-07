@@ -156,6 +156,7 @@ public abstract class AbstractConnector implements Connector {
      * @param flowContext the FlowContext to use for drainage
      * @return a CompletableFuture that will be completed when drainage is complete
      */
+    @Override
     public CompletableFuture<Void> drainFlowFiles(final FlowContext flowContext) {
         final CompletableFuture<Void> result = new CompletableFuture<>();
         final QueueSize initialQueueSize = flowContext.getRootGroup().getQueueSize();
