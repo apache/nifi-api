@@ -43,7 +43,36 @@ public interface ProcessorFacade {
 
     List<ConfigVerificationResult> verify(VersionedExternalFlow versionedExternalFlow, Map<String, String> attributes);
 
+    /**
+     * <p>
+     * Invokes the {@link ConnectorMethod} with the given name, passing in the provided arguments. The arguments Map will be
+     * serialized into JSON. This provides the ability to pass complex data structures but means that arbitrary objects that
+     * contain methods will not be provided as-is. This is necessary due to ClassLoader isolation.
+     * </p>
+     * <p>
+     * Likewise, the return value will be deserialized from JSON into a standard Java object. Depending on the value returned,
+     * the returned object may be a primitive, a String, List, Map, etc. Complex objects will be represented as Maps of property names to values.
+     * </p>
+     *
+     * @param methodName the name of the ConnectorMethod to invoke
+     * @param arguments the arguments to pass to the method
+     * @return the result of the method invocation, deserialized from JSON
+     * @throws InvocationFailedException if unable to invoke the method
+     */
     Object invokeConnectorMethod(String methodName, Map<String, Object> arguments) throws InvocationFailedException;
 
+    /**
+     * Invokes the {@link ConnectorMethod} with the given name, passing in the provided arguments. The arguments
+     * Map will be serialized into JSON. This provides the ability to pass complex data structures but means that
+     * arbitrary objects that contain methods will not be provided as-is. This is necessary due to ClassLoader
+     * isolation.
+     *
+     * @param methodName the name of the ConnectorMethod to invoke
+     * @param arguments the arguments to pass to the method
+     * @param returnType the expected return type
+     * @return the result of the method invocation, deserialized from JSON into the specified return type
+     * @param <T> the expected return type
+     * @throws InvocationFailedException if unable to invoke the method
+     */
     <T> T invokeConnectorMethod(String methodName, Map<String, Object> arguments, Class<T> returnType) throws InvocationFailedException;
 }
