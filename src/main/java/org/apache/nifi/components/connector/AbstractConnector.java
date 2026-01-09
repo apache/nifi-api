@@ -156,6 +156,7 @@ public abstract class AbstractConnector implements Connector {
      * @param flowContext the FlowContext to use for drainage
      * @return a CompletableFuture that will be completed when drainage is complete
      */
+    @Override
     public CompletableFuture<Void> drainFlowFiles(final FlowContext flowContext) {
         final CompletableFuture<Void> result = new CompletableFuture<>();
         final QueueSize initialQueueSize = flowContext.getRootGroup().getQueueSize();
@@ -196,6 +197,11 @@ public abstract class AbstractConnector implements Connector {
 
                 result.completeExceptionally(new RuntimeException("Failed to start non-source processors while draining FlowFiles", e.getCause()));
             }
+        }).exceptionally(throwable -> {
+            if (!result.isDone()) {
+                result.completeExceptionally(new RuntimeException("Failed to stop source processors while draining FlowFiles", throwable));
+            }
+            return null;
         });
 
         startNonSourceFuture.thenRun(() -> {
@@ -253,6 +259,11 @@ public abstract class AbstractConnector implements Connector {
             if (!result.isDone()) {
                 result.complete(null);
             }
+        }).exceptionally(throwable -> {
+            if (!result.isDone()) {
+                result.completeExceptionally(new RuntimeException("Failed while draining FlowFiles", throwable));
+            }
+            return null;
         });
 
         return result;
