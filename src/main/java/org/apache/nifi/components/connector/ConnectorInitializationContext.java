@@ -52,6 +52,13 @@ public interface ConnectorInitializationContext {
     ComponentLog getLogger();
 
     /**
+     * Returns the ComponentBundleLookup that can be used to determine which bundles are available
+     * for a given component type.
+     * @return the ComponentBundleLookup
+     */
+    ComponentBundleLookup getComponentBundleLookup();
+
+    /**
      * <p>
      *   Updates the Connector's flow to the given VersionedExternalFlow. This may be a long-running process, as it involves
      *   several steps, to include:

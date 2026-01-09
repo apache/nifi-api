@@ -16,12 +16,15 @@
  */
 package org.apache.nifi.documentation.init;
 
-import java.util.UUID;
+import org.apache.nifi.components.connector.ComponentBundleLookup;
 import org.apache.nifi.components.connector.ConnectorInitializationContext;
 import org.apache.nifi.components.connector.FlowUpdateException;
 import org.apache.nifi.components.connector.components.FlowContext;
 import org.apache.nifi.flow.VersionedExternalFlow;
 import org.apache.nifi.logging.ComponentLog;
+
+import java.util.List;
+import java.util.UUID;
 
 /**
  * A ConnectorInitializationContext implementation for use during documentation generation.
@@ -44,6 +47,11 @@ public class DocumentationConnectorInitializationContext implements ConnectorIni
     @Override
     public ComponentLog getLogger() {
         return new NopComponentLog();
+    }
+
+    @Override
+    public ComponentBundleLookup getComponentBundleLookup() {
+        return componentType -> List.of();
     }
 
     @Override
