@@ -25,6 +25,7 @@ import org.apache.nifi.flow.VersionedExternalFlow;
 
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 /**
  * <p>
@@ -195,4 +196,12 @@ public interface Connector {
     List<AllowableValue> fetchAllowableValues(String stepName, String propertyName, FlowContext flowContext);
 
     List<AllowableValue> fetchAllowableValues(String stepName, String propertyName, FlowContext flowContext, String filter);
+
+    /**
+     * Drains any in-flight FlowFiles from the flow associated with the given Flow Context by processing the existing data
+     * but not accepting any new data.
+     * @param flowContext the flow context
+     * @return a Future that will be completed when the draining is complete
+     */
+    CompletableFuture<Void> drainFlowFiles(FlowContext flowContext);
 }
