@@ -38,4 +38,5 @@ public interface ProcessGroupLifecycle {
 
     CompletableFuture<Void> stopProcessors();
 
+    int getActiveThreadCount();
 }
