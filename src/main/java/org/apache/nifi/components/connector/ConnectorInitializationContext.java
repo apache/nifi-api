@@ -70,7 +70,6 @@ public interface ConnectorInitializationContext {
      *   <li>Restarting all components</li>
      * </ul>
      *
-     *
      * <p>
      *     Depending on the changes required in order to update the flow to the provided VersionedProcessGroup, this
      *     could also result in stopping source processors and waiting for queues to drain, etc.
@@ -82,9 +81,34 @@ public interface ConnectorInitializationContext {
      *   be started.
      * </p>
      *
+     * <p>
+     *   This method uses the Bundle Compatability strategy of {@link BundleCompatibility#RESOLVE_BUNDLE}.
+     * </p>
+     *
      * @param flowContext the context of the flow to be updated
      * @param versionedExternalFlow the new representation of the flow
      */
-    void updateFlow(FlowContext flowContext, VersionedExternalFlow versionedExternalFlow) throws FlowUpdateException;
+    default void updateFlow(FlowContext flowContext, VersionedExternalFlow versionedExternalFlow) throws FlowUpdateException {
+        updateFlow(flowContext, versionedExternalFlow, BundleCompatibility.RESOLVE_BUNDLE);
+    }
+
+    /**
+     * <p>
+     *   Updates the Connector's flow to the given VersionedExternalFlow with the specified bundle compatibility strategy.
+     *   This method behaves like {@link #updateFlow(FlowContext, VersionedExternalFlow)} but allows control over how
+     *   component bundles are resolved when the specified bundle is not available.
+     * </p>
+     *
+     * <p>
+     *    Note that if Bundle Compatability is not set to {@link BundleCompatibility#REQUIRE_EXACT_BUNDLE}, this method may update the provided
+     *    VersionedExternalFlow to represent the actual bundles used during the update.
+     * </p>
+     *
+     * @param flowContext the context of the flow to be updated
+     * @param versionedExternalFlow the new representation of the flow
+     * @param bundleCompatability the strategy to use when resolving component bundles
+     * @throws FlowUpdateException if the flow update fails
+     */
+    void updateFlow(FlowContext flowContext, VersionedExternalFlow versionedExternalFlow, BundleCompatibility bundleCompatability) throws FlowUpdateException;
 
 }

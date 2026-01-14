@@ -16,10 +16,12 @@
  */
 package org.apache.nifi.documentation.init;
 
+import org.apache.nifi.components.connector.BundleCompatibility;
 import org.apache.nifi.components.connector.ComponentBundleLookup;
 import org.apache.nifi.components.connector.ConnectorInitializationContext;
 import org.apache.nifi.components.connector.FlowUpdateException;
 import org.apache.nifi.components.connector.components.FlowContext;
+import org.apache.nifi.flow.Bundle;
 import org.apache.nifi.flow.VersionedExternalFlow;
 import org.apache.nifi.logging.ComponentLog;
 
@@ -51,11 +53,22 @@ public class DocumentationConnectorInitializationContext implements ConnectorIni
 
     @Override
     public ComponentBundleLookup getComponentBundleLookup() {
-        return componentType -> List.of();
+        return new ComponentBundleLookup() {
+            @Override
+            public List<Bundle> getAvailableBundles(final String componentType) {
+                return List.of();
+            }
+
+            @Override
+            public Bundle getLatestBundle(final String componentType) {
+                return null;
+            }
+        };
     }
 
     @Override
-    public void updateFlow(final FlowContext flowContext, final VersionedExternalFlow versionedExternalFlow) throws FlowUpdateException {
+    public void updateFlow(final FlowContext flowContext, final VersionedExternalFlow versionedExternalFlow,
+                           final BundleCompatibility bundleCompatability) throws FlowUpdateException {
         // No-op for documentation purposes - we don't actually update any flows
     }
 }
