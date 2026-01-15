@@ -254,6 +254,17 @@ public interface ProcessSession {
     void adjustCounter(String name, long delta, boolean immediate);
 
     /**
+     * Record measurement value for the named Gauge, registering the named Gauge when not present in the system.
+     *
+     * @param name Gauge name to update or register
+     * @param value Measurement value to record
+     * @param commitTiming Timing for when the measurement value should be committed
+     */
+    default void recordGauge(String name, double value, CommitTiming commitTiming) {
+
+    }
+
+    /**
      * Returns the {@link FlowFile} from the work queue that is next highest priority to process.
      * If no FlowFiles are available, returns {@code null}.
      *
