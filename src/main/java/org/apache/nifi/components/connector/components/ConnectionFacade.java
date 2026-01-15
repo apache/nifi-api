@@ -17,8 +17,13 @@
 
 package org.apache.nifi.components.connector.components;
 
+import org.apache.nifi.components.connector.DropFlowFileSummary;
 import org.apache.nifi.controller.queue.QueueSize;
 import org.apache.nifi.flow.VersionedConnection;
+import org.apache.nifi.flowfile.FlowFile;
+
+import java.io.IOException;
+import java.util.function.Predicate;
 
 public interface ConnectionFacade {
 
@@ -34,5 +39,14 @@ public interface ConnectionFacade {
      * Purges all data from the connection.
      */
     void purge();
+
+    /**
+     * Drops all FlowFiles from the connection that match the given predicate.
+     *
+     * @param predicate the predicate to use to determine which FlowFiles to drop
+     * @return a summary of the FlowFiles that were dropped
+     * @throws IOException if an I/O error occurs while dropping FlowFiles
+     */
+    DropFlowFileSummary dropFlowFiles(Predicate<FlowFile> predicate) throws IOException;
 
 }
