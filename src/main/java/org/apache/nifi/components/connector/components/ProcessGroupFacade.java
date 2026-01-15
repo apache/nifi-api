@@ -17,10 +17,14 @@
 
 package org.apache.nifi.components.connector.components;
 
+import org.apache.nifi.components.connector.DropFlowFileSummary;
 import org.apache.nifi.controller.queue.QueueSize;
 import org.apache.nifi.flow.VersionedProcessGroup;
+import org.apache.nifi.flowfile.FlowFile;
 
+import java.io.IOException;
 import java.util.Set;
+import java.util.function.Predicate;
 
 public interface ProcessGroupFacade {
 
@@ -51,5 +55,15 @@ public interface ProcessGroupFacade {
     StatelessGroupLifecycle getStatelessLifecycle();
 
     ProcessGroupLifecycle getLifecycle();
+
+    /**
+     * Drops all FlowFiles from all connections in this ProcessGroup and its child ProcessGroups
+     * that match the given predicate.
+     *
+     * @param predicate the predicate to test each FlowFile against
+     * @return a summary of the dropped FlowFiles
+     * @throws IOException if an I/O error occurs while dropping FlowFiles
+     */
+    DropFlowFileSummary dropFlowFiles(Predicate<FlowFile> predicate) throws IOException;
 
 }
