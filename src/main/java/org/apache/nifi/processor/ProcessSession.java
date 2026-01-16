@@ -37,6 +37,7 @@ import org.apache.nifi.processor.exception.ProcessException;
 import org.apache.nifi.processor.io.InputStreamCallback;
 import org.apache.nifi.processor.io.OutputStreamCallback;
 import org.apache.nifi.processor.io.StreamCallback;
+import org.apache.nifi.processor.metrics.CommitTiming;
 import org.apache.nifi.provenance.ProvenanceReporter;
 import org.apache.nifi.provenance.ProvenanceEventType;
 
@@ -255,6 +256,7 @@ public interface ProcessSession {
 
     /**
      * Record measurement value for the named Gauge, registering the named Gauge when not present in the system.
+     * Gauges represent a measurement at a point in time, unlike counters that track cumulative values.
      *
      * @param name Gauge name to update or register
      * @param value Measurement value to record
