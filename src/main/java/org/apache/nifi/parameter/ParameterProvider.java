@@ -106,7 +106,8 @@ public interface ParameterProvider extends ConfigurableComponent {
         for (final ParameterGroup group : allGroups) {
             // Determine which parameter names are desired from this group
             final List<String> desiredParameterNames = new ArrayList<>();
-            final String prefix = group.getGroupName() + ".";
+            final String name = context.getName();
+            final String prefix = name + "." + group.getGroupName() + ".";
             for (final String fullyQualifiedParameterName : fullyQualifiedParameterNames) {
                 if (fullyQualifiedParameterName.startsWith(prefix)) {
                     final String secretName = fullyQualifiedParameterName.substring(prefix.length());
