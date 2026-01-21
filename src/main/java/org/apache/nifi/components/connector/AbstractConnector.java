@@ -204,7 +204,7 @@ public abstract class AbstractConnector implements Connector {
             return null;
         });
 
-        startNonSourceFuture.thenRun(() -> {
+        startNonSourceFuture.thenRunAsync(() -> {
             try {
                 ensureDrainageUnblocked();
             } catch (final Exception e) {
