@@ -96,6 +96,6 @@ public final class SecretReference implements ConnectorValueReference {
 
     @Override
     public String toString() {
-        return "SecretReference[providerId=" + providerId + ", providerName=" + providerName + ", secretName=" + secretName + "]";
+        return "SecretReference[providerId=" + providerId + ", providerName=" + providerName + ", secretName=" + secretName + ", fullyQualifiedName=" + fullyQualifiedName + "]";
     }
 }
