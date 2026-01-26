@@ -17,9 +17,9 @@
 
 package org.apache.nifi.reporting;
 
+import org.apache.nifi.components.ConfigVerificationResult;
 import org.apache.nifi.controller.ConfigurationContext;
 import org.apache.nifi.logging.ComponentLog;
-import org.apache.nifi.components.ConfigVerificationResult;
 
 import java.util.List;
 

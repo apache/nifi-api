@@ -16,10 +16,11 @@
  */
 package org.apache.nifi.documentation;
 
+import org.apache.nifi.components.ConfigurableComponent;
+
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Map;
-import org.apache.nifi.components.ConfigurableComponent;
 
 /**
  * Generates documentation for an instance of a ConfigurableComponent.

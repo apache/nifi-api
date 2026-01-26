@@ -16,12 +16,13 @@
  */
 package org.apache.nifi.reporting;
 
-import java.util.concurrent.TimeUnit;
 import org.apache.nifi.controller.ControllerServiceLookup;
 import org.apache.nifi.controller.NodeTypeProvider;
 import org.apache.nifi.kerberos.KerberosContext;
 import org.apache.nifi.logging.ComponentLog;
 import org.apache.nifi.scheduling.SchedulingStrategy;
+
+import java.util.concurrent.TimeUnit;
 
 /**
  * A ReportingConfiguration provides configuration information to a

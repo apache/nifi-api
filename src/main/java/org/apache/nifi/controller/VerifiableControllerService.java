@@ -17,8 +17,8 @@
 
 package org.apache.nifi.controller;
 
-import org.apache.nifi.logging.ComponentLog;
 import org.apache.nifi.components.ConfigVerificationResult;
+import org.apache.nifi.logging.ComponentLog;
 
 import java.util.List;
 import java.util.Map;

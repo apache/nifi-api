@@ -19,8 +19,8 @@ package org.apache.nifi.registry.flow;
 import org.apache.nifi.components.AbstractConfigurableComponent;
 import org.apache.nifi.logging.ComponentLog;
 
-import javax.net.ssl.SSLContext;
 import java.util.Optional;
+import javax.net.ssl.SSLContext;
 
 public abstract class AbstractFlowRegistryClient extends AbstractConfigurableComponent implements FlowRegistryClient {
 

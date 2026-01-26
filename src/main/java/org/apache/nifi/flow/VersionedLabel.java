@@ -17,9 +17,9 @@
 
 package org.apache.nifi.flow;
 
-import java.util.Map;
-
 import io.swagger.v3.oas.annotations.media.Schema;
+
+import java.util.Map;
 
 public class VersionedLabel extends VersionedComponent {
     private String label;

@@ -25,7 +25,6 @@ public class ProcessException extends RuntimeException {
     private static final long serialVersionUID = 1L;
 
     public ProcessException() {
-        super();
     }
 
     public ProcessException(final String message) {

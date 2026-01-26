@@ -16,8 +16,6 @@
  */
 package org.apache.nifi.processor;
 
-import java.util.Collections;
-import java.util.Set;
 import org.apache.nifi.annotation.lifecycle.OnConfigurationRestored;
 import org.apache.nifi.annotation.lifecycle.OnScheduled;
 import org.apache.nifi.annotation.lifecycle.OnUnscheduled;
@@ -25,6 +23,9 @@ import org.apache.nifi.components.AbstractConfigurableComponent;
 import org.apache.nifi.controller.ControllerServiceLookup;
 import org.apache.nifi.controller.NodeTypeProvider;
 import org.apache.nifi.logging.ComponentLog;
+
+import java.util.Collections;
+import java.util.Set;
 
 /**
  * <p>

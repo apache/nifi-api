@@ -16,15 +16,16 @@
  */
 package org.apache.nifi.annotation.behavior;
 
+import org.apache.nifi.components.PropertyDescriptor;
+import org.apache.nifi.processor.Processor;
+import org.apache.nifi.processor.Relationship;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Inherited;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
-import org.apache.nifi.components.PropertyDescriptor;
-import org.apache.nifi.processor.Processor;
-import org.apache.nifi.processor.Relationship;
 
 /**
  * Annotation to indicate that a {@link Processor} supports dynamic

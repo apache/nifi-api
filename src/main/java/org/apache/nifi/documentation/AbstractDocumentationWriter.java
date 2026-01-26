@@ -55,9 +55,9 @@ import org.apache.nifi.flowanalysis.FlowAnalysisRule;
 import org.apache.nifi.parameter.ParameterProvider;
 import org.apache.nifi.processor.Processor;
 import org.apache.nifi.processor.Relationship;
+import org.apache.nifi.registry.flow.FlowRegistryClient;
 import org.apache.nifi.reporting.InitializationException;
 import org.apache.nifi.reporting.ReportingTask;
-import org.apache.nifi.registry.flow.FlowRegistryClient;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -156,8 +156,7 @@ public abstract class AbstractDocumentationWriter implements ExtensionDocumentat
         writeDynamicProperties(getDynamicProperties(component));
         writeSupportsSensitiveDynamicProperties(component.getClass().getAnnotation(SupportsSensitiveDynamicProperties.class));
 
-        if (component instanceof Processor) {
-            final Processor processor = (Processor) component;
+        if (component instanceof Processor processor) {
 
             writeRelationships(processor.getRelationships());
             writeDynamicRelationship(getDynamicRelationship(processor));

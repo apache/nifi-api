@@ -16,10 +16,11 @@
  */
 package org.apache.nifi.controller.status;
 
+import org.apache.nifi.scheduling.ExecutionNode;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import org.apache.nifi.scheduling.ExecutionNode;
 
 public class ProcessorStatus implements Cloneable {
 

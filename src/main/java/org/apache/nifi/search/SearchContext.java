@@ -16,9 +16,10 @@
  */
 package org.apache.nifi.search;
 
-import java.util.Map;
 import org.apache.nifi.components.PropertyDescriptor;
 import org.apache.nifi.components.PropertyValue;
+
+import java.util.Map;
 
 public interface SearchContext {
 

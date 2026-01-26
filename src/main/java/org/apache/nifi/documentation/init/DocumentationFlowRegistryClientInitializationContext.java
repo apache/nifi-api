@@ -19,9 +19,9 @@ package org.apache.nifi.documentation.init;
 import org.apache.nifi.logging.ComponentLog;
 import org.apache.nifi.registry.flow.FlowRegistryClientInitializationContext;
 
-import javax.net.ssl.SSLContext;
 import java.util.Optional;
 import java.util.UUID;
+import javax.net.ssl.SSLContext;
 
 public class DocumentationFlowRegistryClientInitializationContext implements FlowRegistryClientInitializationContext {
     private final String identifier = UUID.randomUUID().toString();

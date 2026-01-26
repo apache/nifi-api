@@ -16,9 +16,10 @@
  */
 package org.apache.nifi.components;
 
+import org.apache.nifi.annotation.lifecycle.OnConfigurationRestored;
+
 import java.util.Collection;
 import java.util.List;
-import org.apache.nifi.annotation.lifecycle.OnConfigurationRestored;
 
 public interface ConfigurableComponent {
 

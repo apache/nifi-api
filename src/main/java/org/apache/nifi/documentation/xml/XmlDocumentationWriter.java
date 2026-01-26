@@ -16,21 +16,6 @@
  */
 package org.apache.nifi.documentation.xml;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.function.Function;
-import javax.xml.stream.XMLOutputFactory;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamWriter;
 import org.apache.nifi.annotation.behavior.DynamicProperty;
 import org.apache.nifi.annotation.behavior.DynamicRelationship;
 import org.apache.nifi.annotation.behavior.InputRequirement;
@@ -56,16 +41,32 @@ import org.apache.nifi.annotation.documentation.SeeAlso;
 import org.apache.nifi.annotation.documentation.UseCase;
 import org.apache.nifi.components.AllowableValue;
 import org.apache.nifi.components.ConfigurableComponent;
-import org.apache.nifi.components.listen.ListenPortDefinition;
 import org.apache.nifi.components.PropertyDependency;
 import org.apache.nifi.components.PropertyDescriptor;
 import org.apache.nifi.components.RequiredPermission;
+import org.apache.nifi.components.listen.ListenPortDefinition;
 import org.apache.nifi.components.resource.ResourceDefinition;
 import org.apache.nifi.components.resource.ResourceType;
 import org.apache.nifi.documentation.AbstractDocumentationWriter;
 import org.apache.nifi.documentation.ExtensionType;
 import org.apache.nifi.documentation.ServiceAPI;
 import org.apache.nifi.processor.Relationship;
+
+import java.io.IOException;
+import java.io.OutputStream;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
+import java.util.function.Function;
+import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamWriter;
 
 /**
  * XML-based implementation of DocumentationWriter.

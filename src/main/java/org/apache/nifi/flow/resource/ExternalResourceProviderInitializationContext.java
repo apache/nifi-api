@@ -16,9 +16,9 @@
  */
 package org.apache.nifi.flow.resource;
 
-import javax.net.ssl.SSLContext;
 import java.util.Map;
 import java.util.function.Predicate;
+import javax.net.ssl.SSLContext;
 
 /**
  * Contains necessary information for extensions of external resource provider functionality.

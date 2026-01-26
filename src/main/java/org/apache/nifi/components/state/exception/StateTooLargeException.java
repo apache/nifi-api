@@ -17,8 +17,9 @@
 
 package org.apache.nifi.components.state.exception;
 
-import java.io.IOException;
 import org.apache.nifi.components.state.StateManager;
+
+import java.io.IOException;
 
 /**
  * Thrown when attempting to store state via the {@link StateManager} but the state being
