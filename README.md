@@ -10,7 +10,7 @@ The [Apache NiFi](https://nifi.apache.org) API repository contains public interf
 ## Requirements
 
 - Java 21
-- Maven 3.9
+- Maven 3.9.11
 
 ## Versioning
 
