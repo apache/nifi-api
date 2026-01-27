@@ -26,6 +26,7 @@ import org.apache.nifi.flow.VersionedExternalFlow;
 import org.apache.nifi.logging.ComponentLog;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -60,8 +61,8 @@ public class DocumentationConnectorInitializationContext implements ConnectorIni
             }
 
             @Override
-            public Bundle getLatestBundle(final String componentType) {
-                return null;
+            public Optional<Bundle> getLatestBundle(final String componentType) {
+                return Optional.empty();
             }
         };
     }

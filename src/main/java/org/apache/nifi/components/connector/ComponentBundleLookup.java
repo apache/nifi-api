@@ -20,6 +20,7 @@ package org.apache.nifi.components.connector;
 import org.apache.nifi.flow.Bundle;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ComponentBundleLookup {
 
@@ -61,8 +62,8 @@ public interface ComponentBundleLookup {
      * </ul>
      *
      * @param componentType the component type
-     * @return the latest available bundle, or null if no bundles are available
+     * @return an Optional containing the latest available bundle, or empty if no bundles are available
      */
-    Bundle getLatestBundle(String componentType);
+    Optional<Bundle> getLatestBundle(String componentType);
 
 }
