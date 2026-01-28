@@ -54,7 +54,7 @@ public interface ReportingContext extends PropertyContext {
     /**
      * Creates a controller-level {@link Bulletin} with the given category, severity
      * level, and message, so that the Bulletin can be added to the
-     * {@link BulletinRepository}. Access to this bulletin will be enforce through
+     * {@link BulletinRepository}. Access to this bulletin will be enforced through
      * permissions on the controller.
      *
      * @param category of bulletin

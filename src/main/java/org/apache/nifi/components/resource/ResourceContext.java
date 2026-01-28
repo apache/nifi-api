@@ -20,7 +20,7 @@ package org.apache.nifi.components.resource;
 import org.apache.nifi.components.PropertyDescriptor;
 
 /**
- * Provides the context in which a Reference Reference is to be evaluated
+ * Provides the context in which a Reference is to be evaluated
  */
 public interface ResourceContext {
     /**

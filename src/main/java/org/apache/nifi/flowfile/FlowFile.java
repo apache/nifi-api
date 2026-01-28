@@ -116,7 +116,7 @@ public interface FlowFile extends Comparable<FlowFile> {
 
         public static String validateKey(final String key) {
             // We used to validate the key by disallowing a handful of keywords, but this requirement no longer exists.
-            // Therefore this method simply verifies that the key is not empty.
+            // Therefore, this method simply verifies that the key is not empty.
             if (key == null) {
                 throw new IllegalArgumentException("Invalid attribute key: null");
             }

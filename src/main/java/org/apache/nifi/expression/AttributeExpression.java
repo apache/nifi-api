@@ -47,8 +47,8 @@ public interface AttributeExpression {
 
     /**
      * Evaluates the expression providing access to additional variables
-     * including the flow file properties such as file size, identifier, etc..
-     * and also all of the flow file attributes.
+     * including the flow file properties such as file size, identifier, etc.
+     * and also all the flow file attributes.
      *
      * @param flowFile to evaluate
      * @return evaluated value
@@ -58,8 +58,8 @@ public interface AttributeExpression {
 
     /**
      * Evaluates the expression providing access to additional variables
-     * including the flow file properties such as file size, identifier, etc..
-     * and also all of the flow file attributes. The resulting value after
+     * including the flow file properties such as file size, identifier, etc.
+     * and also all the flow file attributes. The resulting value after
      * executing any variable substitution and expression evaluation is run
      * through the given decorator and returned.
      *

@@ -565,7 +565,7 @@ public final class PropertyDescriptor implements Comparable<PropertyDescriptor> 
          *     is used, the input must be a regular file. If <code>identifiesExternalResource(ResourceCardinality.SINGLE, ResourceType.FILE, ResourceType.DIRECTORY)</code> is used, then the input
          *     must be exactly one file OR directory.
          *     </li>
-         *     <li>If the ResourceCardinality is MULTIPLE, the given property value may consist of one or more resources, each separted by a comma and optional white space.</li>
+         *     <li>If the ResourceCardinality is MULTIPLE, the given property value may consist of one or more resources, each separated by a comma and optional white space.</li>
          * </ul>
          * <p>
          * Generally, any property descriptor that makes use of the {@link #dynamicallyModifiesClasspath(boolean)} method to dynamically update its classpath should also
@@ -827,7 +827,7 @@ public final class PropertyDescriptor implements Comparable<PropertyDescriptor> 
          * Constructs a validator that will check if the given value is in the
          * given set.
          *
-         * @param validValues values which are acceptible
+         * @param validValues values which are acceptable
          * @throws NullPointerException if the given validValues is null
          */
         private ConstrainedSetValidator(final Collection<AllowableValue> validValues) {

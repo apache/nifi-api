@@ -126,7 +126,7 @@ public enum ProvenanceEventType {
      * event will indicate the UUID of the original FlowFile that is being
      * replayed. The event will contain exactly one Parent UUID that is also the
      * UUID of the FlowFile that is being replayed and exactly one Child UUID
-     * that is the UUID of the a newly created FlowFile that will be re-queued
+     * that is the UUID of the newly created FlowFile that will be re-queued
      * for processing.
      */
     REPLAY,

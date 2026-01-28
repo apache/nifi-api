@@ -22,7 +22,7 @@ public interface KerberosContext {
 
     /**
      * The Kerberos service principal used by NiFi to communicate with the KDC
-     * in order to obtain tickets on behalf of NiFi. Typically of the form
+     * in order to obtain tickets on behalf of NiFi. Typically, of the form
      * NIFI/fully.qualified.domain@REALM.
      *
      * @return the principal, or null if this NiFi instance is not configured

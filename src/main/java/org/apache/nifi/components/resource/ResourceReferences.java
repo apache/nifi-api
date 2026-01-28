@@ -51,7 +51,7 @@ public interface ResourceReferences {
      * holds a single ResourceReference, of type DIRECTORY and the referenced directory contains 10 files. Calling {@link #asList()} would
      * return a single ResourceReference. But calling <code>flatten()</code> would return a new ResourceReferences type whose {@link #asList()}
      * method would return 10 ResourceReference objects, each with a ResourceType of FILE. The flatten operation is not recursive, meaning that if
-     * a DIRECTORY is flattened, any sub-directories will be dropped. If the contents of the subdirectories are to be retained, use {@link #flattenRecursively()}
+     * a DIRECTORY is flattened, any subdirectories will be dropped. If the contents of the subdirectories are to be retained, use {@link #flattenRecursively()}
      * instead.
      *
      * @return a flattened ResourceReferences

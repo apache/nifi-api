@@ -35,7 +35,7 @@ package org.apache.nifi.logging;
  * Throwable, then the logged message will include a <code>toString()</code> of
  * the Throwable; in addition, if the component's logger is set to DEBUG level
  * via the logback configuration, the Stacktrace will also be logged. This
- * provides a mechanism to easily enable stacktraces in the logs when they are
+ * provides a mechanism to easily enable stack traces in the logs when they are
  * desired without filling the logs with unneeded stack traces for messages that
  * end up occurring often.
  * </li>

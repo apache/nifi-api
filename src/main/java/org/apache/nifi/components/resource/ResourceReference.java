@@ -47,7 +47,7 @@ public interface ResourceReference {
     /**
      * Indicates whether or not the resource is accessible. What it means for the resource to be accessible depends on the type of
      * resource. A File resource, for example, might be accessible only if the file exists and is readable, while a URL resource might
-     * always be considered accessible, or might be accesssible only if the existence of the resource can be confirmed.
+     * always be considered accessible, or might be accessible only if the existence of the resource can be confirmed.
      *
      * @return <code>true</code> if the file can be accessed, <code>false</code> otherwise
      */

@@ -85,7 +85,7 @@ public interface Processor extends ConfigurableComponent {
      * @throws ProcessException if processing did not complete normally though
      * indicates the problem is an understood potential outcome of processing.
      * The controller/caller will handle these exceptions gracefully such as
-     * logging, etc.. If another type of exception is allowed to propagate the
+     * logging, etc. If another type of exception is allowed to propagate the
      * controller may no longer trigger this processor to operate, as this would
      * indicate a probable coding defect.
      */

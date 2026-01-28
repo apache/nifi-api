@@ -37,7 +37,7 @@ import java.lang.annotation.Target;
  *  Example #2 - If PutHDFS referenced an SSLContext and has this flag set to true, then it would include
  *  resources from nifi-hadoop-nar, nifi-hadoop-libraries-nar, and stop before nifi-standard-services-api-nar.
  *
- *  Example #3 - HBaseClientService_1_1_2 does not have this flag set so it defaults to false, and therefore includes
+ *  Example #3 - HBaseClientService_1_1_2 does not have this flag set, so it defaults to false, and therefore includes
  *  only resources from the nifi-hbase-client-service-1_1_2-nar.
  *
  *  NOTE: When this annotation is used it is important to note that each added instance of the component will increase

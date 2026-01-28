@@ -47,7 +47,7 @@ public interface ConfigurationContext extends PropertyContext {
 
     /**
      * Returns the amount of time, in the given {@link TimeUnit} that will
-     * elapsed between the return of one execution of the
+     * elapse between the return of one execution of the
      * component's <code>onTrigger</code> method and
      * the time at which the method is invoked again. This method will return
      * null if the component does not have a scheduling period (e.g., for ControllerServices)

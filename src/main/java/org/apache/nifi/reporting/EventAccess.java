@@ -42,7 +42,7 @@ public interface EventAccess {
     /**
      * Convenience method to obtain Provenance Events starting with (and
      * including) the given ID. If no event exists with that ID, the first event
-     * to be returned will be have an ID greater than <code>firstEventId</code>.
+     * to be returned will have an ID greater than <code>firstEventId</code>.
      *
      * @param firstEventId the ID of the first event to obtain
      * @param maxRecords the maximum number of records to obtain

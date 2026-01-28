@@ -30,7 +30,7 @@ public class AllowableValue implements DescribedValue {
     private final String description;
 
     /**
-     * Constructs a new AllowableValue with the given value and and the same
+     * Constructs a new AllowableValue with the given value and the same
      * display name and no description.
      *
      * @param value that is allowed

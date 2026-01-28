@@ -32,7 +32,7 @@ public interface DescribedValue {
     String getDisplayName();
 
     /**
-     * @return the proeprty description as a string
+     * @return the property description as a string
      */
     String getDescription();
 }

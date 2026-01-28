@@ -42,7 +42,7 @@ public interface ReportingInitializationContext extends KerberosContext {
 
     /**
      * Returns the amount of time, in the given {@link TimeUnit} that will
-     * elapsed between the return of one execution of the
+     * elapse between the return of one execution of the
      * {@link ReportingTask}'s
      * {@link ReportingTask#onTrigger(ReportingContext) onTrigger} method and
      * the time at which the method is invoked again. This method will return

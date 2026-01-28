@@ -133,7 +133,7 @@ public interface ProvenanceEventRecord {
     /**
      * Since the receiving system will usually refer to the data using a
      * different identifier than the source system, this information is used to
-     * correlate the receive system's FlowFile with the sending system's data
+     * correlate the receiving system's FlowFile with the sending system's data
      *
      * @return the UUID that the Source System used to refer to this data; this
      * is applicable only when the {@link ProvenanceEventType} is of type
@@ -184,7 +184,7 @@ public interface ProvenanceEventRecord {
     /**
      * @return the identifier of the queue from which the FlowFile was taken, if
      * any. If the FlowFile is created as a result of this event (in this case,
-     * the Event Type is one of null null null null null null null null     {@link ProvenanceEventType#CREATE}, {@link ProvenanceEventType#RECEIVE},
+     * the Event Type is one of {@link ProvenanceEventType#CREATE}, {@link ProvenanceEventType#RECEIVE},
      * {@link ProvenanceEventType#FORK}, {@link ProvenanceEventType#JOIN}, or
      * {@link ProvenanceEventType#CLONE}), or if the queue identifier is
      * unknown, then this method will return <code>null</code>

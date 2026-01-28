@@ -70,7 +70,7 @@ public class VersionedProcessor extends VersionedConfigurableExtension {
         this.executionNode = executionNode;
     }
 
-    @Schema(description = "The amout of time that is used when the process penalizes a flowfile.")
+    @Schema(description = "The amount of time that is used when the process penalizes a flowfile.")
     public String getPenaltyDuration() {
         return penaltyDuration;
     }
@@ -97,7 +97,7 @@ public class VersionedProcessor extends VersionedConfigurableExtension {
         this.bulletinLevel = bulletinLevel;
     }
 
-    @Schema(description = "The number of tasks that should be concurrently schedule for the processor. If the processor doesn't allow parallol processing then any positive input will be ignored.")
+    @Schema(description = "The number of tasks that should be concurrently schedule for the processor. If the processor doesn't allow parallel processing then any positive input will be ignored.")
     public Integer getConcurrentlySchedulableTaskCount() {
         return concurrentlySchedulableTaskCount;
     }
@@ -106,7 +106,7 @@ public class VersionedProcessor extends VersionedConfigurableExtension {
         this.concurrentlySchedulableTaskCount = concurrentlySchedulableTaskCount;
     }
 
-    @Schema(description = "The annotation data for the processor used to relay configuration between a custom UI and the procesosr.")
+    @Schema(description = "The annotation data for the processor used to relay configuration between a custom UI and the processor.")
     public String getAnnotationData() {
         return annotationData;
     }

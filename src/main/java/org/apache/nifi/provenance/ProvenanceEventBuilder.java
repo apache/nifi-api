@@ -298,7 +298,7 @@ public interface ProvenanceEventBuilder {
      * {@link ProvenanceEventRecord#getEventId()} on the
      * {@link ProvenanceEventRecord} that is returned will yield
      * <code>-1</code>. This is because the implementation of the Event may
-     * depend on the Provevenance Event Repository to generate the unique
+     * depend on the Provenance Event Repository to generate the unique
      * identifier.
      *
      * @return the event
