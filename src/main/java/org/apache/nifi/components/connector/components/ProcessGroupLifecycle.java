@@ -30,13 +30,25 @@ public interface ProcessGroupLifecycle {
 
     CompletableFuture<Void> disableControllerServices(Collection<String> serviceIdentifiers);
 
-    CompletableFuture<Void> startProcessors();
+    CompletableFuture<Void> startProcessors(boolean recursive);
 
     CompletableFuture<Void> start(ControllerServiceReferenceScope serviceReferenceScope);
 
     CompletableFuture<Void> stop();
 
-    CompletableFuture<Void> stopProcessors();
+    CompletableFuture<Void> stopProcessors(boolean recursive);
+
+    CompletableFuture<Void> startPorts(boolean recursive);
+
+    CompletableFuture<Void> stopPorts(boolean recursive);
+
+    CompletableFuture<Void> startRemoteProcessGroups(boolean recursive);
+
+    CompletableFuture<Void> stopRemoteProcessGroups(boolean recursive);
+
+    CompletableFuture<Void> startStatelessGroups(boolean recursive);
+
+    CompletableFuture<Void> stopStatelessGroups(boolean recursive);
 
     int getActiveThreadCount();
 }
