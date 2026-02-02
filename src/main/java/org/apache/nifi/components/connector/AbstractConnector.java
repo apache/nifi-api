@@ -17,8 +17,8 @@
 
 package org.apache.nifi.components.connector;
 
-import org.apache.nifi.components.AllowableValue;
 import org.apache.nifi.components.ConfigVerificationResult;
+import org.apache.nifi.components.DescribedValue;
 import org.apache.nifi.components.ValidationResult;
 import org.apache.nifi.components.connector.components.ConnectionFacade;
 import org.apache.nifi.components.connector.components.ControllerServiceFacade;
@@ -665,13 +665,13 @@ public abstract class AbstractConnector implements Connector {
     }
 
     @Override
-    public List<AllowableValue> fetchAllowableValues(final String stepName, final String propertyName, final FlowContext flowContext) {
+    public List<DescribedValue> fetchAllowableValues(final String stepName, final String propertyName, final FlowContext flowContext) {
         throw new UnsupportedOperationException("Property %s in Configuration Step %s does not support fetching Allowable Values.".formatted(propertyName, stepName));
     }
 
     @Override
-    public List<AllowableValue> fetchAllowableValues(final String stepName, final String propertyName, final FlowContext flowContext, final String filter) {
-        final List<AllowableValue> allowableValues = fetchAllowableValues(stepName, propertyName, flowContext);
+    public List<DescribedValue> fetchAllowableValues(final String stepName, final String propertyName, final FlowContext flowContext, final String filter) {
+        final List<DescribedValue> allowableValues = fetchAllowableValues(stepName, propertyName, flowContext);
         if (filter == null || filter.isEmpty()) {
             return allowableValues;
         } else {

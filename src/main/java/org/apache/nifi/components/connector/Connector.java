@@ -17,8 +17,8 @@
 
 package org.apache.nifi.components.connector;
 
-import org.apache.nifi.components.AllowableValue;
 import org.apache.nifi.components.ConfigVerificationResult;
+import org.apache.nifi.components.DescribedValue;
 import org.apache.nifi.components.ValidationResult;
 import org.apache.nifi.components.connector.components.FlowContext;
 import org.apache.nifi.flow.VersionedExternalFlow;
@@ -193,9 +193,9 @@ public interface Connector {
      */
     void applyUpdate(FlowContext workingFlowContext, FlowContext activeFlowContext) throws FlowUpdateException;
 
-    List<AllowableValue> fetchAllowableValues(String stepName, String propertyName, FlowContext flowContext);
+    List<DescribedValue> fetchAllowableValues(String stepName, String propertyName, FlowContext flowContext);
 
-    List<AllowableValue> fetchAllowableValues(String stepName, String propertyName, FlowContext flowContext, String filter);
+    List<DescribedValue> fetchAllowableValues(String stepName, String propertyName, FlowContext flowContext, String filter);
 
     /**
      * Drains any in-flight FlowFiles from the flow associated with the given Flow Context by processing the existing data
