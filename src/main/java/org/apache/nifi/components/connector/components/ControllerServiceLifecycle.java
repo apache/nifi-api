@@ -17,6 +17,7 @@
 
 package org.apache.nifi.components.connector.components;
 
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 public interface ControllerServiceLifecycle {
@@ -24,6 +25,16 @@ public interface ControllerServiceLifecycle {
     ControllerServiceState getState();
 
     CompletableFuture<Void> enable();
+
+    /**
+     * Enables the Controller Service using the provided property value overrides. The overrides are merged with
+     * the currently configured property values, with the overrides taking precedence. This allows enabling a service
+     * with temporary property value overrides without modifying the service's configuration.
+     *
+     * @param propertyValueOverrides the property value overrides to apply when enabling the service
+     * @return a CompletableFuture that completes when the service has been enabled
+     */
+    CompletableFuture<Void> enable(Map<String, String> propertyValueOverrides);
 
     CompletableFuture<Void> disable();
 
