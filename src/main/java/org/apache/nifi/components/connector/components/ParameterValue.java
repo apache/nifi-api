@@ -22,6 +22,7 @@ import org.apache.nifi.asset.Asset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 
 public class ParameterValue {
     private final String name;
@@ -54,12 +55,24 @@ public class ParameterValue {
 
     @Override
     public String toString() {
-        return "ParameterValue{" +
-                "name=" + name +
-                ", value=" + (sensitive ? "****" : value) +
-                ", sensitive=" + sensitive +
-                ", assets=" + assets +
-                '}';
+        return "ParameterValue[name=" + name + ", value=" + (sensitive ? "****" : value) + ", sensitive=" + sensitive + ", assets=" + assets + "]";
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final ParameterValue that = (ParameterValue) o;
+        return Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(name);
     }
 
     public static class Builder {
