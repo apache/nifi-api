@@ -561,9 +561,15 @@ public final class PropertyDescriptor implements Comparable<PropertyDescriptor> 
          * Any property descriptor that identifies an external resource will be automatically validated against the following rules:
          * <ul>
          *     <li>If the ResourceCardinality is SINGLE, the given property value must be a file, a directory, or a URL that uses a protocol of http/https/file.</li>
-         *     <li>The given resourceTypes dictate which types of input are allowed. For example, if <code>identifiesExternalResource(ResourceCardinality.SINGLE, ResourceType.FILE)</code>
-         *     is used, the input must be a regular file. If <code>identifiesExternalResource(ResourceCardinality.SINGLE, ResourceType.FILE, ResourceType.DIRECTORY)</code> is used, then the input
-         *     must be exactly one file OR directory.
+         *     <li>The given resourceTypes dictate which types of input are allowed. For example, if
+         *     {@snippet :
+         *        identifiesExternalResource(ResourceCardinality.SINGLE, ResourceType.FILE)
+         *     }
+         *     is used, the input must be a regular file. If
+         *     {@snippet :
+         *        identifiesExternalResource(ResourceCardinality.SINGLE, ResourceType.FILE, ResourceType.DIRECTORY)
+         *     }
+         *     is used, then the input must be exactly one file OR directory.
          *     </li>
          *     <li>If the ResourceCardinality is MULTIPLE, the given property value may consist of one or more resources, each separated by a comma and optional white space.</li>
          * </ul>

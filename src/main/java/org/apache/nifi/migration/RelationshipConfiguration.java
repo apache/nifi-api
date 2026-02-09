@@ -58,9 +58,9 @@ public interface RelationshipConfiguration {
      * It is possible to split an existing relationship into the same relationship and additional relationships. For example, it is
      * valid to call this method as:
      * </p>
-     * <pre><code>
-     * relationshipConfiguration.splitRelationship("A", "A", "B", "C");
-     * </code></pre>
+     * {@snippet :
+     *      relationshipConfiguration.splitRelationship("A", "A", "B", "C");
+     * }
      *
      * <p>
      * In order to split the "A" relationship into three relationships: "A", "B", and "C". However, upon restart, NiFi will have already split the "A"
@@ -69,11 +69,11 @@ public interface RelationshipConfiguration {
      * exist first:
      * </p>
      *
-     * <pre><code>
-     * if (!relationshipConfiguration.hasRelationship("B")) {
-     *     relationshipConfiguration.splitRelationship("A", "A", "B", "C");
+     * {@snippet :
+     *     if (!relationshipConfiguration.hasRelationship("B")) {
+     *         relationshipConfiguration.splitRelationship("A", "A", "B", "C");
+     *     }
      * }
-     * </code></pre>
      *
      * <p>
      * This ensures that we do not attempt to split relationship "A" if it has already been done.

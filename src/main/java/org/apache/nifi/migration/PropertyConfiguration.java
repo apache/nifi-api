@@ -50,9 +50,9 @@ public interface PropertyConfiguration {
      * <p>
      *     An idiom to determine if the property was explicitly set to <code>null</code> is as follows:
      * </p>
-     * <pre><code>
-     *     final boolean setToNull = configuration.hasProperty("MyProperty") &amp;&amp; !configuration.isPropertySet("MyProperty");
-     * </code></pre>
+     * {@snippet :
+     *  final boolean setToNull = configuration.hasProperty("MyProperty") && !configuration.isPropertySet("MyProperty");
+     * }
      *
      * @param propertyName the name of the property
      * @return <code>true</code> if the property name is known to this configuration, <code>false</code> otherwise.
@@ -69,9 +69,9 @@ public interface PropertyConfiguration {
      * <p>
      *     An idiom to determine if the property was explicitly set to <code>null</code> is as follows:
      * </p>
-     * <pre><code>
-     *     final boolean setToNull = configuration.hasProperty(MY_PROPERTY) &amp;&amp; !configuration.isSet(MY_PROPERTY);
-     * </code></pre>
+     * {@snippet :
+     *  final boolean setToNull = configuration.hasProperty(MY_PROPERTY) && !configuration.isSet(MY_PROPERTY);
+     * }
      *
      * @param descriptor the property descriptor that identifies the property
      * @return <code>true</code> if the property name is known to this configuration, <code>false</code> otherwise.
@@ -176,10 +176,10 @@ public interface PropertyConfiguration {
      * use this method as such:
      * </p>
      *
-     * <pre><code>
+     * {@snippet :
      *     // Create a new Controller Service of type org.apache.nifi.services.authentication.UsernamePassword whose Username and Password
      *     // properties match those currently configured for this Processor.
-     *     final Map&lt;String, String&gt; serviceProperties = Map.of("Username", propertyConfiguration.getRawPropertyValue("Username"),
+     *     final Map<String, String> serviceProperties = Map.of("Username", propertyConfiguration.getRawPropertyValue("Username"),
      *          "Password", propertyConfiguration.getRawPropertyValue("Password"));
      *     final String serviceId = propertyConfiguration.createControllerService("org.apache.nifi.services.authentication.UsernamePassword", serviceProperties);
      *
@@ -189,7 +189,7 @@ public interface PropertyConfiguration {
      *     // Remove the Username and Password properties from this Processor, since we are now going to use then Authentication Service.
      *     propertyConfiguration.removeProperty("Username");
      *     propertyConfiguration.removeProperty("Password");
-     * </code></pre>
+     * }
      *
      * <p>
      * Note the use of {@link #getRawPropertyValue(String)} here instead of {@link #getPropertyValue(String)}. Because we want to set

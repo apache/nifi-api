@@ -70,21 +70,22 @@ import org.apache.nifi.reporting.ReportingTask;
  * <p>
  * For example:
  * </p>
- * <pre><code>
+ * {@snippet :
  *    public static final PropertyDescriptor MY_PROPERTY = new PropertyDescriptor.Builder()
  *     .name("My Property")
  *     .description("Example Property")
  *     .identifiesControllerService( MyControllerServiceInterface.class )
  *     .build();
  *
- *    ...
+ *    // Other code
+ *
  *    public void onTrigger(ProcessContext context, ProcessSessionFactory sessionFactory) throws ProcessException {
  *     // Obtain the user-selected controller service
  *     final MyControllerServiceInterface service = context.getProperty(MY_PROPERTY).asControllerService( MyControllerServiceInterface.class );
- *     ...
- *    }
  *
- * </code></pre>
+ *      // Other code
+ *    }
+ * }
  * <li>A Controller Service can be obtained via a
  * {@link ControllerServiceLookup}. This lookup may be obtained, for example,
  * from the {@link ProcessContext} that is provided to a {@link Processor}'s
@@ -94,11 +95,11 @@ import org.apache.nifi.reporting.ReportingTask;
  * For example:
  * </p>
  *
- * <pre><code>
+ * {@snippet :
  *    public void onTrigger(ProcessContext context, ProcessSessionFactory sessionFactory) throws ProcessException {
  *      final MyControllerServiceInterface service = (MyControllerServiceInterface) context.getControllerServiceLookup().getControllerService("service_identifier");
  *    }
- * </code></pre>
+ * }
  * </li>
  * </ul>
  *
@@ -139,14 +140,14 @@ import org.apache.nifi.reporting.ReportingTask;
  *
  * <p>
  * Typically, this is done by creating a NAR structure as follows:
- * <pre>
+ * {@snippet lang="text" :
  *   + my-services-api-nar
  *   +--- service-X-implementation-nar
  *   +--- service-Y-implementation-nar
  *   +--- service-Z-implementation-nar
  *   +--- processor-A-nar
  *   +--- processor-B-nar
- * </pre>
+ * }
  *
  * <p>
  * In this case, the {@code MyControllerServiceInterface} interface, and any

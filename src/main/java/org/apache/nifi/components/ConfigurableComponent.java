@@ -63,7 +63,7 @@ public interface ConfigurableComponent {
      * onPropertyModified method. This can be done as follows:
      * </p>
      *
-     * <pre>{@code
+     * {@snippet :
      *    private volatile boolean configurationRestored = false;
      *
      *    @OnConfigurationRestored
@@ -76,7 +76,7 @@ public interface ConfigurableComponent {
      *            return;
      *        }
      *    }
-     * }</pre>
+     * }
      *
      * @param descriptor the descriptor for the property being modified
      * @param oldValue the value that was previously set. Will be <code>null</code> if no value

@@ -105,24 +105,24 @@ public interface ProcessSession {
      * and implementing that action in the provided callback.
      * <p>
      * As a result, the following very common idiom:
-     * <pre><code>
-     * getDataFromSource();
-     * session.commit();
-     * acknowledgeReceiptOfData();
-     * </code></pre>
+     * {@snippet :
+     *     getDataFromSource();
+     *     session.commit();
+     *     acknowledgeReceiptOfData();
+     * }
      * Cannot be simply changed to:
-     * <pre><code>
-     * getDataFromSource();
-     * session.commitAsync();
-     * acknowledgeReceiptOfData();
-     * </code></pre>
+     * {@snippet :
+     *     getDataFromSource();
+     *     session.commitAsync();
+     *     acknowledgeReceiptOfData();
+     * }
      * Doing so could result in acknowledging receipt of data from the source system before data has been committed to the repositories.
      * If NiFi were to then be restarted, there is potential for data loss.
      * Rather, the following idiom should take its place to ensure that there is no data loss:
-     * <pre><code>
-     * getDataFromSource();
-     * session.commitAsync( () -> acknowledgeReceiptOfData() );
-     * </code></pre>
+     * {@snippet :
+     *     getDataFromSource();
+     *     session.commitAsync( () -> acknowledgeReceiptOfData() );
+     * }
      * <p>
      * If the session cannot be committed, an error will be logged and the session will be rolled back instead.
      *
