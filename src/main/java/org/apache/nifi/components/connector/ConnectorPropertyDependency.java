@@ -17,6 +17,7 @@
 
 package org.apache.nifi.components.connector;
 
+import java.util.Objects;
 import java.util.Set;
 
 public final class ConnectorPropertyDependency {
@@ -39,5 +40,27 @@ public final class ConnectorPropertyDependency {
 
     public Set<String> getDependentValues() {
         return dependentValues;
+    }
+
+    @Override
+    public String toString() {
+        return "ConnectorPropertyDependency[propertyName=" + propertyName + ", dependentValues=" + dependentValues + "]";
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final ConnectorPropertyDependency that = (ConnectorPropertyDependency) o;
+        return Objects.equals(propertyName, that.propertyName) && Objects.equals(dependentValues, that.dependentValues);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(propertyName, dependentValues);
     }
 }

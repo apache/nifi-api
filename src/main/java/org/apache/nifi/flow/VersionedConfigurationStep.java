@@ -38,4 +38,9 @@ public class VersionedConfigurationStep {
     public void setProperties(final Map<String, VersionedConnectorValueReference> properties) {
         this.properties = properties;
     }
+
+    @Override
+    public String toString() {
+        return "VersionedConfigurationStep[name=" + name + "]";
+    }
 }

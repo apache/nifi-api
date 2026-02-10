@@ -25,6 +25,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -58,6 +59,28 @@ public final class ConfigurationStep {
      */
     public Set<ConfigurationStepDependency> getDependencies() {
         return dependencies;
+    }
+
+    @Override
+    public String toString() {
+        return "ConfigurationStep[name=" + name + "]";
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        final ConfigurationStep that = (ConfigurationStep) o;
+        return Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(name);
     }
 
     public static final class Builder {
