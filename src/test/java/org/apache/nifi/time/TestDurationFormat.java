@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -96,6 +97,23 @@ public class TestDurationFormat {
     }
 
     @ParameterizedTest
+    @MethodSource("getInvalidDurationValues")
+    void testGetPreciseTimeDurationShouldHandleIllegalCharacters(String invalidDurationValue) {
+        final IllegalArgumentException iae = assertThrows(IllegalArgumentException.class, () -> DurationFormat.getPreciseTimeDuration(invalidDurationValue, TimeUnit.SECONDS));
+        assertFalse(iae instanceof NumberFormatException);
+    }
+
+    private static Stream<Arguments> getInvalidDurationValues() {
+        return Stream.of(
+                Arguments.argumentSet("Duration with too many periods", "10.10.10 seconds"),
+                Arguments.argumentSet("Duration with letter suffix", "100L seconds"),
+                Arguments.argumentSet("Duration with letter prefix", "E10 seconds"),
+                Arguments.argumentSet("Duration with a comma", "1,000 seconds"),
+                Arguments.argumentSet("Duration with spaces", "1 000 000 seconds")
+        );
+    }
+
+    @ParameterizedTest
     @MethodSource("getOneWeekInOtherUnits")
     public void testGetPreciseTimeDurationShouldHandleWeeks(TimeUnit timeUnit, long expected) {
         assertEquals(expected,  DurationFormat.getPreciseTimeDuration("1 week", timeUnit));
@@ -135,7 +153,7 @@ public class TestDurationFormat {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"0.010 s", "0.010 seconds"})
+    @ValueSource(strings = {"0.010 s", ".010 s", "0.010 seconds"})
     public void testGetPreciseTimeDurationWithDecimalNumbers(String decimal) {
         assertEquals(10.0, DurationFormat.getPreciseTimeDuration(decimal, TimeUnit.MILLISECONDS));
     }

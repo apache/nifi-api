@@ -37,7 +37,7 @@ public class DurationFormat {
     private static final String WEEKS = String.join(UNION, "w", "wk", "wks", "week", "weeks");
 
     private static final String VALID_TIME_UNITS = String.join(UNION, NANOS, MILLIS, SECS, MINS, HOURS, DAYS, WEEKS);
-    public static final String TIME_DURATION_REGEX = "([\\d.]+)\\s*(" + VALID_TIME_UNITS + ")";
+    public static final String TIME_DURATION_REGEX = "(\\d*\\.?\\d+)\\s*(" + VALID_TIME_UNITS + ")";
     public static final Pattern TIME_DURATION_PATTERN = Pattern.compile(TIME_DURATION_REGEX);
     private static final List<Long> TIME_UNIT_MULTIPLIERS = Arrays.asList(1000L, 1000L, 1000L, 60L, 60L, 24L);
 
