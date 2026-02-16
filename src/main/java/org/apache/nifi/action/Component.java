@@ -38,5 +38,5 @@ public enum Component {
     AccessPolicy,
     User,
     UserGroup,
-    Label;
+    Label
 }

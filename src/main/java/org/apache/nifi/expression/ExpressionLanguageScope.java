@@ -50,7 +50,7 @@ public enum ExpressionLanguageScope {
      */
     FLOWFILE_ATTRIBUTES("Environment variables and FlowFile Attributes");
 
-    private String description;
+    private final String description;
 
     ExpressionLanguageScope(String description) {
         this.description = description;

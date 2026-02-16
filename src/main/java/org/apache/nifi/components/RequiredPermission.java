@@ -33,8 +33,8 @@ public enum RequiredPermission {
     EXPORT_NIFI_DETAILS("export-nifi-details", "export nifi details"),
     REFERENCE_REMOTE_RESOURCES("reference-remote-resources", "reference remote resources");
 
-    private String permissionIdentifier;
-    private String permissionLabel;
+    private final String permissionIdentifier;
+    private final String permissionLabel;
 
     RequiredPermission(String permissionIdentifier, String permissionLabel) {
         this.permissionIdentifier = permissionIdentifier;

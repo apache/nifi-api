@@ -62,6 +62,6 @@ public @interface InputRequirement {
          * to the Processor. As a result, this value can be used in order to clarify that incoming
          * connections will not be used. This prevents the user from even creating such a connection.
          */
-        INPUT_FORBIDDEN;
+        INPUT_FORBIDDEN
     }
 }

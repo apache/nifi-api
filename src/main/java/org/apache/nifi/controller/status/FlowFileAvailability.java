@@ -22,5 +22,5 @@ public enum FlowFileAvailability {
 
     HEAD_OF_QUEUE_PENALIZED,
 
-    FLOWFILE_AVAILABLE;
+    FLOWFILE_AVAILABLE
 }

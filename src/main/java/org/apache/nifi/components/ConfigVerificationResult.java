@@ -78,6 +78,6 @@ public class ConfigVerificationResult {
 
         FAILED,
 
-        SKIPPED;
+        SKIPPED
     }
 }

@@ -27,5 +27,5 @@ public enum PortFunction {
      * Port denotes that the invocation of the stateless flow has failed. If run using the Standard Engine, will operate as a Standard port. If running
      * using the Stateless Engine, the transaction is rolled back, and any input FlowFiles will be transferred to this Port.
      */
-    FAILURE;
+    FAILURE
 }

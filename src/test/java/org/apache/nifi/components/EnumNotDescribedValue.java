@@ -17,5 +17,5 @@
 package org.apache.nifi.components;
 
 public enum EnumNotDescribedValue {
-    GREEN, RED, BLUE;
+    GREEN, RED, BLUE
 }

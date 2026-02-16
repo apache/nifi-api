@@ -27,5 +27,5 @@ public enum ExecutionNode {
     /**
      * A Component will be scheduled to run on the primary node only.
      */
-    PRIMARY;
+    PRIMARY
 }

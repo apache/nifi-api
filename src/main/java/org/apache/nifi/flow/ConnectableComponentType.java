@@ -23,5 +23,5 @@ public enum ConnectableComponentType {
     REMOTE_OUTPUT_PORT,
     INPUT_PORT,
     OUTPUT_PORT,
-    FUNNEL;
+    FUNNEL
 }

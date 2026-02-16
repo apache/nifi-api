@@ -25,5 +25,5 @@ public enum EnforcementPolicy {
      * Rules with this enforcement policy also invalidate the corresponding components and fixing
      *  these problems are to be considered mandatory.
      */
-    ENFORCE;
+    ENFORCE
 }

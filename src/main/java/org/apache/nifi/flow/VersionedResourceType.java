@@ -37,6 +37,6 @@ public enum VersionedResourceType {
      * Referenced Resource is a URL that uses the HTTP, HTTPS, or file protocol
      * (i.e., <code>http://...</code>, <code>https://...</code>, or <code>file:...</code>)
      */
-    URL;
+    URL
 
 }

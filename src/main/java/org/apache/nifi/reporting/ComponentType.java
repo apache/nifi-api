@@ -74,5 +74,5 @@ public enum ComponentType {
     /**
      * Bulletin is associated with a Flow Registry Client
      */
-    FLOW_REGISTRY_CLIENT;
+    FLOW_REGISTRY_CLIENT
 }

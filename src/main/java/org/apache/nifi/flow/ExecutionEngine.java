@@ -31,5 +31,5 @@ public enum ExecutionEngine {
     /**
      * Use the Execution Engine that is configured for the parent Process Group. If there is no parent Process Group, default to the standard engine.
      */
-    INHERITED;
+    INHERITED
 }

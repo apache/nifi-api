@@ -19,5 +19,5 @@ package org.apache.nifi.flow;
 public enum ScheduledState {
     ENABLED,
     DISABLED,
-    RUNNING;
+    RUNNING
 }

@@ -29,5 +29,5 @@ public enum PrimaryNodeState {
      * The node receiving this state was the Primary Node but has now had its Primary Node
      * role revoked.
      */
-    PRIMARY_NODE_REVOKED;
+    PRIMARY_NODE_REVOKED
 }

@@ -27,5 +27,5 @@ public enum ExtensionType {
 
     PARAMETER_PROVIDER,
 
-    FLOW_REGISTRY_CLIENT;
+    FLOW_REGISTRY_CLIENT
 }

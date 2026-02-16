@@ -21,5 +21,5 @@ package org.apache.nifi.registry.flow;
 
 public enum RegisterAction {
     COMMIT,
-    FORCE_COMMIT;
+    FORCE_COMMIT
 }

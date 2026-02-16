@@ -22,5 +22,5 @@ public enum LoadBalanceStatus {
 
     LOAD_BALANCE_ACTIVE,
 
-    LOAD_BALANCE_INACTIVE;
+    LOAD_BALANCE_INACTIVE
 }

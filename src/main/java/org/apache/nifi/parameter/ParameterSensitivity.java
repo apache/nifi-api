@@ -23,7 +23,7 @@ public enum ParameterSensitivity {
     SENSITIVE("Sensitive"),
     NON_SENSITIVE("Non-Sensitive");
 
-    private String name;
+    private final String name;
 
     ParameterSensitivity(final String name) {
         this.name = name;

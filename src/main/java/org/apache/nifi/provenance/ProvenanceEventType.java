@@ -135,5 +135,5 @@ public enum ProvenanceEventType {
      * Indicates that the type of the provenance event is unknown because the user
      * who is attempting to access the event is not authorize to know the type.
      */
-    UNKNOWN;
+    UNKNOWN
 }

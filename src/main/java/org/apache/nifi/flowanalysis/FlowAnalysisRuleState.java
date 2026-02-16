@@ -18,5 +18,5 @@ package org.apache.nifi.flowanalysis;
 
 public enum FlowAnalysisRuleState {
     ENABLED,
-    DISABLED;
+    DISABLED
 }

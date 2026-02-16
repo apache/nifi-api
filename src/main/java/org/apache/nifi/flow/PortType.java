@@ -19,5 +19,5 @@ package org.apache.nifi.flow;
 
 public enum PortType {
     INPUT_PORT,
-    OUTPUT_PORT;
+    OUTPUT_PORT
 }
