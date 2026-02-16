@@ -31,19 +31,17 @@ import org.apache.nifi.flowfile.FlowFile;
 public interface FlowFileFilter {
 
     /**
-     * Indicates whether or not the given FlowFile should be selected and
-     * whether or not the Processor is interested in filtering additional
-     * FlowFiles
+     * Indicates whether the given FlowFile should be selected and
+     * whether the Processor is interested in filtering additional FlowFiles.
      *
      * @param flowFile to apply the filter to
-     * @return true if the given FlowFile should be selected and
-     * if Processor is interested in filtering additional
-     * FlowFiles
+     * @return An instance of {@code FlowFileFilterResult} to indicate whether the given FlowFile should be selected and
+     * if Processor is interested in filtering additional FlowFiles.
      */
     FlowFileFilterResult filter(FlowFile flowFile);
 
     /**
-     * Provides a result type to indicate whether or not a FlowFile should be
+     * Provides a result type to indicate whether a FlowFile should be
      * selected
      */
     enum FlowFileFilterResult {
