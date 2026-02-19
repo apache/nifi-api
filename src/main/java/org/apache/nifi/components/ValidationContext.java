@@ -200,4 +200,13 @@ public interface ValidationContext extends PropertyContext {
     default boolean isValidateConnections() {
         return true;
     }
+
+    /**
+     * Evaluates parameter references in the given value, substituting them with their resolved values
+     * using the parameter lookup associated with this ValidationContext.
+     *
+     * @param value the value potentially containing parameter references
+     * @return the value with parameter references substituted, or the original value if no parameters are available
+     */
+    String evaluateParameters(String value);
 }
