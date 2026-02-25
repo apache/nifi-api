@@ -78,8 +78,6 @@ public interface Connector {
      */
     VersionedExternalFlow getInitialFlow();
 
-    // FIXME: Consider adding two subclasses to FlowContext: ActiveFlowContext and WorkingFlowContext
-    //       They would have no methods, but would serve as markers to make it more clear which context is being used
     /**
      * Starts the Connector instance.
      * @throws FlowUpdateException if there is an error starting the Connector
@@ -121,7 +119,6 @@ public interface Connector {
      * @return a list of ValidationResults, each of which may indicate a check that was performed and any associated explanations
      * as to why the configuration step is valid or invalid.
      */
-    // TODO: Should look at making verifyConfigurationStep / validateConfigurationStep more consistent in arguments.
     List<ValidationResult> validateConfigurationStep(ConfigurationStep configurationStep, ConnectorConfigurationContext configurationContext, ConnectorValidationContext validationContext);
 
     /**
@@ -193,8 +190,26 @@ public interface Connector {
      */
     void applyUpdate(FlowContext workingFlowContext, FlowContext activeFlowContext) throws FlowUpdateException;
 
+    /**
+     * Fetches the values that are allowed to be configured for a given property.
+     *
+     * @param stepName the name of the {@link ConfigurationStep}
+     * @param propertyName the name of the {@link ConnectorPropertyDescriptor} within the given ConfigurationStep
+     * @param flowContext the FlowContext pertinent to the request
+     * @return the list of values that are allowed to be configured for the given property.
+     */
     List<DescribedValue> fetchAllowableValues(String stepName, String propertyName, FlowContext flowContext);
 
+    /**
+     * Fetches only the values that are allowed to be configured for a given property that contain the text of
+     * the given filter.
+     *
+     * @param stepName the name of the {@link ConfigurationStep}
+     * @param propertyName the name of the {@link ConnectorPropertyDescriptor} within the given ConfigurationStep
+     * @param flowContext the FlowContext pertinent to the request
+     * @param filter the text that should be contained within the values that are returned
+     * @return the list of values that are allowed to be configured for the given property.
+     */
     List<DescribedValue> fetchAllowableValues(String stepName, String propertyName, FlowContext flowContext, String filter);
 
     /**
