@@ -17,15 +17,18 @@
 
 package org.apache.nifi.components.connector.components;
 
-public enum ControllerServiceReferenceHierarchy {
+/**
+ * Describes the scope of a component operation within the Process Group hierarchy.
+ */
+public enum ComponentHierarchyScope {
 
     /**
-     * Interact only with Controller Services that are directly within the Process Group.
+     * Interact only with components that are immediately within the Process Group.
      */
-    DIRECT_SERVICES_ONLY,
+    IMMEDIATE_GROUP_ONLY,
 
     /**
-     * Interact with Controller Services within the Process Group and all child Process Groups, recursively.
+     * Interact with components within the Process Group and all child Process Groups, recursively.
      */
     INCLUDE_CHILD_GROUPS;
 }

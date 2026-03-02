@@ -22,33 +22,33 @@ import java.util.concurrent.CompletableFuture;
 
 public interface ProcessGroupLifecycle {
 
-    CompletableFuture<Void> enableControllerServices(ControllerServiceReferenceScope scope, ControllerServiceReferenceHierarchy hierarchy);
+    CompletableFuture<Void> enableControllerServices(ControllerServiceReferenceScope referenceScope, ComponentHierarchyScope hierarchyScope);
 
     CompletableFuture<Void> enableControllerServices(Collection<String> serviceIdentifiers);
 
-    CompletableFuture<Void> disableControllerServices(ControllerServiceReferenceHierarchy hierarchy);
+    CompletableFuture<Void> disableControllerServices(ComponentHierarchyScope scope);
 
     CompletableFuture<Void> disableControllerServices(Collection<String> serviceIdentifiers);
 
-    CompletableFuture<Void> startProcessors(boolean recursive);
+    CompletableFuture<Void> startProcessors(ComponentHierarchyScope scope);
 
     CompletableFuture<Void> start(ControllerServiceReferenceScope serviceReferenceScope);
 
     CompletableFuture<Void> stop();
 
-    CompletableFuture<Void> stopProcessors(boolean recursive);
+    CompletableFuture<Void> stopProcessors(ComponentHierarchyScope scope);
 
-    CompletableFuture<Void> startPorts(boolean recursive);
+    CompletableFuture<Void> startPorts(ComponentHierarchyScope scope);
 
-    CompletableFuture<Void> stopPorts(boolean recursive);
+    CompletableFuture<Void> stopPorts(ComponentHierarchyScope scope);
 
-    CompletableFuture<Void> startRemoteProcessGroups(boolean recursive);
+    CompletableFuture<Void> startRemoteProcessGroups(ComponentHierarchyScope scope);
 
-    CompletableFuture<Void> stopRemoteProcessGroups(boolean recursive);
+    CompletableFuture<Void> stopRemoteProcessGroups(ComponentHierarchyScope scope);
 
-    CompletableFuture<Void> startStatelessGroups(boolean recursive);
+    CompletableFuture<Void> startStatelessGroups(ComponentHierarchyScope scope);
 
-    CompletableFuture<Void> stopStatelessGroups(boolean recursive);
+    CompletableFuture<Void> stopStatelessGroups(ComponentHierarchyScope scope);
 
     int getActiveThreadCount();
 }

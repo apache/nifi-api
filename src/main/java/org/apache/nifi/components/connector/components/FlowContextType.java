@@ -19,7 +19,16 @@ package org.apache.nifi.components.connector.components;
 
 public enum FlowContextType {
 
+    /**
+     * The ACTIVE Flow Context represents the version of the flow that able to be started and stopped and run
+     * the dataflow.
+     */
     ACTIVE,
 
+    /**
+     * The WORKING Flow Context represents the "in process" version of the flow that is being configured. This
+     * version of the flow is not directly started or stopped by the user, but is used to verify configuration,
+     * fetch allowable values, and perform other configuration-related operations.
+     */
     WORKING;
 }

@@ -38,7 +38,7 @@ public interface ProcessGroupFacade {
 
     Set<ControllerServiceFacade> getControllerServices();
 
-    Set<ControllerServiceFacade> getControllerServices(ControllerServiceReferenceScope referenceScope, ControllerServiceReferenceHierarchy hierarchy);
+    Set<ControllerServiceFacade> getControllerServices(ControllerServiceReferenceScope referenceScope, ComponentHierarchyScope hierarchyScope);
 
     ConnectionFacade getConnection(String id);
 

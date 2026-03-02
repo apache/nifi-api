@@ -107,7 +107,7 @@ public final class ConnectorPropertyDescriptor {
                     .subject(name)
                     .input(value)
                     .valid(false)
-                    .explanation("Failed to fetch allowable values: " + e.getMessage())
+                    .explanation("Failed to fetch allowable values: " + e)
                     .build();
             }
         } else {

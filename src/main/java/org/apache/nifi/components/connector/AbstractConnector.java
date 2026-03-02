@@ -22,7 +22,7 @@ import org.apache.nifi.components.DescribedValue;
 import org.apache.nifi.components.ValidationResult;
 import org.apache.nifi.components.connector.components.ConnectionFacade;
 import org.apache.nifi.components.connector.components.ControllerServiceFacade;
-import org.apache.nifi.components.connector.components.ControllerServiceReferenceHierarchy;
+import org.apache.nifi.components.connector.components.ComponentHierarchyScope;
 import org.apache.nifi.components.connector.components.ControllerServiceReferenceScope;
 import org.apache.nifi.components.connector.components.FlowContext;
 import org.apache.nifi.components.connector.components.ProcessGroupFacade;
@@ -57,6 +57,15 @@ public abstract class AbstractConnector implements Connector {
     private volatile CompletableFuture<Void> prepareUpdateFuture;
     private String description; // effectively final
 
+    /**
+     * Called whenever a specific configuration step has been configured. This allows the Connector to perform any necessary
+     * actions in response to the configuration step being configured. A typical pattern is to update the flow so that in subsequent
+     * configuration steps, the properties of the step are available for use when verifying configuration or fetching allowable values.
+     *
+     * @param stepName the name of the configuration step that has been configured
+     * @param workingContext the working flow context that is being used for the configuration step
+     * @throws FlowUpdateException if there is an error performing the necessary actions in response to the configuration step being configured
+     */
     protected abstract void onStepConfigured(final String stepName, final FlowContext workingContext) throws FlowUpdateException;
 
 
@@ -92,20 +101,20 @@ public abstract class AbstractConnector implements Connector {
         final ProcessGroupLifecycle lifecycle = context.getRootGroup().getLifecycle();
         final CompletableFuture<Void> enableServicesFuture = lifecycle.enableControllerServices(
             ControllerServiceReferenceScope.INCLUDE_REFERENCED_SERVICES_ONLY,
-            ControllerServiceReferenceHierarchy.INCLUDE_CHILD_GROUPS);
+            ComponentHierarchyScope.INCLUDE_CHILD_GROUPS);
 
         try {
             enableServicesFuture.get();
         } catch (final Exception e) {
-            lifecycle.disableControllerServices(ControllerServiceReferenceHierarchy.INCLUDE_CHILD_GROUPS);
+            lifecycle.disableControllerServices(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS);
             throw new FlowUpdateException("Failed to enable Controller Services while starting Connector", e);
         }
 
         try {
-            lifecycle.startProcessors(true).get();
-            lifecycle.startPorts(true).get();
-            lifecycle.startStatelessGroups(true).get();
-            lifecycle.startRemoteProcessGroups(true).get();
+            lifecycle.startProcessors(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS).get();
+            lifecycle.startPorts(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS).get();
+            lifecycle.startStatelessGroups(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS).get();
+            lifecycle.startRemoteProcessGroups(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS).get();
         } catch (final Exception e) {
             logger.error("Failed to start components for {}", this, e);
             try {
@@ -134,7 +143,7 @@ public abstract class AbstractConnector implements Connector {
                 final ProcessGroupLifecycle lifecycle = rootGroup.getLifecycle();
 
                 try {
-                    lifecycle.stopProcessors(true).get(1, TimeUnit.MINUTES);
+                    lifecycle.stopProcessors(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS).get(1, TimeUnit.MINUTES);
                 } catch (final TimeoutException e) {
                     final List<ProcessorFacade> running = findProcessors(rootGroup, processor ->
                         processor.getLifecycle().getState() != ProcessorState.STOPPED && processor.getLifecycle().getState() != ProcessorState.DISABLED);
@@ -147,10 +156,10 @@ public abstract class AbstractConnector implements Connector {
                     throw new RuntimeException("Failed to stop all Processors", e.getCause());
                 }
 
-                lifecycle.stopPorts(true).get(1, TimeUnit.MINUTES);
-                lifecycle.stopRemoteProcessGroups(true).get(1, TimeUnit.MINUTES);
-                lifecycle.stopStatelessGroups(true).get(2, TimeUnit.MINUTES);
-                lifecycle.disableControllerServices(ControllerServiceReferenceHierarchy.INCLUDE_CHILD_GROUPS).get(2, TimeUnit.MINUTES);
+                lifecycle.stopPorts(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS).get(1, TimeUnit.MINUTES);
+                lifecycle.stopRemoteProcessGroups(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS).get(1, TimeUnit.MINUTES);
+                lifecycle.stopStatelessGroups(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS).get(2, TimeUnit.MINUTES);
+                lifecycle.disableControllerServices(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS).get(2, TimeUnit.MINUTES);
 
                 result.complete(null);
             } catch (final Exception e) {
@@ -221,7 +230,7 @@ public abstract class AbstractConnector implements Connector {
         int iterations = 0;
         while (!isGroupDrained(flowContext.getRootGroup())) {
             if (result.isDone()) {
-                getLogger().info("Drainage has been cancelled; will no longer wait for FlowFiles to drain");
+                getLogger().info("Drain cancelled: no longer waiting for FlowFiles to drain");
                 break;
             }
 
@@ -274,7 +283,7 @@ public abstract class AbstractConnector implements Connector {
 
         final CompletableFuture<Void> enableServices = flowContext.getRootGroup().getLifecycle().enableControllerServices(
             ControllerServiceReferenceScope.INCLUDE_REFERENCED_SERVICES_ONLY,
-            ControllerServiceReferenceHierarchy.INCLUDE_CHILD_GROUPS);
+            ComponentHierarchyScope.INCLUDE_CHILD_GROUPS);
 
         try {
             // Wait for all referenced services to be enabled.
@@ -286,7 +295,7 @@ public abstract class AbstractConnector implements Connector {
             }
         } catch (final Exception e) {
             try {
-                flowContext.getRootGroup().getLifecycle().disableControllerServices(ControllerServiceReferenceHierarchy.INCLUDE_CHILD_GROUPS).get();
+                flowContext.getRootGroup().getLifecycle().disableControllerServices(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS).get();
             } catch (final Exception e1) {
                 e.addSuppressed(e1);
             }
@@ -350,7 +359,6 @@ public abstract class AbstractConnector implements Connector {
         return results;
     }
 
-
     protected List<ValidationResult> validateComponents(final FlowContext context, final ProcessGroupFacade group, final ConnectorValidationContext validationContext) {
         final List<ValidationResult> validationResults = new ArrayList<>();
         validateComponents(context, group, validationContext, validationResults);
@@ -378,7 +386,7 @@ public abstract class AbstractConnector implements Connector {
 
         final Set<ControllerServiceFacade> referencedServices = group.getControllerServices(
             ControllerServiceReferenceScope.INCLUDE_REFERENCED_SERVICES_ONLY,
-            ControllerServiceReferenceHierarchy.DIRECT_SERVICES_ONLY);
+            ComponentHierarchyScope.IMMEDIATE_GROUP_ONLY);
 
         for (final ControllerServiceFacade service : referencedServices) {
             final List<ValidationResult> serviceResults = service.validate();
@@ -437,9 +445,9 @@ public abstract class AbstractConnector implements Connector {
         }
 
         final ProcessGroupLifecycle lifecycle = group.getLifecycle();
-        startFutures.add(lifecycle.startPorts(false));
-        startFutures.add(lifecycle.startRemoteProcessGroups(false));
-        startFutures.add(lifecycle.startStatelessGroups(false));
+        startFutures.add(lifecycle.startPorts(ComponentHierarchyScope.IMMEDIATE_GROUP_ONLY));
+        startFutures.add(lifecycle.startRemoteProcessGroups(ComponentHierarchyScope.IMMEDIATE_GROUP_ONLY));
+        startFutures.add(lifecycle.startStatelessGroups(ComponentHierarchyScope.IMMEDIATE_GROUP_ONLY));
 
         for (final ProcessGroupFacade childGroup : group.getProcessGroups()) {
             startFutures.add(startNonSourceComponents(childGroup));
