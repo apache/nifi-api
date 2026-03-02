@@ -83,7 +83,7 @@
         <maven-pmd-plugin.version>3.28.0</maven-pmd-plugin.version>
         <version.maven-checkstyle-plugin>3.6.0</version.maven-checkstyle-plugin>
         <mockito.version>5.21.0</mockito.version>
-        <pmd.version>7.21.0</pmd.version>
+        <pmd.version>7.22.0</pmd.version>
         <swagger-annotations.version>2.2.43</swagger-annotations.version>
     </properties>
 
