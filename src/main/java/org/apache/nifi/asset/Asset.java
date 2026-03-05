@@ -47,7 +47,9 @@ public interface Asset {
      *
      * @return Owner Identifier
      */
-    String getOwnerIdentifier();
+    default String getOwnerIdentifier() {
+        return getParameterContextIdentifier();
+    }
 
     /**
      * Returns the name of the Asset
