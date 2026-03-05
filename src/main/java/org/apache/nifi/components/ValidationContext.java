@@ -208,5 +208,7 @@ public interface ValidationContext extends PropertyContext {
      * @param value the value potentially containing parameter references
      * @return the value with parameter references substituted, or the original value if no parameters are available
      */
-    String evaluateParameters(String value);
+    default String evaluateParameters(String value) {
+        return value;
+    }
 }
