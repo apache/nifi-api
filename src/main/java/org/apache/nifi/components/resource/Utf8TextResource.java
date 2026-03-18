@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 
 public class Utf8TextResource implements ResourceReference {
     private final String text;
@@ -59,6 +60,25 @@ public class Utf8TextResource implements ResourceReference {
     @Override
     public ResourceType getResourceType() {
         return ResourceType.TEXT;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final Utf8TextResource that = (Utf8TextResource) o;
+        return Objects.equals(text, that.text);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(text);
     }
 
     @Override

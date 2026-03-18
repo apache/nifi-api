@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
+import java.util.Objects;
 
 public class URLResourceReference implements ResourceReference {
     private final URL url;
@@ -57,6 +58,25 @@ public class URLResourceReference implements ResourceReference {
     @Override
     public ResourceType getResourceType() {
         return ResourceType.URL;
+    }
+
+    @Override
+    public boolean equals(final Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        final URLResourceReference that = (URLResourceReference) o;
+        return Objects.equals(url, that.url);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(url);
     }
 
     @Override
