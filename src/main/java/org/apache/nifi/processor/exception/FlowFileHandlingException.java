@@ -17,7 +17,7 @@
 package org.apache.nifi.processor.exception;
 
 /**
- * Thrown when a flow file is referenced that is not part of the appropriate
+ * Thrown when a FlowFile is referenced that is not part of the appropriate
  * session or is not properly accounted for by a transfer or removal within a
  * session. In any event this exception indicates a logic or programming error
  * within the processor interacting with the offending session.

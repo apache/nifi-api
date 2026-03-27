@@ -27,7 +27,7 @@ public class BatchSize {
     private String size;
     private String duration;
 
-    @Schema(description = "Preferred number of flow files to include in a transaction.")
+    @Schema(description = "Preferred number of FlowFiles to include in a transaction.")
     public Integer getCount() {
         return count;
     }

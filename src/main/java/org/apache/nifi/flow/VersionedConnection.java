@@ -116,7 +116,7 @@ public class VersionedConnection extends VersionedComponent {
     }
 
 
-    @Schema(description = "The amount of time a flow file may be in the flow before it will be automatically aged out of the flow. Once a flow file reaches this age it will be terminated from "
+    @Schema(description = "The amount of time a FlowFile may be in the flow before it will be automatically aged out of the flow. Once a FlowFile reaches this age it will be terminated from "
         + "the flow the next time a processor attempts to start work on it.")
     public String getFlowFileExpiration() {
         return flowFileExpiration;

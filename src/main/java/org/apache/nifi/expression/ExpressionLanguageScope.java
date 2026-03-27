@@ -23,14 +23,14 @@ package org.apache.nifi.expression;
  *      NONE -> ENVIRONMENT -> FLOWFILE_ATTRIBUTES
  *
  * When scope is set to FlowFiles attributes, variables are evaluated
- * against attributes of each incoming flow file. If no matching attribute
+ * against attributes of each incoming FlowFile. If no matching attribute
  * is found, env/syst properties will be checked.
  *
  * NONE - expression language is not supported
  *
  * ENVIRONMENT - Environment variables defined at JVM level and system properties.
  *
- * FLOWFILE_ATTRIBUTES - will check attributes of each individual flow file
+ * FLOWFILE_ATTRIBUTES - will check attributes of each individual FlowFile
  *
  */
 public enum ExpressionLanguageScope {
@@ -46,7 +46,7 @@ public enum ExpressionLanguageScope {
     ENVIRONMENT("Environment variables defined at JVM level and system properties"),
 
     /**
-     * Expression language is evaluated per flow file using attributes
+     * Expression language is evaluated per FlowFile using attributes
      */
     FLOWFILE_ATTRIBUTES("Environment variables and FlowFile Attributes");
 

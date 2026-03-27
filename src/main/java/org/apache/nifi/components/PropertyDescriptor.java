@@ -88,7 +88,7 @@ public final class PropertyDescriptor implements Comparable<PropertyDescriptor> 
     private final boolean dynamic;
     /**
      * indicates whether or nor this property will evaluate expression language
-     * against the flow file attributes
+     * against the FlowFile attributes
      */
     private final ExpressionLanguageScope expressionLanguageScope;
     /**

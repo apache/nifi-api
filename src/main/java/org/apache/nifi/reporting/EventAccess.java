@@ -108,7 +108,7 @@ public interface EventAccess {
     Map<String, StorageUsage> getContentRepositoryStorageUsage();
 
     /**
-     * Returns the storage usage of the flow file repository
+     * Returns the storage usage of the FlowFile repository
      * @return the storage usage
      */
     StorageUsage getFlowFileRepositoryStorageUsage();

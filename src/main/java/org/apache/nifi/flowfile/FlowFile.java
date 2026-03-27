@@ -20,7 +20,7 @@ import java.util.Map;
 
 /**
  * <p>
- * A flow file is a logical notion of an item in a flow with its associated
+ * A FlowFile is a logical notion of an item in a flow with its associated
  * attributes and identity which can be used as a reference for its actual
  * content.</p>
  *
@@ -29,17 +29,17 @@ import java.util.Map;
 public interface FlowFile extends Comparable<FlowFile> {
 
     /**
-     * @return the unique identifier for this flow file which is guaranteed
+     * @return the unique identifier for this FlowFile which is guaranteed
      * to be unique within a single running instance of nifi.  This identifier
      * should not be used for true universal unique type needs.  For that consider
-     * using the attribute found in the flow file's attribute map keyed by
+     * using the attribute found in the FlowFile's attribute map keyed by
      * CoreAttributes.UUID.
      * For example, by calling getAttribute(CoreAttributes.UUID.key()).
      */
     long getId();
 
     /**
-     * @return the date at which the flow file entered the flow
+     * @return the date at which the FlowFile entered the flow
      */
     long getEntryDate();
 
@@ -86,7 +86,7 @@ public interface FlowFile extends Comparable<FlowFile> {
     long getQueueDateIndex();
 
     /**
-     * @return true if flow file is currently penalized; false otherwise;
+     * @return true if FlowFile is currently penalized; false otherwise;
      */
     boolean isPenalized();
 
@@ -99,12 +99,12 @@ public interface FlowFile extends Comparable<FlowFile> {
     String getAttribute(String key);
 
     /**
-     * @return size of flow file contents in bytes
+     * @return size of FlowFile contents in bytes
      */
     long getSize();
 
     /**
-     * @return an unmodifiable map of the flow file attributes
+     * @return an unmodifiable map of the FlowFile attributes
      */
     Map<String, String> getAttributes();
 

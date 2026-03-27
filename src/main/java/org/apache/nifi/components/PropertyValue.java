@@ -227,8 +227,8 @@ public interface PropertyValue {
      * be substituted with their values.
      * </p>
      *
-     * @param flowFile to evaluate attributes of. It's flow file properties and
-     * then flow file attributes will take precedence over any underlying
+     * @param flowFile to evaluate attributes of. It's FlowFile properties and
+     * then FlowFile attributes will take precedence over any underlying
      * env/syst properties.
      * @return a PropertyValue with the new value is returned, supporting call
      * chaining
@@ -248,12 +248,12 @@ public interface PropertyValue {
      * be substituted with their values.
      * </p>
      *
-     * @param flowFile to evaluate attributes of. It's flow file properties and
-     * then flow file attributes will take precedence over any underlying
+     * @param flowFile to evaluate attributes of. It's FlowFile properties and
+     * then FlowFile attributes will take precedence over any underlying
      * env/syst properties.
      * @param additionalAttributes a Map of additional attributes that the
      * Expression can reference. These attributes will take precedence over any
-     * conflicting attributes in the provided flowfile or any underlying
+     * conflicting attributes in the provided FlowFile or any underlying
      * env/syst properties.
      *
      * @return a PropertyValue with the new value is returned, supporting call
@@ -274,12 +274,12 @@ public interface PropertyValue {
      * be substituted with their values.
      * </p>
      *
-     * @param flowFile to evaluate attributes of. It's flow file properties and
-     * then flow file attributes will take precedence over any underlying
+     * @param flowFile to evaluate attributes of. It's FlowFile properties and
+     * then FlowFile attributes will take precedence over any underlying
      * env/syst properties.
      * @param additionalAttributes a Map of additional attributes that the
      * Expression can reference. These attributes will take precedence over any
-     * conflicting attributes in the provided flowfile or any underlying
+     * conflicting attributes in the provided FlowFile or any underlying
      * env/syst properties.
      * @param decorator the decorator to use in order to update the values
      * returned after variable substitution and expression language evaluation.

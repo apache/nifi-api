@@ -45,7 +45,7 @@ public interface ProvenanceEventBuilder {
     /**
      * Sets the date and time at which the FlowFile entered the flow
      *
-     * @param entryDate of the flow file
+     * @param entryDate of the FlowFile
      * @return the builder
      */
     ProvenanceEventBuilder setFlowFileEntryDate(long entryDate);
@@ -102,7 +102,7 @@ public interface ProvenanceEventBuilder {
     /**
      * Sets the UUID to associate with the FlowFile
      *
-     * @param uuid of the flowfile
+     * @param uuid of the FlowFile
      * @return the builder
      */
     ProvenanceEventBuilder setFlowFileUUID(String uuid);
@@ -190,7 +190,7 @@ public interface ProvenanceEventBuilder {
      * {@link ProvenanceEventType#CLONE} events and will be ignored for any
      * other event types.
      *
-     * @param parent flowfile that this event is derived from
+     * @param parent FlowFile that this event is derived from
      * @return the builder
      */
     ProvenanceEventBuilder addParentFlowFile(FlowFile parent);
@@ -259,7 +259,7 @@ public interface ProvenanceEventBuilder {
      * This is valid only for {@link ProvenanceEventType#ADDINFO} events and
      * will be ignored for any other event types.
      *
-     * @param alternateIdentifierUri another identifier of the flowfile this event is for
+     * @param alternateIdentifierUri another identifier of the FlowFile this event is for
      * @return the builder
      */
     ProvenanceEventBuilder setAlternateIdentifierUri(String alternateIdentifierUri);
@@ -279,7 +279,7 @@ public interface ProvenanceEventBuilder {
      * {@link ProvenanceEventType#ROUTE} events and will be ignored for any
      * other event types.
      *
-     * @param relationship to which flowfiles in this event were routed
+     * @param relationship to which FlowFiles in this event were routed
      * @return the builder
      */
     ProvenanceEventBuilder setRelationship(Relationship relationship);

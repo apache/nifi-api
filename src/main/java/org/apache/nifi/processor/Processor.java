@@ -62,7 +62,7 @@ public interface Processor extends ConfigurableComponent {
 
     /**
      * @return Set of all relationships this processor expects to transfer a
-     * flow file to. An empty set indicates this processor does not have any
+     * FlowFile to. An empty set indicates this processor does not have any
      * destination relationships. Guaranteed non null.
      */
     Set<Relationship> getRelationships();

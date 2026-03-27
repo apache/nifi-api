@@ -30,7 +30,7 @@ public class VersionedRemoteGroupPort extends VersionedComponent {
     private String targetId;
     private ScheduledState scheduledState;
 
-    @Schema(description = "The number of task that may transmit flowfiles to the target port concurrently.")
+    @Schema(description = "The number of task that may transmit FlowFiles to the target port concurrently.")
     public Integer getConcurrentlySchedulableTaskCount() {
         return concurrentlySchedulableTaskCount;
     }
@@ -49,7 +49,7 @@ public class VersionedRemoteGroupPort extends VersionedComponent {
     }
 
 
-    @Schema(description = "Whether the flowfiles are compressed when sent to the target port.")
+    @Schema(description = "Whether the FlowFiles are compressed when sent to the target port.")
     public Boolean isUseCompression() {
         return useCompression;
     }

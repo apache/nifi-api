@@ -70,7 +70,7 @@ public class VersionedProcessor extends VersionedConfigurableExtension {
         this.executionNode = executionNode;
     }
 
-    @Schema(description = "The amount of time that is used when the process penalizes a flowfile.")
+    @Schema(description = "The amount of time that is used when the process penalizes a FlowFile.")
     public String getPenaltyDuration() {
         return penaltyDuration;
     }
@@ -116,7 +116,7 @@ public class VersionedProcessor extends VersionedConfigurableExtension {
     }
 
 
-    @Schema(description = "The names of all relationships that cause a flow file to be terminated if the relationship is not connected elsewhere. This property differs "
+    @Schema(description = "The names of all relationships that cause a FlowFile to be terminated if the relationship is not connected elsewhere. This property differs "
         + "from the 'isAutoTerminate' property of the RelationshipDTO in that the RelationshipDTO is meant to depict the current configuration, whereas this "
         + "property can be set in a DTO when updating a Processor in order to change which Relationships should be auto-terminated.")
     public Set<String> getAutoTerminatedRelationships() {
