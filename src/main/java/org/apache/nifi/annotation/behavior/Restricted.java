@@ -38,7 +38,10 @@ import java.lang.annotation.Target;
  * privileged, and admins should be aware of these capabilities and explicitly enable
  * them for a subset of trusted users.
  * </p>
+ *
+ * @deprecated Planned for removal without replacement according to NIP-24
  */
+@Deprecated(since = "2.8.0", forRemoval = true)
 @Documented
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
@@ -58,6 +61,7 @@ public @interface Restricted {
      *
      * @return Array of restrictions
      */
+    @SuppressWarnings("removal")
     Restriction[] restrictions() default {};
 
 }

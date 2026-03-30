@@ -20,7 +20,10 @@ import java.util.Arrays;
 
 /**
  * Enumeration of permission required for annotated components
+ *
+ * @deprecated Planned for removal without replacement according to NIP-24
  */
+@Deprecated(since = "2.8.0", forRemoval = true)
 public enum RequiredPermission {
     READ_FILESYSTEM("read-filesystem", "read filesystem"),
     WRITE_FILESYSTEM("write-filesystem", "write filesystem"),

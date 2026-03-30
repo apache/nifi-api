@@ -27,7 +27,10 @@ import java.lang.annotation.Target;
 
 /**
  * Specific restriction for a component. Indicates what the required permission is and why the restriction exists.
+ *
+ * @deprecated Planned for removal without replacement according to NIP-24
  */
+@Deprecated(since = "2.8.0", forRemoval = true)
 @Documented
 @Target({ElementType.TYPE})
 @Retention(RetentionPolicy.RUNTIME)
@@ -39,6 +42,7 @@ public @interface Restriction {
      *
      * @return Permission required for this restriction
      */
+    @SuppressWarnings("removal")
     RequiredPermission requiredPermission();
 
     /**

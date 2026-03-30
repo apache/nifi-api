@@ -248,6 +248,7 @@ public class TestParameter {
             return identifier;
         }
 
+        @SuppressWarnings("deprecation")
         @Override
         public String getParameterContextIdentifier() {
             return parameterContextIdentifier;

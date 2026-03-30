@@ -146,6 +146,7 @@ public abstract class AbstractDocumentationWriter implements ExtensionDocumentat
         writeFooter(component);
     }
 
+    @SuppressWarnings("removal")
     protected void writeBody(final ConfigurableComponent component, Map<String, ServiceAPI> propertyServices) throws IOException {
         writeExtensionName(component.getClass().getName());
         writeExtensionType(getExtensionType(component));
@@ -329,6 +330,7 @@ public abstract class AbstractDocumentationWriter implements ExtensionDocumentat
 
     protected abstract void writeStatefulInfo(Stateful stateful) throws IOException;
 
+    @SuppressWarnings("removal")
     protected abstract void writeRestrictedInfo(Restricted restricted) throws IOException;
 
     protected abstract void writeInputRequirementInfo(InputRequirement.Requirement requirement) throws IOException;

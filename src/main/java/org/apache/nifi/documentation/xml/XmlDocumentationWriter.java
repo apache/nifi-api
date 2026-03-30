@@ -317,6 +317,7 @@ public class XmlDocumentationWriter extends AbstractDocumentationWriter {
         writeEndElement();
     }
 
+    @SuppressWarnings("removal")
     @Override
     protected void writeRestrictedInfo(final Restricted restricted) throws IOException {
         if (restricted == null) {
@@ -337,6 +338,7 @@ public class XmlDocumentationWriter extends AbstractDocumentationWriter {
         writeEndElement();
     }
 
+    @SuppressWarnings("removal")
     private void writeRestriction(final Restriction restriction) throws IOException {
         writeStartElement("restriction");
 
