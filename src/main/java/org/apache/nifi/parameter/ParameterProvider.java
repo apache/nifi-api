@@ -148,7 +148,7 @@ public interface ParameterProvider extends ConfigurableComponent {
             final String name = context.getName();
             final String prefix = name + "." + group.getGroupName() + ".";
             for (final String fullyQualifiedParameterName : fullyQualifiedParameterNames) {
-                if (fullyQualifiedParameterName.startsWith(prefix)) {
+                if (fullyQualifiedParameterName != null && fullyQualifiedParameterName.startsWith(prefix)) {
                     final String secretName = fullyQualifiedParameterName.substring(prefix.length());
                     desiredParameterNames.add(secretName);
                 }
