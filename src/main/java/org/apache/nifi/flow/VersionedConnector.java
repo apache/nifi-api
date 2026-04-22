@@ -22,11 +22,12 @@ import java.util.List;
 public class VersionedConnector {
     private String instanceIdentifier;
     private String name;
-    private ScheduledState scheduledState;
+    private VersionedConnectorState scheduledState;
     private List<VersionedConfigurationStep> activeFlowConfiguration;
     private List<VersionedConfigurationStep> workingFlowConfiguration;
     private String type;
     private Bundle bundle;
+    private VersionedProcessGroup managedProcessGroup;
 
     public String getInstanceIdentifier() {
         return instanceIdentifier;
@@ -44,11 +45,11 @@ public class VersionedConnector {
         this.name = name;
     }
 
-    public ScheduledState getScheduledState() {
+    public VersionedConnectorState getScheduledState() {
         return scheduledState;
     }
 
-    public void setScheduledState(final ScheduledState scheduledState) {
+    public void setScheduledState(final VersionedConnectorState scheduledState) {
         this.scheduledState = scheduledState;
     }
 
@@ -82,5 +83,21 @@ public class VersionedConnector {
 
     public void setBundle(final Bundle bundle) {
         this.bundle = bundle;
+    }
+
+    /**
+     * Returns the contents of the Connector's Managed Process Group. This field is populated only when the Connector is
+     * in Troubleshooting mode at the time the flow is persisted, so that any user modifications made while in Troubleshooting
+     * survive a restart. For any other Connector state, this field is {@code null} and the Managed Process Group's contents
+     * are reconstructed from the configuration steps upon restore.
+     *
+     * @return the persisted contents of the Managed Process Group, or {@code null} if the Connector was not in Troubleshooting
+     */
+    public VersionedProcessGroup getManagedProcessGroup() {
+        return managedProcessGroup;
+    }
+
+    public void setManagedProcessGroup(final VersionedProcessGroup managedProcessGroup) {
+        this.managedProcessGroup = managedProcessGroup;
     }
 }

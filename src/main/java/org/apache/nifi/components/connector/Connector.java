@@ -79,6 +79,17 @@ public interface Connector {
     VersionedExternalFlow getInitialFlow();
 
     /**
+     * Returns the Connector's authoritative view of the Active flow based on its current configuration. This is the flow
+     * that the Connector believes should be installed into the Active Flow Context. It is invoked when ending
+     * Troubleshooting mode in order to restore the flow that the Connector expects, discarding any user edits made while
+     * in Troubleshooting.
+     *
+     * @param activeFlowContext the active flow context
+     * @return the Connector's authoritative view of the flow
+     */
+    VersionedExternalFlow getActiveFlow(FlowContext activeFlowContext);
+
+    /**
      * Starts the Connector instance.
      * @throws FlowUpdateException if there is an error starting the Connector
      * @param activeFlowContext the active flow context
