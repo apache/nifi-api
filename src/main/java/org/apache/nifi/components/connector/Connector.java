@@ -21,6 +21,7 @@ import org.apache.nifi.components.ConfigVerificationResult;
 import org.apache.nifi.components.DescribedValue;
 import org.apache.nifi.components.ValidationResult;
 import org.apache.nifi.components.connector.components.FlowContext;
+import org.apache.nifi.components.connector.migration.ConnectorMigrationContext;
 import org.apache.nifi.flow.VersionedExternalFlow;
 
 import java.util.List;
@@ -77,6 +78,48 @@ public interface Connector {
      * @return the initial version of the flow
      */
     VersionedExternalFlow getInitialFlow();
+
+    /**
+     * Indicates whether this Connector can be migrated from the provided source flow.
+     *
+     * <p>
+     * Implementations should inspect the source flow structure and metadata using {@link ConnectorMigrationContext#getSourceFlow()}
+     * and return quickly without mutating the Connector or the source flow. This method must not call
+     * {@link ConnectorMigrationContext#copyAssetFromSource(String)}.
+     * </p>
+     *
+     * @param context the migration context describing the source flow and target Connector
+     * @return {@code true} when this Connector can be migrated from the provided source flow
+     */
+    default boolean isMigrationSupported(ConnectorMigrationContext context) {
+        return false;
+    }
+
+    /**
+     * Migrates this Connector by updating its own managed flow to mirror the configuration, parameters, and component
+     * state captured in the provided source flow. The source flow is a reference: it is read, not modified, and is not
+     * installed onto the Connector. The Connector remains the owner of its flow and is responsible for translating the
+     * source into its own representation.
+     *
+     * <p>
+     * Implementations are responsible for transforming the source flow, updating the active {@link FlowContext}, and
+     * applying any parameter or step configuration changes needed by the Connector. Sensitive parameter values are not
+     * present in the source flow and must be left for the user to configure after the migration completes.
+     * </p>
+     *
+     * <p>
+     * Connectors extending {@link AbstractConnector} can typically retain their {@link ConnectorInitializationContext}
+     * from {@link #initialize(ConnectorInitializationContext)} and call
+     * {@link ConnectorInitializationContext#updateFlow(FlowContext, VersionedExternalFlow)} using
+     * {@link ConnectorMigrationContext#getActiveFlowContext()}.
+     * </p>
+     *
+     * @param context the migration context describing the source flow and target Connector
+     * @throws FlowUpdateException when the migration cannot be completed successfully
+     */
+    default void migrate(ConnectorMigrationContext context) throws FlowUpdateException {
+        throw new UnsupportedOperationException("Connector does not support migration");
+    }
 
     /**
      * Starts the Connector instance.
