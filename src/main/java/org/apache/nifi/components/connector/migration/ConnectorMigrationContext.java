@@ -51,18 +51,25 @@ public interface ConnectorMigrationContext {
     FlowContext getActiveFlowContext();
 
     /**
-     * Copies the referenced source asset into the Connector asset namespace. When the source asset cannot be located
-     * in the source asset manager (for example because it was deleted from the local source after the migration
-     * request started), the framework logs a warning and returns an {@link AssetReference} with no asset identifiers
-     * so the Connector can continue the migration without the missing asset. Callers should treat an empty asset
-     * reference as "asset not migrated" and decide how to handle that for the affected parameter (typically by
-     * leaving the parameter without an asset reference for the user to re-attach after migration completes).
+     * Copies the referenced source asset into the Connector asset namespace.
+     *
+     * <p>
+     * When the source asset cannot be located in the source asset manager (for example because it was deleted from
+     * the local source after the migration request started), the framework logs a warning and returns an
+     * {@link AssetReference} whose {@link AssetReference#getAssetIdentifiers()} returns an empty set, so the
+     * Connector can continue the migration without the missing asset. An empty asset reference is a normal,
+     * expected return value and is the explicit signal that the asset was not migrated; callers should detect this
+     * by checking whether {@code getAssetIdentifiers()} is empty and decide how to handle that for the affected
+     * parameter (typically by leaving the parameter without an asset reference for the user to re-attach after
+     * migration completes).
+     * </p>
      *
      * @param sourceAssetId the identifier of the source asset
      * @return an asset reference for the newly copied asset, or an asset reference with no identifiers when the
      *         source asset could not be located
-     * @throws IllegalArgumentException when {@code sourceAssetId} is null or blank, or when invoked for an uploaded
-     *                                  payload migration (assets are not available on the uploaded-payload path)
+     * @throws IllegalArgumentException when {@code sourceAssetId} is null or blank
+     * @throws IllegalStateException when invoked on an uploaded-payload migration context; assets are only
+     *                               available when the migration source is a local Versioned Process Group
      */
     AssetReference copyAssetFromSource(String sourceAssetId);
 }
