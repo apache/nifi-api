@@ -89,9 +89,11 @@ public class VersionedConnector {
      * Returns the contents of the Connector's Managed Process Group. This field is populated only when the Connector is
      * in Troubleshooting mode at the time the flow is persisted, so that any user modifications made while in Troubleshooting
      * survive a restart. For any other Connector state, this field is {@code null} and the Managed Process Group's contents
-     * are reconstructed from the configuration steps upon restore.
+     * are reconstructed by re-applying the configuration steps upon restore. If the Connector's scheduled state is not
+     * {@link VersionedConnectorState#TROUBLESHOOTING TROUBLESHOOTING}, this field is ignored.
      *
-     * @return the persisted contents of the Managed Process Group, or {@code null} if the Connector was not in Troubleshooting
+     * @return the persisted contents of the Managed Process Group, or {@code null} if the Connector was not in
+     *         Troubleshooting mode when the flow was persisted
      */
     public VersionedProcessGroup getManagedProcessGroup() {
         return managedProcessGroup;
