@@ -27,6 +27,7 @@ import java.util.function.Function;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
+import org.apache.nifi.annotation.documentation.CapabilityTag;
 import org.apache.nifi.annotation.documentation.DeprecationNotice;
 import org.apache.nifi.annotation.documentation.SeeAlso;
 import org.apache.nifi.components.DescribedValue;
@@ -112,6 +113,21 @@ public class XmlConnectorDocumentationWriter extends AbstractConnectorDocumentat
             return;
         }
         writeTextArray("tags", "tag", tags);
+    }
+
+    @Override
+    protected void writeCapabilityTags(final List<CapabilityTag> capabilityTags) throws IOException {
+        if (capabilityTags == null || capabilityTags.isEmpty()) {
+            return;
+        }
+        writeStartElement("capabilityTags");
+        for (final CapabilityTag capabilityTag : capabilityTags) {
+            writeStartElement("capabilityTag");
+            writeTextElement("key", capabilityTag.key());
+            writeTextElement("value", capabilityTag.value());
+            writeEndElement();
+        }
+        writeEndElement();
     }
 
     @Override

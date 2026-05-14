@@ -16,6 +16,7 @@
  */
 package org.apache.nifi.documentation.xml;
 
+import org.apache.nifi.annotation.documentation.CapabilityTag;
 import org.apache.nifi.annotation.documentation.DeprecationNotice;
 import org.apache.nifi.components.ConfigurableComponent;
 import org.apache.nifi.components.PropertyDescriptor;
@@ -201,6 +202,47 @@ class XmlDocumentationWriterTest {
         assertDependentPropertyValuesMatched(document);
         assertResourceTypesMatched(document);
         assertListenPortPropertiesMatched(document);
+    }
+
+    @Test
+    void testWriteCapabilityTags() throws Exception {
+        final Processor processor = new CapabilityTagProcessor();
+        final Document document = writeDocumentation(processor);
+
+        assertExtensionNameTypeFound(processor, ExtensionType.PROCESSOR, document);
+
+        final Node capabilityTagsNode = findNode("/extension/capabilityTags", document);
+        assertNotNull(capabilityTagsNode);
+
+        final NodeList capabilityTagNodes = capabilityTagsNode.getChildNodes();
+        assertEquals(2, capabilityTagNodes.getLength());
+
+        final Node firstTag = capabilityTagNodes.item(0);
+        assertEquals("capabilityTag", firstTag.getNodeName());
+        final Node firstKey = firstTag.getFirstChild();
+        assertEquals("key", firstKey.getNodeName());
+        assertEquals("vendor", firstKey.getTextContent());
+        final Node firstValue = firstKey.getNextSibling();
+        assertEquals("value", firstValue.getNodeName());
+        assertEquals("Acme Corp", firstValue.getTextContent());
+
+        final Node secondTag = capabilityTagNodes.item(1);
+        assertEquals("capabilityTag", secondTag.getNodeName());
+        final Node secondKey = secondTag.getFirstChild();
+        assertEquals("key", secondKey.getNodeName());
+        assertEquals("category", secondKey.getTextContent());
+        final Node secondValue = secondKey.getNextSibling();
+        assertEquals("value", secondValue.getNodeName());
+        assertEquals("networking", secondValue.getTextContent());
+    }
+
+    @Test
+    void testWriteNoCapabilityTags() throws Exception {
+        final Processor processor = new MinimalProcessor();
+        final Document document = writeDocumentation(processor);
+
+        final Node capabilityTagsNode = findNode("/extension/capabilityTags", document);
+        assertNull(capabilityTagsNode);
     }
 
     private void assertRelationshipsMatched(final Document document) throws XPathExpressionException {
@@ -398,6 +440,16 @@ class XmlDocumentationWriterTest {
         @Override
         protected List<PropertyDescriptor> getSupportedPropertyDescriptors() {
             return PROPERTY_DESCRIPTORS;
+        }
+    }
+
+    @CapabilityTag(key = "vendor", value = "Acme Corp")
+    @CapabilityTag(key = "category", value = "networking")
+    private static class CapabilityTagProcessor extends AbstractProcessor {
+
+        @Override
+        public void onTrigger(final ProcessContext context, final ProcessSession session) throws ProcessException {
+
         }
     }
 }

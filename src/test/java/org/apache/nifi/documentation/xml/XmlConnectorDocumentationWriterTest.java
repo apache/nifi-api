@@ -17,6 +17,7 @@
 package org.apache.nifi.documentation.xml;
 
 import org.apache.nifi.annotation.documentation.CapabilityDescription;
+import org.apache.nifi.annotation.documentation.CapabilityTag;
 import org.apache.nifi.annotation.documentation.DeprecationNotice;
 import org.apache.nifi.annotation.documentation.SeeAlso;
 import org.apache.nifi.annotation.documentation.Tags;
@@ -408,6 +409,47 @@ class XmlConnectorDocumentationWriterTest {
         final Node propertyTypeNode = findNode("/extension/configurationSteps/configurationStep/propertyGroups/propertyGroup/properties/property/propertyType", document);
         assertNotNull(propertyTypeNode);
         assertEquals("BOOLEAN", propertyTypeNode.getTextContent());
+    }
+
+    @Test
+    void testWriteConnectorWithCapabilityTags() throws Exception {
+        final Connector connector = new CapabilityTagConnector();
+        final Document document = writeDocumentation(connector);
+
+        assertExtensionNameTypeFound(connector, ExtensionType.CONNECTOR, document);
+
+        final Node capabilityTagsNode = findNode("/extension/capabilityTags", document);
+        assertNotNull(capabilityTagsNode);
+
+        final NodeList capabilityTagNodes = capabilityTagsNode.getChildNodes();
+        assertEquals(2, capabilityTagNodes.getLength());
+
+        final Node firstTag = capabilityTagNodes.item(0);
+        assertEquals("capabilityTag", firstTag.getNodeName());
+        final Node firstKey = firstTag.getFirstChild();
+        assertEquals("key", firstKey.getNodeName());
+        assertEquals("vendor", firstKey.getTextContent());
+        final Node firstValue = firstKey.getNextSibling();
+        assertEquals("value", firstValue.getNodeName());
+        assertEquals("Acme Corp", firstValue.getTextContent());
+
+        final Node secondTag = capabilityTagNodes.item(1);
+        assertEquals("capabilityTag", secondTag.getNodeName());
+        final Node secondKey = secondTag.getFirstChild();
+        assertEquals("key", secondKey.getNodeName());
+        assertEquals("category", secondKey.getTextContent());
+        final Node secondValue = secondKey.getNextSibling();
+        assertEquals("value", secondValue.getNodeName());
+        assertEquals("networking", secondValue.getTextContent());
+    }
+
+    @Test
+    void testWriteConnectorWithNoCapabilityTags() throws Exception {
+        final Connector connector = new MinimalConnector();
+        final Document document = writeDocumentation(connector);
+
+        final Node capabilityTagsNode = findNode("/extension/capabilityTags", document);
+        assertNull(capabilityTagsNode);
     }
 
     private Node findNode(final String expression, final Node node) throws XPathExpressionException {
@@ -861,6 +903,11 @@ class XmlConnectorDocumentationWriterTest {
                     .build()
             );
         }
+    }
+
+    @CapabilityTag(key = "vendor", value = "Acme Corp")
+    @CapabilityTag(key = "category", value = "networking")
+    private static class CapabilityTagConnector extends MinimalConnector {
     }
 }
 

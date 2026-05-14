@@ -37,6 +37,7 @@ import org.apache.nifi.annotation.behavior.WritesAttributes;
 import org.apache.nifi.annotation.configuration.DefaultSchedule;
 import org.apache.nifi.annotation.configuration.DefaultSettings;
 import org.apache.nifi.annotation.documentation.CapabilityDescription;
+import org.apache.nifi.annotation.documentation.CapabilityTag;
 import org.apache.nifi.annotation.documentation.DeprecationNotice;
 import org.apache.nifi.annotation.documentation.MultiProcessorUseCase;
 import org.apache.nifi.annotation.documentation.SeeAlso;
@@ -153,6 +154,7 @@ public abstract class AbstractDocumentationWriter implements ExtensionDocumentat
         writeDeprecationNotice(component.getClass().getAnnotation(DeprecationNotice.class));
         writeDescription(getDescription(component));
         writeTags(getTags(component));
+        writeCapabilityTags(getCapabilityTags(component));
         writeProperties(component.getPropertyDescriptors(), propertyServices);
         writeDynamicProperties(getDynamicProperties(component));
         writeSupportsSensitiveDynamicProperties(component.getClass().getAnnotation(SupportsSensitiveDynamicProperties.class));
@@ -288,6 +290,15 @@ public abstract class AbstractDocumentationWriter implements ExtensionDocumentat
         return Arrays.asList(useCases);
     }
 
+    private List<CapabilityTag> getCapabilityTags(final ConfigurableComponent component) {
+        final CapabilityTag[] capabilityTags = component.getClass().getAnnotationsByType(CapabilityTag.class);
+        if (capabilityTags.length == 0) {
+            return Collections.emptyList();
+        }
+
+        return Arrays.asList(capabilityTags);
+    }
+
     protected ExtensionType getExtensionType(final ConfigurableComponent component) {
         if (component instanceof Processor) {
             return ExtensionType.PROCESSOR;
@@ -323,6 +334,8 @@ public abstract class AbstractDocumentationWriter implements ExtensionDocumentat
     protected abstract void writeDescription(String description) throws IOException;
 
     protected abstract void writeTags(List<String> tags) throws IOException;
+
+    protected abstract void writeCapabilityTags(List<CapabilityTag> capabilityTags) throws IOException;
 
     protected abstract void writeProperties(List<PropertyDescriptor> properties, Map<String, ServiceAPI> propertyServices) throws IOException;
 

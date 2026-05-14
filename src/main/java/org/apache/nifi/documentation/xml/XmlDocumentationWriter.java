@@ -34,6 +34,7 @@ import org.apache.nifi.annotation.behavior.TriggerWhenEmpty;
 import org.apache.nifi.annotation.behavior.WritesAttribute;
 import org.apache.nifi.annotation.configuration.DefaultSchedule;
 import org.apache.nifi.annotation.configuration.DefaultSettings;
+import org.apache.nifi.annotation.documentation.CapabilityTag;
 import org.apache.nifi.annotation.documentation.DeprecationNotice;
 import org.apache.nifi.annotation.documentation.MultiProcessorUseCase;
 import org.apache.nifi.annotation.documentation.ProcessorConfiguration;
@@ -147,6 +148,21 @@ public class XmlDocumentationWriter extends AbstractDocumentationWriter {
             return;
         }
         writeTextArray("tags", "tag", tags);
+    }
+
+    @Override
+    protected void writeCapabilityTags(final List<CapabilityTag> capabilityTags) throws IOException {
+        if (capabilityTags == null || capabilityTags.isEmpty()) {
+            return;
+        }
+        writeArray("capabilityTags", capabilityTags, this::writeCapabilityTag);
+    }
+
+    private void writeCapabilityTag(final CapabilityTag capabilityTag) throws IOException {
+        writeStartElement("capabilityTag");
+        writeTextElement("key", capabilityTag.key());
+        writeTextElement("value", capabilityTag.value());
+        writeEndElement();
     }
 
     @Override

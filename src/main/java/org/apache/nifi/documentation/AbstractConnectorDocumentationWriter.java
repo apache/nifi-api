@@ -17,6 +17,7 @@
 package org.apache.nifi.documentation;
 
 import org.apache.nifi.annotation.documentation.CapabilityDescription;
+import org.apache.nifi.annotation.documentation.CapabilityTag;
 import org.apache.nifi.annotation.documentation.DeprecationNotice;
 import org.apache.nifi.annotation.documentation.SeeAlso;
 import org.apache.nifi.annotation.documentation.Tags;
@@ -63,6 +64,7 @@ public abstract class AbstractConnectorDocumentationWriter implements ConnectorD
         writeDeprecationNotice(connector.getClass().getAnnotation(DeprecationNotice.class));
         writeDescription(getDescription(connector));
         writeTags(getTags(connector));
+        writeCapabilityTags(getCapabilityTags(connector));
         writeConfigurationSteps(connector.getConfigurationSteps());
         writeSeeAlso(connector.getClass().getAnnotation(SeeAlso.class));
     }
@@ -84,6 +86,14 @@ public abstract class AbstractConnectorDocumentationWriter implements ConnectorD
         return tagValues == null ? Collections.emptyList() : Arrays.asList(tagValues);
     }
 
+    protected List<CapabilityTag> getCapabilityTags(final Connector connector) {
+        final CapabilityTag[] capabilityTags = connector.getClass().getAnnotationsByType(CapabilityTag.class);
+        if (capabilityTags.length == 0) {
+            return Collections.emptyList();
+        }
+        return Arrays.asList(capabilityTags);
+    }
+
     protected abstract void writeHeader(Connector connector) throws IOException;
 
     protected abstract void writeExtensionName(String extensionName) throws IOException;
@@ -95,6 +105,8 @@ public abstract class AbstractConnectorDocumentationWriter implements ConnectorD
     protected abstract void writeDescription(String description) throws IOException;
 
     protected abstract void writeTags(List<String> tags) throws IOException;
+
+    protected abstract void writeCapabilityTags(List<CapabilityTag> capabilityTags) throws IOException;
 
     protected abstract void writeConfigurationSteps(List<ConfigurationStep> configurationSteps) throws IOException;
 
