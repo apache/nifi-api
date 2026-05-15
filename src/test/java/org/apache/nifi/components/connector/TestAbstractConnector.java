@@ -923,6 +923,11 @@ public class TestAbstractConnector {
         }
 
         @Override
+        public VersionedExternalFlow getActiveFlow(final FlowContext activeFlowContext) {
+            return null;
+        }
+
+        @Override
         public List<ConfigurationStep> getConfigurationSteps() {
             return configurationSteps;
         }

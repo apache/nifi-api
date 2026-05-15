@@ -504,6 +504,11 @@ class XmlConnectorDocumentationWriterTest {
         }
 
         @Override
+        public VersionedExternalFlow getActiveFlow(final FlowContext activeFlowContext) {
+            return null;
+        }
+
+        @Override
         public List<ConfigurationStep> getConfigurationSteps() {
             return Collections.emptyList();
         }
