@@ -17,16 +17,26 @@
 
 package org.apache.nifi.components.connector.components;
 
+import org.apache.nifi.components.Backlog;
+import org.apache.nifi.components.BacklogReportingException;
 import org.apache.nifi.components.ConfigVerificationResult;
 import org.apache.nifi.components.ValidationResult;
 import org.apache.nifi.components.connector.InvocationFailedException;
 import org.apache.nifi.flow.VersionedExternalFlow;
 import org.apache.nifi.flow.VersionedParameterContext;
 import org.apache.nifi.flow.VersionedProcessor;
+import org.apache.nifi.processor.BacklogReportingProcessor;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
+/**
+ * <p>
+ *     Facade exposing per-Processor operations to a Connector implementation. The framework constructs
+ *     and supplies these facades; Connector extensions do not implement this interface themselves.
+ * </p>
+ */
 public interface ProcessorFacade {
 
     VersionedProcessor getDefinition();
@@ -75,4 +85,32 @@ public interface ProcessorFacade {
      * @throws InvocationFailedException if unable to invoke the method
      */
     <T> T invokeConnectorMethod(String methodName, Map<String, Object> arguments, Class<T> returnType) throws InvocationFailedException;
+
+    /**
+     * Indicates whether the underlying Processor implements {@link BacklogReportingProcessor}. This
+     * is a cheap capability check that does not call into the Processor.
+     *
+     * @return {@code true} if the underlying Processor implements {@link BacklogReportingProcessor};
+     *         {@code false} otherwise
+     */
+    boolean reportsBacklog();
+
+    /**
+     * <p>
+     *     Returns the underlying Processor's reported {@link Backlog}. This is the bridge a
+     *     Connector uses to ask a Processor in its flow how much data remains on the source.
+     * </p>
+     *
+     * <p>
+     *     The return value and exception semantics mirror those of
+     *     {@link BacklogReportingProcessor#getBacklog(org.apache.nifi.processor.ProcessContext)}. If
+     *     the underlying Processor does not implement {@link BacklogReportingProcessor}, this method
+     *     returns {@link Optional#empty()}.
+     * </p>
+     *
+     * @return the Processor's reported {@link Backlog}, or {@link Optional#empty()} if the Processor does not
+     *         implement {@link BacklogReportingProcessor} or has nothing to report
+     * @throws BacklogReportingException if the Processor attempted to determine its backlog and failed
+     */
+    Optional<Backlog> getBacklog() throws BacklogReportingException;
 }

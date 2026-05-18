@@ -242,4 +242,5 @@ public interface Connector {
      * @return a Future that will be completed when the draining is complete
      */
     CompletableFuture<Void> drainFlowFiles(FlowContext flowContext);
+
 }
