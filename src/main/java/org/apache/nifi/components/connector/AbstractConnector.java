@@ -92,21 +92,7 @@ public abstract class AbstractConnector implements Connector {
         if (initializationContext == null) {
             throw new IllegalStateException("Connector has not been initialized");
         }
-
         return initializationContext;
-    }
-
-    /**
-     * Sets custom logging attributes that the framework will include in the SLF4J {@code MDC} for every log line emitted
-     * by this Connector and by any component running inside its managed flow. Convenience wrapper for
-     * {@link ConnectorInitializationContext#setLoggingAttributes(Map)} that subclasses can call once they have computed
-     * the attributes (for example, after configuration is applied). Calls replace any previously set custom attributes.
-     *
-     * @param attributes the custom attributes to expose; must not be {@code null}
-     * @see ConnectorInitializationContext#setLoggingAttributes(Map)
-     */
-    protected final void setLoggingAttributes(final Map<String, String> attributes) {
-        getInitializationContext().setLoggingAttributes(attributes);
     }
 
     @Override
