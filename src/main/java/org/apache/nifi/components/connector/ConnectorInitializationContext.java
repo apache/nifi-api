@@ -21,6 +21,8 @@ import org.apache.nifi.components.connector.components.FlowContext;
 import org.apache.nifi.flow.VersionedExternalFlow;
 import org.apache.nifi.logging.ComponentLog;
 
+import java.util.Map;
+
 /**
  * <p>
  *     The ConnectorInitializationContext provides context about how the connector is being run.
@@ -110,5 +112,32 @@ public interface ConnectorInitializationContext {
      * @throws FlowUpdateException if the flow update fails
      */
     void updateFlow(FlowContext flowContext, VersionedExternalFlow versionedExternalFlow, BundleCompatibility bundleCompatability) throws FlowUpdateException;
+
+    /**
+     * <p>
+     *     Sets custom logging attributes that the framework will include in the SLF4J {@code MDC} for every log line emitted
+     *     by the Connector and by any component (Processor, Controller Service, etc.) running inside the Connector's managed
+     *     flow. The given map replaces any previously set custom attributes.
+     * </p>
+     *
+     * <p>
+     *     The framework reserves a set of well-known keys that describe the Connector itself (identity, bundle coordinate,
+     *     etc.). Any entry in {@code attributes} whose key collides with a reserved framework-managed key is dropped and a
+     *     warning is logged for that entry; the remaining entries are accepted.
+     * </p>
+     *
+     * <p>
+     *     This method is intended to be called during or after {@link Connector#initialize(ConnectorInitializationContext)
+     *     initialization}, for example once configuration has been applied and the Connector has values it wishes to surface
+     *     (e.g. database name, source schema). It is safe to call repeatedly; each call replaces the prior set of custom
+     *     attributes.
+     * </p>
+     *
+     * @param attributes the custom attributes to expose on logs from this Connector and its managed flow; must not be {@code null}
+     * @throws UnsupportedOperationException if the runtime implementation does not support custom logging attributes
+     */
+    default void setLoggingAttributes(Map<String, String> attributes) {
+        throw new UnsupportedOperationException();
+    }
 
 }

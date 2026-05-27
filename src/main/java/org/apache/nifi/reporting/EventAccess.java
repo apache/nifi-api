@@ -23,6 +23,8 @@ import org.apache.nifi.provenance.ProvenanceEventRecord;
 import org.apache.nifi.provenance.ProvenanceEventRepository;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -38,6 +40,22 @@ public interface EventAccess {
      * @return the status of all components in the specified group.
      */
     ProcessGroupStatus getGroupStatus(final String groupId);
+
+    /**
+     * Returns one {@link ProcessGroupStatus} per Connector currently registered with the runtime, each rooted at the
+     * Connector's managed Process Group. Connector-managed groups are siblings of the root Process Group (they have no
+     * parent and are not reachable from {@link #getControllerStatus()}), so reporting tasks that wish to surface metrics
+     * for connector-managed flows must consult this method in addition to {@link #getControllerStatus()}.
+     *
+     * The default implementation returns an empty collection so that runtimes without Connector support — and existing
+     * callers compiled against earlier versions of this interface — continue to work unchanged.
+     *
+     * @return one status per Connector's managed Process Group; empty if no Connectors are registered or if the runtime
+     *         does not support Connectors
+     */
+    default Collection<ProcessGroupStatus> getConnectorStatuses() {
+        return Collections.emptyList();
+    }
 
     /**
      * Convenience method to obtain Provenance Events starting with (and
