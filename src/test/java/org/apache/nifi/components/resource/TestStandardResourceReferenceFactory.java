@@ -22,8 +22,10 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -67,6 +69,7 @@ public class TestStandardResourceReferenceFactory {
 
         assertEmptyResourceReferences(resourceReferences);
     }
+
     @Test
     public void testCreateResourceReferencesWhenResourceDefinitionIsNull() {
         String value = "/dir1/test1.jar";
@@ -75,6 +78,24 @@ public class TestStandardResourceReferenceFactory {
         ResourceReferences resourceReferences = subject.createResourceReferences(value, resourceDefinition);
 
         assertEmptyResourceReferences(resourceReferences);
+    }
+
+    @Test
+    public void testDisambiguationBetweenTextAndFile() {
+        final String transformWithSingleLineComment = """
+                // This is a single line comment in JSLT
+                {
+                "id": .userId,
+                "name": .firstName
+                }
+                """;
+
+        final String trimmed = transformWithSingleLineComment.trim();
+        final ResourceDefinition resourceDefinition =
+                new StandardResourceDefinition(ResourceCardinality.SINGLE, Set.of(ResourceType.FILE, ResourceType.TEXT));
+        final ResourceReference resourceReference = subject.createResourceReference(trimmed, resourceDefinition);
+
+        assertInstanceOf(Utf8TextResource.class, resourceReference);
     }
 
     private StandardResourceDefinition createResourceDefinition() {
