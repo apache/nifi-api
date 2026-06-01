@@ -90,10 +90,9 @@ public class TestStandardResourceReferenceFactory {
                 }
                 """;
 
-        final String trimmed = transformWithSingleLineComment.trim();
         final ResourceDefinition resourceDefinition =
                 new StandardResourceDefinition(ResourceCardinality.SINGLE, Set.of(ResourceType.FILE, ResourceType.TEXT));
-        final ResourceReference resourceReference = subject.createResourceReference(trimmed, resourceDefinition);
+        final ResourceReference resourceReference = subject.createResourceReference(transformWithSingleLineComment, resourceDefinition);
 
         assertInstanceOf(Utf8TextResource.class, resourceReference);
     }
