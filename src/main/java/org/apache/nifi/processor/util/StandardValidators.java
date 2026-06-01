@@ -182,40 +182,61 @@ public class StandardValidators {
      * {@link Validator} that ensures that value is a non-empty comma separated list of hostname:port
      */
     public static final Validator HOSTNAME_PORT_LIST_VALIDATOR = new Validator() {
-        private static final Validator NON_ZERO_PORT_VALIDATOR = createLongValidator(1, 65535, true);
-
         @Override
         public ValidationResult validate(String subject, String input, ValidationContext context) {
-            // expression language
             if (context.isExpressionLanguageSupported(subject) && context.isExpressionLanguagePresent(input)) {
                 return new ValidationResult.Builder().subject(subject).input(input).explanation("Expression Language Present").valid(true).build();
             }
 
-            // not empty
             final ValidationResult nonEmptyValidatorResult = NON_EMPTY_VALIDATOR.validate(subject, input, context);
             if (!nonEmptyValidatorResult.isValid()) {
                 return nonEmptyValidatorResult;
             }
 
-            // check format
             final String[] hostnamePortList = input.split(",");
-            for (String hostnamePort : hostnamePortList) {
-                final String[] addresses = hostnamePort.split(":");
-                // Protect against invalid input like http://127.0.0.1:9300 (URL scheme should not be there)
-                if (addresses.length != 2) {
-                    return new ValidationResult.Builder().subject(subject).input(input).explanation(
-                            "Must be in hostname:port form (no scheme such as http://").valid(false).build();
-                }
 
-                // Validate the port
-                final String port = addresses[1].trim();
-                final ValidationResult portValidatorResult = NON_ZERO_PORT_VALIDATOR.validate(subject, port, context);
-                if (!portValidatorResult.isValid()) {
-                    return portValidatorResult;
+            for (String hostnamePort : hostnamePortList) {
+                final ValidationResult result = HOSTNAME_PORT_VALIDATOR.validate(subject, hostnamePort.trim(), context);
+                if (!result.isValid()) {
+                    return result;
                 }
             }
 
             return new ValidationResult.Builder().subject(subject).input(input).explanation("Valid cluster definition").valid(true).build();
+        }
+    };
+
+    /**
+     * {@link Validator} that ensures that value is a non-empty hostname:port
+     */
+    public static final Validator HOSTNAME_PORT_VALIDATOR = new Validator() {
+        private static final Validator NON_ZERO_PORT_VALIDATOR = createLongValidator(1, 65535, true);
+
+        @Override
+        public ValidationResult validate(String subject, String input, ValidationContext context) {
+            if (context.isExpressionLanguageSupported(subject) && context.isExpressionLanguagePresent(input)) {
+                return new ValidationResult.Builder().subject(subject).input(input).explanation("Expression Language Present").valid(true).build();
+            }
+
+            final ValidationResult nonEmptyValidatorResult = NON_EMPTY_VALIDATOR.validate(subject, input, context);
+            if (!nonEmptyValidatorResult.isValid()) {
+                return nonEmptyValidatorResult;
+            }
+
+            final String[] addresses = input.trim().split(":");
+            // Protect against invalid input like http://127.0.0.1:9300 (URL scheme should not be there)
+            if (addresses.length != 2) {
+                return new ValidationResult.Builder().subject(subject).input(input).explanation(
+                        "Must be in hostname:port form (no scheme such as http://)").valid(false).build();
+            }
+
+            final String port = addresses[1].trim();
+            final ValidationResult portValidatorResult = NON_ZERO_PORT_VALIDATOR.validate(subject, port, context);
+            if (!portValidatorResult.isValid()) {
+                return portValidatorResult;
+            }
+
+            return new ValidationResult.Builder().subject(subject).input(input).explanation("Valid hostname:port").valid(true).build();
         }
     };
 
