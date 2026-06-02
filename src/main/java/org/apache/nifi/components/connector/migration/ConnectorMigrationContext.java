@@ -18,13 +18,29 @@
 package org.apache.nifi.components.connector.migration;
 
 import org.apache.nifi.components.connector.AssetReference;
+import org.apache.nifi.components.connector.ConfigurationStep;
+import org.apache.nifi.components.connector.ConnectorInitializationContext;
 import org.apache.nifi.components.connector.components.FlowContext;
+import org.apache.nifi.flow.VersionedComponentState;
 import org.apache.nifi.flow.VersionedExternalFlow;
 
+import java.util.Map;
+
 /**
- * Context provided to a Connector when evaluating or performing migration from a Versioned Process Group export. The
- * source flow exposed through this context is a read-only reference that the Connector uses to update its own managed
- * flow; the source flow itself is never installed onto the Connector.
+ * Migration context for a {@link MigratableConnector}.
+ *
+ * <p>
+ * The source flow is read-only and is never installed directly. Write methods are phase-scoped:
+ * {@link #setProperties(String, Map)} and {@link #replaceProperties(String, Map)} are valid only during
+ * {@link MigratableConnector#migrateConfiguration(ConnectorMigrationContext)}, and
+ * {@link #setComponentState(String, VersionedComponentState)} is valid only during
+ * {@link MigratableConnector#migrateState(ConnectorMigrationContext)}.
+ * </p>
+ *
+ * <p>
+ * Calling {@link ConnectorInitializationContext#updateFlow(FlowContext, VersionedExternalFlow) updateFlow(...)}
+ * through this context throws.
+ * </p>
  */
 public interface ConnectorMigrationContext {
 
@@ -45,8 +61,9 @@ public interface ConnectorMigrationContext {
 
     /**
      * Returns the active flow context for the Connector being migrated.
+     * Calling {@code updateFlow(...)} through this context throws.
      *
-     * @return the active flow context
+     * @return active flow context
      */
     FlowContext getActiveFlowContext();
 
@@ -72,4 +89,35 @@ public interface ConnectorMigrationContext {
      *                               available when the migration source is a local Versioned Process Group
      */
     AssetReference copyAssetFromSource(String sourceAssetId);
+
+    /**
+     * Records configuration properties to merge into the named {@link ConfigurationStep}.
+     * A {@code null} value removes the property.
+     *
+     * @param stepName configuration step name
+     * @param propertyValues properties to record
+     * @throws IllegalStateException when called outside {@code migrateConfiguration(...)}
+     */
+    void setProperties(String stepName, Map<String, String> propertyValues);
+
+    /**
+     * Records configuration properties that replace the named {@link ConfigurationStep}.
+     * Properties not included in {@code propertyValues} are removed.
+     *
+     * @param stepName configuration step name
+     * @param propertyValues properties to record
+     * @throws IllegalStateException when called outside {@code migrateConfiguration(...)}
+     */
+    void replaceProperties(String stepName, Map<String, String> propertyValues);
+
+    /**
+     * Records the {@link VersionedComponentState} for a managed component.
+     * Repeated calls for the same component replace prior recorded state; an empty state clears previously recorded state.
+     *
+     * @param managedComponentId managed Processor or Controller Service versioned identifier
+     * @param state state to write
+     * @throws IllegalArgumentException when {@code managedComponentId} is blank or {@code state} is {@code null}
+     * @throws IllegalStateException when called outside {@code migrateState(...)}
+     */
+    void setComponentState(String managedComponentId, VersionedComponentState state);
 }
