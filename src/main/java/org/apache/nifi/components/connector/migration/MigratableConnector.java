@@ -21,72 +21,63 @@ import org.apache.nifi.components.connector.Connector;
 import org.apache.nifi.components.connector.ConnectorInitializationContext;
 import org.apache.nifi.components.connector.FlowUpdateException;
 import org.apache.nifi.components.connector.components.FlowContext;
-import org.apache.nifi.flow.VersionedExternalFlow;
+import org.apache.nifi.flow.VersionedComponentState;
 
 /**
+ * Optional {@link Connector} capability for migration from a source flow.
+ *
  * <p>
- * An optional capability interface that may be implemented by a {@link Connector} to indicate that it supports
- * being populated from an existing source flow (for example, a Versioned Process Group already running on this
- * NiFi instance, or an uploaded flow definition). The framework discovers this capability by checking whether a
- * Connector is an instance of {@code MigratableConnector}; Connectors that do not implement this interface are
- * never offered as migration targets.
+ * Migration runs in two phases:
+ * </p>
+ * <ol>
+ *     <li>{@link #migrateConfiguration(ConnectorMigrationContext)} records configuration changes and copied assets.</li>
+ *     <li>{@link #migrateState(ConnectorMigrationContext)} records component {@link VersionedComponentState}.</li>
+ * </ol>
+ *
+ * <p>
+ * Connectors must not call
+ * {@link ConnectorInitializationContext#updateFlow(FlowContext, org.apache.nifi.flow.VersionedExternalFlow)
+ * updateFlow(...)} during migration. The framework applies recorded configuration by calling
+ * {@link Connector#applyUpdate(FlowContext, FlowContext) applyUpdate(...)} between phases, then writes recorded
+ * state. If any phase fails, migration is rolled back.
  * </p>
  *
- * <b>Implementation Note:</b> This API is currently experimental, as it is under very active development. As such,
- * it is subject to change without notice between releases.
+ * <p>
+ * Sensitive values are not included in the source flow and must be configured by the user after migration.
+ * </p>
+ *
+ * <p>
+ * <b>Implementation Note:</b> This API is experimental and may change between releases.
+ * </p>
  */
 public interface MigratableConnector {
 
     /**
-     * Indicates whether this Connector can be migrated from the source flow described by the given context.
+     * Returns whether this Connector supports migration from the source flow in the given context.
+     * This method is read-only and must not call context write methods.
      *
-     * <p>
-     * Implementations should inspect the source flow structure and metadata using
-     * {@link ConnectorMigrationContext#getSourceFlow()} and return quickly without mutating the Connector or the
-     * source flow. This method must not call {@link ConnectorMigrationContext#copyAssetFromSource(String)}.
-     * </p>
-     *
-     * @param context the migration context describing the source flow and target Connector
-     * @return {@code true} when this Connector can be migrated from the provided source flow
+     * @param context migration context
+     * @return {@code true} when migration is supported
      */
     boolean isMigrationSupported(ConnectorMigrationContext context);
 
     /**
-     * Migrates this Connector by updating its own managed flow to mirror the configuration, parameters, and component
-     * state captured in the provided source flow. The source flow is a reference: it is read, not modified, and is not
-     * installed onto the Connector. The Connector remains the owner of its flow and is responsible for translating the
-     * source into its own representation.
+     * First migration phase. Record configuration changes using
+     * {@link ConnectorMigrationContext#setProperties(String, java.util.Map)} or
+     * {@link ConnectorMigrationContext#replaceProperties(String, java.util.Map)}, and copy assets as needed.
+     * The framework calls {@link Connector#applyUpdate(FlowContext, FlowContext)} after this method returns.
      *
-     * <p>
-     * The framework guarantees the following preconditions when this method is invoked:
-     * </p>
-     * <ul>
-     *     <li>The Connector is stopped.</li>
-     *     <li>The Connector has not had any configuration changes applied by the user and has not been started.</li>
-     * </ul>
-     *
-     * <p>
-     * Because of these preconditions, the implementation updates the active {@link FlowContext} directly rather than
-     * making use of {@code prepareForUpdate} and {@code applyUpdate}. Those two lifecycle methods exist to safely
-     * transition a running Connector from one active configuration to another; for migration, the Connector is
-     * already required to be in the target-safe state, so the working-to-active swap is unnecessary.
-     * </p>
-     *
-     * <p>
-     * Implementations are responsible for transforming the source flow, updating the active {@link FlowContext}, and
-     * applying any parameter or step configuration changes needed by the Connector. Sensitive parameter values are not
-     * present in the source flow and must be left for the user to configure after the migration completes.
-     * </p>
-     *
-     * <p>
-     * Connectors that extend {@code AbstractConnector} can typically retain their {@link ConnectorInitializationContext}
-     * from {@code initialize(ConnectorInitializationContext)} and call
-     * {@link ConnectorInitializationContext#updateFlow(FlowContext, VersionedExternalFlow)} using
-     * {@link ConnectorMigrationContext#getActiveFlowContext()}.
-     * </p>
-     *
-     * @param context the migration context describing the source flow and target Connector
-     * @throws FlowUpdateException when the migration cannot be completed successfully
+     * @param context migration context
+     * @throws FlowUpdateException when migration fails
      */
-    void migrate(ConnectorMigrationContext context) throws FlowUpdateException;
+    void migrateConfiguration(ConnectorMigrationContext context) throws FlowUpdateException;
+
+    /**
+     * Second migration phase. This method is invoked after the framework rebuilds the managed flow from configuration.
+     * Record component state using {@link ConnectorMigrationContext#setComponentState(String, VersionedComponentState)}.
+     *
+     * @param context migration context
+     * @throws FlowUpdateException when state migration fails
+     */
+    void migrateState(ConnectorMigrationContext context) throws FlowUpdateException;
 }
