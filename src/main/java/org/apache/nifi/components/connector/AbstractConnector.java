@@ -92,6 +92,7 @@ public abstract class AbstractConnector implements Connector {
         if (initializationContext == null) {
             throw new IllegalStateException("Connector has not been initialized");
         }
+
         return initializationContext;
     }
 
