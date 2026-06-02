@@ -61,8 +61,6 @@ public class ProcessGroupStatus implements Cloneable {
 
     private ProcessingPerformanceStatus processingPerformanceStatus;
 
-    private Map<String, String> loggingAttributes = Map.of();
-
     public String getId() {
         return id;
     }
@@ -295,27 +293,6 @@ public class ProcessGroupStatus implements Cloneable {
         this.processingPerformanceStatus = processingPerformanceStatus;
     }
 
-    /**
-     * Returns the snapshot of logging attributes (e.g. connector identity, NiFi {@code processGroup*} keys) that apply to
-     * this Process Group at the time the status was captured. The returned map is immutable.
-     *
-     * @return the logging attributes for this Process Group, or an empty map if none have been set
-     */
-    public Map<String, String> getLoggingAttributes() {
-        return loggingAttributes;
-    }
-
-    /**
-     * Sets the snapshot of logging attributes (e.g. connector identity, NiFi {@code processGroup*} keys) that apply to
-     * this Process Group at the time the status was captured. An immutable defensive copy of the supplied map is stored;
-     * subsequent mutations of the caller's map have no effect. A {@code null} value is treated as an empty map.
-     *
-     * @param loggingAttributes the logging attributes for this Process Group
-     */
-    public void setLoggingAttributes(final Map<String, String> loggingAttributes) {
-        this.loggingAttributes = loggingAttributes == null ? Map.of() : Map.copyOf(loggingAttributes);
-    }
-
     @Override
     public ProcessGroupStatus clone() {
         final ProcessGroupStatus clonedObj = new ProcessGroupStatus();
@@ -340,7 +317,6 @@ public class ProcessGroupStatus implements Cloneable {
         clonedObj.bytesTransferred = bytesTransferred;
         clonedObj.processingNanos = processingNanos;
         clonedObj.processingPerformanceStatus = processingPerformanceStatus;
-        clonedObj.setLoggingAttributes(loggingAttributes);
 
         if (connectionStatus != null) {
             final Collection<ConnectionStatus> statusList = new ArrayList<>();
@@ -499,12 +475,6 @@ public class ProcessGroupStatus implements Cloneable {
             target.setVersionedFlowState(VersionedFlowState.SYNC_FAILURE);
         }
         target.setRegisteredFlowSnapshotMetadata(toMerge.getRegisteredFlowSnapshotMetadata());
-
-        if (!toMerge.getLoggingAttributes().isEmpty()) {
-            final Map<String, String> mergedLoggingAttributes = new HashMap<>(target.getLoggingAttributes());
-            mergedLoggingAttributes.putAll(toMerge.getLoggingAttributes());
-            target.setLoggingAttributes(mergedLoggingAttributes);
-        }
 
         // connection status
         // sort by id
