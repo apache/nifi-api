@@ -122,7 +122,9 @@ public interface ConnectorMigrationContext {
      * @param valueReference the value reference to record, or {@code null} to remove the property
      * @throws IllegalStateException when called outside {@code migrateConfiguration(...)}
      */
-    void setValueReference(String stepName, String propertyName, ConnectorValueReference valueReference);
+    default void setValueReference(final String stepName, final String propertyName, final ConnectorValueReference valueReference) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Records property value references to merge into the named {@link ConfigurationStep}. This allows properties to be
@@ -134,7 +136,9 @@ public interface ConnectorMigrationContext {
      * @param valueReferences the value references to record, keyed by property name
      * @throws IllegalStateException when called outside {@code migrateConfiguration(...)}
      */
-    void setValueReferences(String stepName, Map<String, ConnectorValueReference> valueReferences);
+    default void setValueReferences(final String stepName, final Map<String, ConnectorValueReference> valueReferences) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Records the {@link VersionedComponentState} for a managed component.
