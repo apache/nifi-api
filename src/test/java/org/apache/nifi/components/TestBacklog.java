@@ -84,6 +84,23 @@ public class TestBacklog {
     }
 
     @Test
+    public void testPlusKeepsExactWhenCombinedWithTimestampOnlyBacklog() {
+        final Instant lastCaughtUp = Instant.parse("2025-01-01T00:00:00Z");
+        final Backlog countOnly = Backlog.flowFiles(10L);
+        final Backlog timestampOnly = Backlog.lastCaughtUp(lastCaughtUp);
+
+        final Backlog combinedWithTimestampOnRight = countOnly.plus(timestampOnly);
+        assertEquals(OptionalLong.of(10L), combinedWithTimestampOnRight.getFlowFileCount());
+        assertEquals(Precision.EXACT, combinedWithTimestampOnRight.getPrecision());
+        assertEquals(lastCaughtUp, combinedWithTimestampOnRight.getLastCaughtUp().orElseThrow());
+
+        final Backlog combinedWithTimestampOnLeft = timestampOnly.plus(countOnly);
+        assertEquals(OptionalLong.of(10L), combinedWithTimestampOnLeft.getFlowFileCount());
+        assertEquals(Precision.EXACT, combinedWithTimestampOnLeft.getPrecision());
+        assertEquals(lastCaughtUp, combinedWithTimestampOnLeft.getLastCaughtUp().orElseThrow());
+    }
+
+    @Test
     public void testPlusUsesEarlierLastCaughtUpAndKeepsOnlySideWhenOtherMissing() {
         final Instant earlier = Instant.parse("2025-01-01T00:00:00Z");
         final Instant later = Instant.parse("2025-01-02T00:00:00Z");
@@ -111,5 +128,17 @@ public class TestBacklog {
         assertEquals(OptionalLong.of(0L), caughtUp.getRecordCount());
         assertTrue(caughtUp.getLastCaughtUp().isPresent());
         assertEquals(Precision.EXACT, caughtUp.getPrecision());
+    }
+
+    @Test
+    public void testBuilderRejectsNegativeNumericDimensions() {
+        final IllegalArgumentException flowFilesException = assertThrows(IllegalArgumentException.class, () -> Backlog.builder().flowFiles(-1L));
+        assertEquals("flowFiles must be non-negative but was -1", flowFilesException.getMessage());
+
+        final IllegalArgumentException bytesException = assertThrows(IllegalArgumentException.class, () -> Backlog.builder().bytes(-1L));
+        assertEquals("bytes must be non-negative but was -1", bytesException.getMessage());
+
+        final IllegalArgumentException recordsException = assertThrows(IllegalArgumentException.class, () -> Backlog.builder().records(-1L));
+        assertEquals("records must be non-negative but was -1", recordsException.getMessage());
     }
 }

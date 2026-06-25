@@ -59,8 +59,7 @@ import java.util.OptionalLong;
  * </p>
  *
  * <p>
- *     <b>Implementation Note:</b> This API is currently experimental, as it is under very active
- *     development. As such, it is subject to change without notice between releases.
+ *     This API is experimental and may change without notice between releases.
  * </p>
  */
 public final class Backlog {
@@ -129,9 +128,11 @@ public final class Backlog {
      *         Numeric dimensions ({@code flowFileCount}, {@code byteCount}, {@code recordCount}):
      *         if both sides have a value, the result is their sum. If only one side has a value,
      *         it is carried through but the combined {@link Precision} is downgraded to
-     *         {@link Precision#AT_LEAST} (see the precision rule below), because the side that did
-     *         not report the dimension is unknown rather than zero. If neither side has a value,
-     *         the field stays empty.
+     *         {@link Precision#AT_LEAST} (see the precision rule below) when the other side reports
+     *         at least one numeric dimension, because the side that did not report the dimension is
+     *         unknown rather than zero. If the other side reports no numeric dimensions at all, the
+     *         known value is carried through without adding numeric uncertainty. If neither side has
+     *         a value, the field stays empty.
      *     </li>
      *     <li>
      *         {@link #getLastCaughtUp() lastCaughtUp}: <b>not summable.</b> If both sides have a value,
@@ -141,10 +142,11 @@ public final class Backlog {
      *     </li>
      *     <li>
      *         {@link #getPrecision() precision}: the result is {@link Precision#EXACT} only when both
-     *         sides are {@code EXACT} <i>and</i> both sides report the same set of populated numeric
-     *         dimensions. Otherwise the result is {@link Precision#AT_LEAST}. Any uncertainty in either
-     *         operand — including a missing dimension on one side that the other side reported —
-     *         taints the result, because "unknown" must not be treated as zero.
+     *         sides are {@code EXACT} <i>and</i> either both sides report the same set of populated
+     *         numeric dimensions or one side reports no numeric dimensions at all. Otherwise the
+     *         result is {@link Precision#AT_LEAST}. Any uncertainty in either operand — including a
+     *         missing dimension on one side that the other side reported — taints the result,
+     *         because "unknown" must not be treated as zero.
      *     </li>
      * </ul>
      *
@@ -160,25 +162,35 @@ public final class Backlog {
         final OptionalLong sumRecords = sumOptional(recordCount, other.recordCount);
         final Optional<Instant> earliestCaughtUp = earlierOf(lastCaughtUp, other.lastCaughtUp);
 
+        final boolean reportsNumericDimensions = flowFileCount.isPresent() || byteCount.isPresent() || recordCount.isPresent();
+        final boolean otherReportsNumericDimensions = other.flowFileCount.isPresent() || other.byteCount.isPresent() || other.recordCount.isPresent();
+
         // A dimension that one side reports and the other does not is "unknown" on the omitting side,
         // not zero. Carrying the known value forward and still reporting EXACT would let the result
-        // claim completeness it cannot back up, so any such asymmetry forces AT_LEAST.
-        final boolean dimensionsAsymmetric = flowFileCount.isPresent() != other.flowFileCount.isPresent()
+        // claim completeness it cannot back up, so any such asymmetry forces AT_LEAST. However, a
+        // Backlog with no numeric dimensions contributes only non-numeric information, such as a
+        // lastCaughtUp timestamp, and therefore does not make numeric counts less exact.
+        final boolean dimensionsAsymmetric = reportsNumericDimensions && otherReportsNumericDimensions
+                && (flowFileCount.isPresent() != other.flowFileCount.isPresent()
                 || byteCount.isPresent() != other.byteCount.isPresent()
-                || recordCount.isPresent() != other.recordCount.isPresent();
-        final boolean bothExact = precision == Precision.EXACT && other.precision == Precision.EXACT;
-        final Precision combinedPrecision = (bothExact && !dimensionsAsymmetric) ? Precision.EXACT : Precision.AT_LEAST;
+                || recordCount.isPresent() != other.recordCount.isPresent());
+        final boolean precisionExact = precision == Precision.EXACT || !reportsNumericDimensions;
+        final boolean otherPrecisionExact = other.precision == Precision.EXACT || !otherReportsNumericDimensions;
+        final Precision combinedPrecision = (precisionExact && otherPrecisionExact && !dimensionsAsymmetric) ? Precision.EXACT : Precision.AT_LEAST;
 
         final Builder builder = new Builder().precision(combinedPrecision);
         if (sumFlowFiles.isPresent()) {
             builder.flowFiles(sumFlowFiles.getAsLong());
         }
+
         if (sumBytes.isPresent()) {
             builder.bytes(sumBytes.getAsLong());
         }
+
         if (sumRecords.isPresent()) {
             builder.records(sumRecords.getAsLong());
         }
+
         earliestCaughtUp.ifPresent(builder::lastCaughtUp);
         return builder.build();
     }
@@ -187,12 +199,15 @@ public final class Backlog {
         if (left.isPresent() && right.isPresent()) {
             return OptionalLong.of(Math.addExact(left.getAsLong(), right.getAsLong()));
         }
+
         if (left.isPresent()) {
             return left;
         }
+
         if (right.isPresent()) {
             return right;
         }
+
         return OptionalLong.empty();
     }
 
@@ -200,9 +215,11 @@ public final class Backlog {
         if (left.isPresent() && right.isPresent()) {
             return left.get().isBefore(right.get()) ? left : right;
         }
+
         if (left.isPresent()) {
             return left;
         }
+
         return right;
     }
 
@@ -237,10 +254,11 @@ public final class Backlog {
     }
 
     /**
-     * Creates a Backlog whose only populated dimension is the {@code lastCaughtUp} timestamp.
-     * Useful for combining with a count-only Backlog via {@link #plus(Backlog)}.
+     * Creates a Backlog populated with the provided {@code lastCaughtUp} timestamp. Useful for
+     * combining with a count-only Backlog via {@link #plus(Backlog)}.
      *
-     * @param instant the moment at which the component was last observed as fully caught up
+     * @param instant the moment at which the component was last observed as fully caught up; may be
+     *        null, in which case the returned Backlog has no populated dimensions
      * @return a new Backlog
      */
     public static Backlog lastCaughtUp(final Instant instant) {
@@ -280,9 +298,11 @@ public final class Backlog {
         if (this == object) {
             return true;
         }
+
         if (!(object instanceof Backlog)) {
             return false;
         }
+
         final Backlog other = (Backlog) object;
         return Objects.equals(flowFileCount, other.flowFileCount)
                 && Objects.equals(byteCount, other.byteCount)
