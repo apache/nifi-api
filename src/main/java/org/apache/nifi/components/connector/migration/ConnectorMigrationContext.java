@@ -20,6 +20,7 @@ package org.apache.nifi.components.connector.migration;
 import org.apache.nifi.components.connector.AssetReference;
 import org.apache.nifi.components.connector.ConfigurationStep;
 import org.apache.nifi.components.connector.ConnectorInitializationContext;
+import org.apache.nifi.components.connector.ConnectorValueReference;
 import org.apache.nifi.components.connector.components.FlowContext;
 import org.apache.nifi.flow.VersionedComponentState;
 import org.apache.nifi.flow.VersionedExternalFlow;
@@ -109,6 +110,35 @@ public interface ConnectorMigrationContext {
      * @throws IllegalStateException when called outside {@code migrateConfiguration(...)}
      */
     void replaceProperties(String stepName, Map<String, String> propertyValues);
+
+    /**
+     * Records a single property value reference to merge into the named {@link ConfigurationStep}. This allows a
+     * property to be set directly to a {@link ConnectorValueReference}, such as an {@link AssetReference} returned by
+     * {@link #copyAssetFromSource(String)}, rather than a plain string value. A {@code null} value reference removes
+     * the property.
+     *
+     * @param stepName configuration step name
+     * @param propertyName the name of the property to set
+     * @param valueReference the value reference to record, or {@code null} to remove the property
+     * @throws IllegalStateException when called outside {@code migrateConfiguration(...)}
+     */
+    default void setValueReference(final String stepName, final String propertyName, final ConnectorValueReference valueReference) {
+        throw new UnsupportedOperationException();
+    }
+
+    /**
+     * Records property value references to merge into the named {@link ConfigurationStep}. This allows properties to be
+     * set directly to {@link ConnectorValueReference}s, such as {@link AssetReference}s returned by
+     * {@link #copyAssetFromSource(String)}, rather than plain string values. A {@code null} value for a property
+     * removes that property.
+     *
+     * @param stepName configuration step name
+     * @param valueReferences the value references to record, keyed by property name
+     * @throws IllegalStateException when called outside {@code migrateConfiguration(...)}
+     */
+    default void setValueReferences(final String stepName, final Map<String, ConnectorValueReference> valueReferences) {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Records the {@link VersionedComponentState} for a managed component.
