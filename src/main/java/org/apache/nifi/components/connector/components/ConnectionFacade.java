@@ -25,6 +25,12 @@ import org.apache.nifi.flowfile.FlowFile;
 import java.io.IOException;
 import java.util.function.Predicate;
 
+/**
+ * <p>
+ *     Facade exposing per-Connection operations to a Connector implementation. The framework constructs
+ *     and supplies these facades; Connector extensions do not implement this interface themselves.
+ * </p>
+ */
 public interface ConnectionFacade {
 
     VersionedConnection getDefinition();
@@ -48,5 +54,13 @@ public interface ConnectionFacade {
      * @throws IOException if an I/O error occurs while dropping FlowFiles
      */
     DropFlowFileSummary dropFlowFiles(Predicate<FlowFile> predicate) throws IOException;
+
+    /**
+     * Returns a read-only point-in-time snapshot of this connection's queue. See
+     * {@link QueueSnapshot} for the snapshot semantics.
+     *
+     * @return a non-null snapshot of the connection's queue
+     */
+    QueueSnapshot getQueueSnapshot();
 
 }

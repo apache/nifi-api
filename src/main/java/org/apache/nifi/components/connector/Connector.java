@@ -32,7 +32,7 @@ import java.util.concurrent.CompletableFuture;
  *     A Connector is a component that encapsulates and manages a NiFi flow, in such a way that the flow
  *     can be treated as a single component. The Connector is responsible for managing the lifecycle of the flow,
  *     including starting and stopping the flow, as well as validating that the flow is correctly configured.
- *     The Connector exposes a single holistic configuration that is encapsulates the configuration of the
+ *     The Connector exposes a single holistic configuration that encapsulates the configuration of the
  *     sources, sinks, transformations, routing logic, and any other components that make up the flow.
  * </p>
  *
@@ -117,7 +117,7 @@ public interface Connector {
 
     /**
      * Validates that the Connector is valid according to its current configuration. Validity of a Connector may be
-     * defined simply as the all components being valid, or it may encompass more complex validation logic, such
+     * defined simply as all components being valid, or it may encompass more complex validation logic, such
      * as ensuring that a Source Processor is able to connect to a remote system, or that a Sink Processor
      * is able to write to a remote system.
      *
@@ -131,7 +131,7 @@ public interface Connector {
 
     /**
      * Validates the configuration for a specific configuration step. This allows the Connector to indicate any
-     * issues with syntactic configuration issues but is not as comprehensive as the overall validation provided
+     * syntax issues in the configuration but is not as comprehensive as the overall validation provided
      * by {@link #validate(FlowContext, ConnectorValidationContext)} due to the fact that it does not have access
      * to the full configuration of the Connector. This provides immediate feedback to users
      * as they are configuring each step.
@@ -146,8 +146,8 @@ public interface Connector {
 
     /**
      * Verifies the configuration for a specific configuration step. This allows the Connector to perform
-     * more comprehensive verification of the configuration for a step than does validation, such as attempting to connect to
-     * remote systems, sample data and ensure that it can be parsed correctly, etc.
+     * more comprehensive verification of the configuration for a step than does validation, such as connecting to
+     * remote systems or sampling data and ensuring that it can be parsed correctly.
      *
      * @param stepName the name of the configuration step being verified
      * @param propertyValueOverrides any overrides to the currently configured property values that should be used for verification
@@ -181,6 +181,7 @@ public interface Connector {
      *
      * @param stepName the name of the step
      * @param workingFlowContext the working flow context that is being used for the update
+     * @throws FlowUpdateException if there is an error updating the flow for the configured step
      */
     void onConfigurationStepConfigured(String stepName, FlowContext workingFlowContext) throws FlowUpdateException;
 
@@ -190,6 +191,7 @@ public interface Connector {
      *
      * @param workingFlowContext the working flow context that has been created for the update
      * @param activeFlowContext the active flow context that is currently in use
+     * @throws FlowUpdateException if the Connector cannot prepare the flow for the update
      */
     void prepareForUpdate(FlowContext workingFlowContext, FlowContext activeFlowContext) throws FlowUpdateException;
 
@@ -210,6 +212,7 @@ public interface Connector {
      *
      * @param workingFlowContext the working flow context that represents the updated configuration
      * @param activeFlowContext the flow context that represents the active flow
+     * @throws FlowUpdateException if the updated configuration cannot be applied to the active flow
      */
     void applyUpdate(FlowContext workingFlowContext, FlowContext activeFlowContext) throws FlowUpdateException;
 
