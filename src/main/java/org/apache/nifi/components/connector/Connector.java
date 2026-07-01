@@ -22,6 +22,7 @@ import org.apache.nifi.components.DescribedValue;
 import org.apache.nifi.components.ValidationResult;
 import org.apache.nifi.components.connector.components.FlowContext;
 import org.apache.nifi.flow.VersionedExternalFlow;
+import org.apache.nifi.migration.ConnectorPropertyConfiguration;
 
 import java.util.List;
 import java.util.Map;
@@ -245,4 +246,21 @@ public interface Connector {
      * @return a Future that will be completed when the draining is complete
      */
     CompletableFuture<Void> drainFlowFiles(FlowContext flowContext);
+
+    /**
+     * Migrates an old property configuration to a new one, allowing properties and {@link ConfigurationStep}s to be
+     * renamed, removed, or added while preserving values. Invoked whenever the Connector is restored from a previous
+     * configuration (e.g., on restart) for the active and working configurations independently.
+     *
+     * <p>
+     *     Distinct from
+     *     {@link org.apache.nifi.components.connector.migration.MigratableConnector#migrateConfiguration(org.apache.nifi.components.connector.migration.ConnectorMigrationContext)},
+     *     which copies configuration from a separate source flow; this method evolves the persisted names of the
+     *     Connector's own configuration.
+     * </p>
+     *
+     * @param config the current property configuration, scoped per configuration step
+     */
+    default void migrateProperties(ConnectorPropertyConfiguration config) {
+    }
 }
