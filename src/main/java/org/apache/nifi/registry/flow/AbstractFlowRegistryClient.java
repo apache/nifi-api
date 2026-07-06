@@ -17,12 +17,30 @@
 package org.apache.nifi.registry.flow;
 
 import org.apache.nifi.components.AbstractConfigurableComponent;
+import org.apache.nifi.components.PropertyDescriptor;
 import org.apache.nifi.logging.ComponentLog;
+import org.apache.nifi.processor.util.StandardValidators;
 
 import java.util.Optional;
 import javax.net.ssl.SSLContext;
 
 public abstract class AbstractFlowRegistryClient extends AbstractConfigurableComponent implements FlowRegistryClient {
+
+    /**
+     * Property that controls how often NiFi checks this Flow Registry Client for updated versions of the flows that
+     * are under version control against it. When this property is left blank, NiFi falls back to the global
+     * {@code nifi.flowcontroller.registry.sync.interval} property. Concrete Flow Registry Client implementations should
+     * include this descriptor in the List returned by {@link #getSupportedPropertyDescriptors()} in order to allow the
+     * synchronization interval to be configured on a per-client basis.
+     */
+    public static final PropertyDescriptor SYNCHRONIZATION_INTERVAL = new PropertyDescriptor.Builder()
+            .name("Synchronization Interval")
+            .description("""
+                    How often NiFi checks this Flow Registry Client for newer versions of the flows that are under version control against it. \
+                    When left blank, the application uses the nifi.flowcontroller.registry.sync.interval property""")
+            .required(false)
+            .addValidator(StandardValidators.TIME_PERIOD_VALIDATOR)
+            .build();
 
     private volatile String identifier;
     private volatile Optional<SSLContext> systemSslContext;
