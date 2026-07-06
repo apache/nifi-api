@@ -92,7 +92,7 @@ public class StandardResourceReferenceFactory implements ResourceReferenceFactor
         if (fileAllowed && textAllowed) {
             // We have to make a determination whether this is a file or text. Eventually, it will be best if the user tells us explicitly.
             // For now, we will make a determination based on a couple of simple rules.
-            if (!trimmed.startsWith("//")) {
+            if (!trimmed.startsWith("//") && !trimmed.startsWith("/*")) {
                 final File file = new File(trimmed);
                 if (file.isAbsolute() || file.exists()) {
                     return new FileResourceReference(file);

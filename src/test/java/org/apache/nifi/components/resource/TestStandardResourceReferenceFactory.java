@@ -18,11 +18,15 @@
 package org.apache.nifi.components.resource;
 
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.io.File;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
@@ -80,8 +84,17 @@ public class TestStandardResourceReferenceFactory {
         assertEmptyResourceReferences(resourceReferences);
     }
 
-    @Test
-    public void testDisambiguationBetweenTextAndFile() {
+    @ParameterizedTest
+    @MethodSource("disambiguationBetweenTextAndFileArgs")
+    public void testDisambiguationBetweenTextAndFile(String text) {
+        final ResourceDefinition resourceDefinition =
+                new StandardResourceDefinition(ResourceCardinality.SINGLE, Set.of(ResourceType.FILE, ResourceType.TEXT));
+        final ResourceReference resourceReference = subject.createResourceReference(text, resourceDefinition);
+
+        assertInstanceOf(Utf8TextResource.class, resourceReference);
+    }
+
+    private static Stream<Arguments> disambiguationBetweenTextAndFileArgs() {
         final String transformWithSingleLineComment = """
                 // This is a single line comment in JSLT
                 {
@@ -90,11 +103,24 @@ public class TestStandardResourceReferenceFactory {
                 }
                 """;
 
-        final ResourceDefinition resourceDefinition =
-                new StandardResourceDefinition(ResourceCardinality.SINGLE, Set.of(ResourceType.FILE, ResourceType.TEXT));
-        final ResourceReference resourceReference = subject.createResourceReference(transformWithSingleLineComment, resourceDefinition);
+        final String transformWithMultiLineComment = """
+            /*
+                This is a multi-line Java comment in a JOLT spec.
+            */
+            [
+              {
+                "operation": "shift",
+                "spec": {
+                  "*": "&"
+                }
+              }
+            ]
+        """;
 
-        assertInstanceOf(Utf8TextResource.class, resourceReference);
+        return Stream.of(
+                Arguments.argumentSet("Leading single line Java comment", transformWithSingleLineComment),
+                Arguments.argumentSet("Leading multi-line Java comment", transformWithMultiLineComment)
+        );
     }
 
     private StandardResourceDefinition createResourceDefinition() {
