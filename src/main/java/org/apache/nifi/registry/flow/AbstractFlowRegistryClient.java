@@ -37,7 +37,7 @@ public abstract class AbstractFlowRegistryClient extends AbstractConfigurableCom
             .name("Synchronization Interval")
             .description("""
                     How often NiFi checks this Flow Registry Client for newer versions of the flows that are under version control against it. \
-                    When left blank, the global nifi.flowcontroller.registry.sync.interval property is used.""")
+                    When left blank, the application uses the nifi.flowcontroller.registry.sync.interval property""")
             .required(false)
             .addValidator(StandardValidators.TIME_PERIOD_VALIDATOR)
             .build();
