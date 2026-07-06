@@ -17,31 +17,21 @@
 
 package org.apache.nifi.components.connector;
 
-public interface Secret {
-
-    String getProviderId();
-
-    String getProviderName();
-
-    String getGroupName();
-
-    String getName();
-
-    String getDescription();
-
-    String getValue();
-
-    String getFullyQualifiedName();
+/**
+ * Indicates whether a {@link Secret} may be referenced only by sensitive properties or may also
+ * be referenced by non-sensitive properties.
+ */
+public enum PropertyProtectionType {
 
     /**
-     * Indicates whether this secret may be referenced only by sensitive properties or may also be
-     * referenced by non-sensitive properties. Defaults to {@link PropertyProtectionType#RESTRICTED},
-     * preserving the behavior that a secret may only be referenced by sensitive properties.
-     *
-     * @return the property protection type for this secret; never null
+     * The secret may only be referenced by sensitive properties, that is, properties declared
+     * with {@link PropertyType#SECRET}. This is the default classification.
      */
-    default PropertyProtectionType getPropertyProtectionType() {
-        return PropertyProtectionType.RESTRICTED;
-    }
+    RESTRICTED,
 
+    /**
+     * The owner of the secret has authorized it to be referenced by any property, including
+     * non-sensitive properties.
+     */
+    UNRESTRICTED
 }
