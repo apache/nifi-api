@@ -182,8 +182,9 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <executions>
+                    <!-- Copy mockito-core library to target directory to avoid warnings in IntelliJ for agent loading -->
                     <execution>
-                        <id>copy-mockito-agent</id>
+                        <id>copy-mockito-core</id>
                         <phase>initialize</phase>
                         <goals>
                             <goal>copy</goal>
@@ -205,6 +206,7 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <configuration>
+                    <!-- Configure mockito-core as Java Agent to enable explicit attachment to processes -->
                     <argLine>-javaagent:${settings.localRepository}/org/mockito/mockito-core/${mockito.version}/mockito-core-${mockito.version}.jar</argLine>
                 </configuration>
             </plugin>
