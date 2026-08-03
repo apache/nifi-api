@@ -17,6 +17,8 @@
 
 package org.apache.nifi.controller;
 
+import org.apache.nifi.cluster.coordination.node.NodeConnectionState;
+
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
@@ -45,6 +47,17 @@ public interface NodeTypeProvider {
      */
     default boolean isConnected() {
         return false;
+    }
+
+    /**
+     * Returns the current node connection state and never null. The compatibility default is
+     * {@link NodeConnectionState#STANDALONE}. Providers for clustered NiFi should override this
+     * method with the current node lifecycle state.
+     *
+     * @return current node connection state
+     */
+    default NodeConnectionState getNodeConnectionState() {
+        return NodeConnectionState.STANDALONE;
     }
 
     /**
