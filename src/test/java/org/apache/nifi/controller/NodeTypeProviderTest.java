@@ -15,13 +15,11 @@
  * limitations under the License.
  */
 package org.apache.nifi.controller;
-
-import org.apache.nifi.cluster.coordination.node.NodeConnectionState;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class NodeTypeProviderTest {
+class NodeTypeProviderTest {
 
     @Test
     void getNodeConnectionStateReturnsStandaloneForLegacyImplementations() {

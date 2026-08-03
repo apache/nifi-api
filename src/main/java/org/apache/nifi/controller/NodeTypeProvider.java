@@ -17,8 +17,6 @@
 
 package org.apache.nifi.controller;
 
-import org.apache.nifi.cluster.coordination.node.NodeConnectionState;
-
 import java.util.Collections;
 import java.util.Optional;
 import java.util.Set;
