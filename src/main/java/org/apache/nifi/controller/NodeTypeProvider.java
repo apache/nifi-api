@@ -48,6 +48,17 @@ public interface NodeTypeProvider {
     }
 
     /**
+     * Returns the current node connection state and never null. The compatibility default is
+     * {@link NodeConnectionState#STANDALONE}. Providers for clustered NiFi should override this
+     * method with the current node lifecycle state.
+     *
+     * @return current node connection state
+     */
+    default NodeConnectionState getNodeConnectionState() {
+        return NodeConnectionState.STANDALONE;
+    }
+
+    /**
      * @return true if this instance is the primary node in the cluster; false otherwise
      */
     boolean isPrimary();
