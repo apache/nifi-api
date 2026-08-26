@@ -20,9 +20,11 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.function.Function;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -52,6 +54,15 @@ import org.apache.nifi.documentation.ExtensionType;
  * removed from one incremental release to the next. Use at your own risk!
  */
 public class XmlConnectorDocumentationWriter extends AbstractConnectorDocumentationWriter {
+    private static final Comparator<ConfigurationStepDependency> STEP_DEPENDENCY_COMPARATOR =
+        Comparator.comparing(ConfigurationStepDependency::getStepName)
+            .thenComparing(ConfigurationStepDependency::getPropertyName)
+            .thenComparing(dependency -> getDependentValuesKey(dependency.getDependentValues()));
+
+    private static final Comparator<ConnectorPropertyDependency> PROPERTY_DEPENDENCY_COMPARATOR =
+        Comparator.comparing(ConnectorPropertyDependency::getPropertyName)
+            .thenComparing(dependency -> getDependentValuesKey(dependency.getDependentValues()));
+
     private final XMLStreamWriter writer;
 
     public XmlConnectorDocumentationWriter(final OutputStream out) throws XMLStreamException {
@@ -155,7 +166,7 @@ public class XmlConnectorDocumentationWriter extends AbstractConnectorDocumentat
         final Set<ConfigurationStepDependency> stepDependencies = step.getDependencies();
         if (stepDependencies != null && !stepDependencies.isEmpty()) {
             writeStartElement("stepDependencies");
-            for (final ConfigurationStepDependency dependency : stepDependencies) {
+            for (final ConfigurationStepDependency dependency : sorted(stepDependencies, STEP_DEPENDENCY_COMPARATOR)) {
                 writeConfigurationStepDependency(dependency);
             }
             writeEndElement();
@@ -182,7 +193,7 @@ public class XmlConnectorDocumentationWriter extends AbstractConnectorDocumentat
 
         final Set<String> dependentValues = dependency.getDependentValues();
         if (dependentValues != null && !dependentValues.isEmpty()) {
-            writeTextArray("dependentValues", "dependentValue", dependentValues);
+            writeTextArray("dependentValues", "dependentValue", new TreeSet<>(dependentValues));
         }
 
         writeEndElement();
@@ -238,7 +249,7 @@ public class XmlConnectorDocumentationWriter extends AbstractConnectorDocumentat
         final Set<ConnectorPropertyDependency> dependencies = property.getDependencies();
         if (dependencies != null && !dependencies.isEmpty()) {
             writeStartElement("dependencies");
-            for (final ConnectorPropertyDependency dependency : dependencies) {
+            for (final ConnectorPropertyDependency dependency : sorted(dependencies, PROPERTY_DEPENDENCY_COMPARATOR)) {
                 writePropertyDependency(dependency);
             }
             writeEndElement();
@@ -263,7 +274,7 @@ public class XmlConnectorDocumentationWriter extends AbstractConnectorDocumentat
 
         final Set<String> dependentValues = dependency.getDependentValues();
         if (dependentValues != null && !dependentValues.isEmpty()) {
-            writeTextArray("dependentValues", "dependentValue", dependentValues);
+            writeTextArray("dependentValues", "dependentValue", new TreeSet<>(dependentValues));
         }
 
         writeEndElement();
@@ -295,6 +306,14 @@ public class XmlConnectorDocumentationWriter extends AbstractConnectorDocumentat
     @Override
     protected void writeFooter(final Connector connector) throws IOException {
         writeEndElement();
+    }
+
+    private static <T> List<T> sorted(final Collection<T> values, final Comparator<T> comparator) {
+        return values.stream().sorted(comparator).toList();
+    }
+
+    private static String getDependentValuesKey(final Set<String> dependentValues) {
+        return dependentValues == null ? "" : String.join(",", new TreeSet<>(dependentValues));
     }
 
     // Utility methods for XML writing

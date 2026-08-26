@@ -27,7 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.EnumSet;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -278,7 +278,7 @@ public final class ConnectorPropertyDescriptor {
         private List<DescribedValue> allowableValues = null;
         private boolean allowableValuesFetchable = false;
         private final List<Validator> validators = new ArrayList<>();
-        private final Set<ConnectorPropertyDependency> dependencies = new HashSet<>();
+        private final Set<ConnectorPropertyDependency> dependencies = new LinkedHashSet<>();
 
         public Builder from(final ConnectorPropertyDescriptor other) {
             this.name = other.name;
@@ -438,7 +438,7 @@ public final class ConnectorPropertyDescriptor {
             } else {
                 final Set<String> dependentValueSet = dependentValues.stream()
                     .map(DescribedValue::getValue)
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
 
                 dependencies.add(new ConnectorPropertyDependency(descriptor.getName(), dependentValueSet));
             }

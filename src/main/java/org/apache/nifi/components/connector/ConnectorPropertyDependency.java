@@ -17,6 +17,8 @@
 
 package org.apache.nifi.components.connector;
 
+import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -26,7 +28,7 @@ public final class ConnectorPropertyDependency {
 
     public ConnectorPropertyDependency(final String propertyName, final Set<String> dependentValues) {
         this.propertyName = propertyName;
-        this.dependentValues = Set.copyOf(dependentValues);
+        this.dependentValues = Collections.unmodifiableSet(new LinkedHashSet<>(dependentValues));
     }
 
     public ConnectorPropertyDependency(final String propertyName) {

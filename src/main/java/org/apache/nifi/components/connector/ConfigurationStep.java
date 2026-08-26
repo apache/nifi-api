@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -87,7 +88,7 @@ public final class ConfigurationStep {
         private String name;
         private String description;
         private List<ConnectorPropertyGroup> propertyGroups = Collections.emptyList();
-        private final Set<ConfigurationStepDependency> dependencies = new HashSet<>();
+        private final Set<ConfigurationStepDependency> dependencies = new LinkedHashSet<>();
 
         public Builder name(final String name) {
             this.name = name;
@@ -130,7 +131,7 @@ public final class ConfigurationStep {
             } else {
                 final Set<String> dependentValueSet = dependentValues.stream()
                     .map(DescribedValue::getValue)
-                    .collect(Collectors.toSet());
+                    .collect(Collectors.toCollection(LinkedHashSet::new));
 
                 dependencies.add(new ConfigurationStepDependency(step.getName(), property.getName(), dependentValueSet));
             }
