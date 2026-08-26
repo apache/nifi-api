@@ -47,6 +47,7 @@ import javax.xml.transform.dom.DOMResult;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathExpressionException;
 import javax.xml.xpath.XPathFactory;
+import javax.xml.xpath.XPathNodes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -55,10 +56,18 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(MockitoExtension.class)
 class XmlConnectorDocumentationWriterTest {
+
+    private static final String FIRST_DEPENDENT_VALUE = "SASL_PLAINTEXT";
+    private static final String SECOND_DEPENDENT_VALUE = "SASL_SSL";
+    private static final List<String> EXPECTED_DEPENDENT_VALUES = List.of(FIRST_DEPENDENT_VALUE, SECOND_DEPENDENT_VALUE);
+
+    private static final String FIRST_PROPERTY_NAME = "Alpha";
+    private static final String SECOND_PROPERTY_NAME = "Zulu";
+    private static final String FIRST_STEP_NAME = "Alpha Step";
+    private static final String SECOND_STEP_NAME = "Zulu Step";
 
     @Test
     void testWriteMinimalConnector() throws Exception {
@@ -333,18 +342,32 @@ class XmlConnectorDocumentationWriterTest {
         final Node dependentValuesNode = findNode(xpath, document);
         assertNotNull(dependentValuesNode);
 
-        final List<String> dependentValues = new ArrayList<>();
-        final NodeList valueNodes = dependentValuesNode.getChildNodes();
-        for (int i = 0; i < valueNodes.getLength(); i++) {
-            final Node valueNode = valueNodes.item(i);
-            if ("dependentValue".equals(valueNode.getNodeName())) {
-                dependentValues.add(valueNode.getTextContent());
-            }
-        }
+        assertEquals(List.of("advanced", "expert"), findValues(xpath + "/dependentValue", document));
+    }
 
-        assertEquals(2, dependentValues.size());
-        assertTrue(dependentValues.contains("advanced"));
-        assertTrue(dependentValues.contains("expert"));
+    @Test
+    void testWriteConnectorWithPropertyDependenciesSorted() throws Exception {
+        final Connector connector = new ConnectorWithUnsortedDependencies();
+        final Document document = writeDocumentation(connector);
+
+        final String propertyPath = "/extension/configurationSteps/configurationStep/propertyGroups/propertyGroup"
+            + "/properties/property[name='Dependent Property']";
+
+        assertEquals(List.of(FIRST_PROPERTY_NAME, SECOND_PROPERTY_NAME), findValues(propertyPath + "/dependencies/dependency/propertyName", document));
+        assertEquals(EXPECTED_DEPENDENT_VALUES,
+            findValues(propertyPath + "/dependencies/dependency[propertyName='Zulu']/dependentValues/dependentValue", document));
+    }
+
+    @Test
+    void testWriteConnectorWithStepDependenciesSorted() throws Exception {
+        final Connector connector = new ConnectorWithUnsortedStepDependencies();
+        final Document document = writeDocumentation(connector);
+
+        final String stepDependenciesPath = "/extension/configurationSteps/configurationStep[name='Dependent Step']/stepDependencies";
+
+        assertEquals(List.of(FIRST_STEP_NAME, SECOND_STEP_NAME), findValues(stepDependenciesPath + "/stepDependency/stepName", document));
+        assertEquals(EXPECTED_DEPENDENT_VALUES,
+            findValues(stepDependenciesPath + "/stepDependency[stepName='Zulu Step']/dependentValues/dependentValue", document));
     }
 
     @Test
@@ -457,6 +480,18 @@ class XmlConnectorDocumentationWriterTest {
         final XPath path = factory.newXPath();
 
         return path.evaluateExpression(expression, node, Node.class);
+    }
+
+    private List<String> findValues(final String expression, final Node node) throws XPathExpressionException {
+        final XPathFactory factory = XPathFactory.newInstance();
+        final XPath path = factory.newXPath();
+        final XPathNodes nodes = path.evaluateExpression(expression, node, XPathNodes.class);
+
+        final List<String> values = new ArrayList<>();
+        for (final Node matchedNode : nodes) {
+            values.add(matchedNode.getTextContent());
+        }
+        return values;
     }
 
     private void assertExtensionNameTypeFound(final Connector connector, final ExtensionType expectedExtensionType, final Document document) {
@@ -782,6 +817,77 @@ class XmlConnectorDocumentationWriterTest {
                     .propertyGroups(List.of(group))
                     .build()
             );
+        }
+    }
+
+    private static class ConnectorWithUnsortedDependencies extends MinimalConnector {
+        @Override
+        public List<ConfigurationStep> getConfigurationSteps() {
+            final ConnectorPropertyDescriptor zuluProperty = new ConnectorPropertyDescriptor.Builder()
+                .name(SECOND_PROPERTY_NAME)
+                .type(PropertyType.STRING)
+                .allowableValues(EXPECTED_DEPENDENT_VALUES)
+                .build();
+
+            final ConnectorPropertyDescriptor alphaProperty = new ConnectorPropertyDescriptor.Builder()
+                .name(FIRST_PROPERTY_NAME)
+                .type(PropertyType.STRING)
+                .build();
+
+            final ConnectorPropertyDescriptor dependentProperty = new ConnectorPropertyDescriptor.Builder()
+                .name("Dependent Property")
+                .type(PropertyType.STRING)
+                .dependsOn(zuluProperty, SECOND_DEPENDENT_VALUE, FIRST_DEPENDENT_VALUE)
+                .dependsOn(alphaProperty)
+                .build();
+
+            final ConnectorPropertyGroup group = ConnectorPropertyGroup.builder()
+                .name("Settings")
+                .addProperty(zuluProperty)
+                .addProperty(alphaProperty)
+                .addProperty(dependentProperty)
+                .build();
+
+            return List.of(
+                new ConfigurationStep.Builder()
+                    .name("Settings Step")
+                    .propertyGroups(List.of(group))
+                    .build()
+            );
+        }
+    }
+
+    private static class ConnectorWithUnsortedStepDependencies extends MinimalConnector {
+        @Override
+        public List<ConfigurationStep> getConfigurationSteps() {
+            final ConnectorPropertyDescriptor zuluProperty = new ConnectorPropertyDescriptor.Builder()
+                .name("Zulu Property")
+                .type(PropertyType.STRING)
+                .build();
+
+            final ConfigurationStep zuluStep = new ConfigurationStep.Builder()
+                .name(SECOND_STEP_NAME)
+                .propertyGroups(List.of(ConnectorPropertyGroup.builder().name("Zulu Group").addProperty(zuluProperty).build()))
+                .build();
+
+            final ConnectorPropertyDescriptor alphaProperty = new ConnectorPropertyDescriptor.Builder()
+                .name("Alpha Property")
+                .type(PropertyType.STRING)
+                .build();
+
+            final ConfigurationStep alphaStep = new ConfigurationStep.Builder()
+                .name(FIRST_STEP_NAME)
+                .propertyGroups(List.of(ConnectorPropertyGroup.builder().name("Alpha Group").addProperty(alphaProperty).build()))
+                .build();
+
+            final ConfigurationStep dependentStep = new ConfigurationStep.Builder()
+                .name("Dependent Step")
+                .propertyGroups(List.of(ConnectorPropertyGroup.builder().name("Dependent Group").build()))
+                .dependsOn(zuluStep, zuluProperty, SECOND_DEPENDENT_VALUE, FIRST_DEPENDENT_VALUE)
+                .dependsOn(alphaStep, alphaProperty)
+                .build();
+
+            return List.of(zuluStep, alphaStep, dependentStep);
         }
     }
 

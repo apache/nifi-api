@@ -17,7 +17,7 @@
 
 package org.apache.nifi.components.connector;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -43,7 +43,7 @@ public final class ConfigurationStepDependency {
     public ConfigurationStepDependency(final String stepName, final String propertyName, final Set<String> dependentValues) {
         this.stepName = Objects.requireNonNull(stepName, "Step name is required");
         this.propertyName = Objects.requireNonNull(propertyName, "Property name is required");
-        this.dependentValues = dependentValues == null ? null : new HashSet<>(dependentValues);
+        this.dependentValues = dependentValues == null ? null : new LinkedHashSet<>(dependentValues);
     }
 
     /**
