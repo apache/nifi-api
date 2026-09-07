@@ -256,6 +256,20 @@ public interface ProcessSession {
     void adjustCounter(String name, long delta, boolean immediate);
 
     /**
+     * Adjust measurement value for the named Counter, registering the named Counter when not present in the system.
+     * The default implementation provides compatibility with earlier interface versions but ignores the attributes
+     *
+     * @param name Counter name to update or register
+     * @param delta Measure value delta to record
+     * @param attributes Map of keys and values associated with the Counter may be empty but not null
+     * @param commitTiming Timing for when the measurement value should be committed
+     */
+    default void adjustCounter(String name, long delta, Map<String, String> attributes, CommitTiming commitTiming) {
+        final boolean immediate = CommitTiming.NOW == commitTiming;
+        adjustCounter(name, delta, immediate);
+    }
+
+    /**
      * Record measurement value for the named Gauge, registering the named Gauge when not present in the system.
      * Gauges represent a measurement at a point in time, unlike counters that track cumulative values.
      *
@@ -265,6 +279,20 @@ public interface ProcessSession {
      */
     default void recordGauge(String name, double value, CommitTiming commitTiming) {
 
+    }
+
+    /**
+     * Record measurement value for the named Gauge, registering the named Gauge when not present in the system.
+     * Gauges represent a measurement at a point in time, unlike counters that track cumulative values.
+     * The default implementation provides compatibility with earlier interface versions but ignores the attributes
+     *
+     * @param name Gauge name to update or register
+     * @param value Measurement value to record
+     * @param attributes Map of keys and values associated with the Gauge may be empty but not null
+     * @param commitTiming Timing for when the measurement value should be committed
+     */
+    default void recordGauge(String name, double value, Map<String, String> attributes, CommitTiming commitTiming) {
+        recordGauge(name, value, commitTiming);
     }
 
     /**
