@@ -14,22 +14,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nifi.flow.resource;
+package org.apache.nifi.registry.extension;
+
+import org.apache.nifi.flow.Bundle;
+
+import java.io.InputStream;
 
 /**
- * Describes an available resource might be fetched from the external source.
- * @deprecated This interface is deprecated and will be removed in a future release. Use {@link org.apache.nifi.registry.extension.ExtensionRegistryClient} instead
+ * Metadata about a remotely available bundle, including its dependency coordinate and manifest contents.
+ * Implementations may choose to lazily stream the manifest InputStream; callers are responsible for closing it.
  */
-@Deprecated(forRemoval = true)
-public interface ExternalResourceDescriptor {
+public interface ExtensionBundleMetadata {
 
     /**
-     * @return The location of the resource, where the format depends on the actual provider implementation.
+     * @return the bundle coordinates (including dependency if populated)
      */
-    String getLocation();
+    Bundle getBundle();
 
     /**
-     * @return Returns the modification time of the original resource file using Unix timestamp format.
+     * @return InputStream for the extension manifest (META-INF/docs/extension-manifest.xml). Caller must close.
      */
-    long getLastModified();
+    InputStream getExtensionManifest();
 }

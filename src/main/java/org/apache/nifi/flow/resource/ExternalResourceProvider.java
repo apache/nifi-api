@@ -23,7 +23,9 @@ import java.util.Collection;
 /**
  * Represents an external source where the resource files might be acquired from. These external resources might be
  * various: database drivers, different kind of configurations and so on.
+ * @deprecated This interface is deprecated and will be removed in a future release. Use {@link org.apache.nifi.registry.extension.ExtensionRegistryClient} instead
  */
+@Deprecated(forRemoval = true)
 public interface ExternalResourceProvider {
 
     /**

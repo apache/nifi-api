@@ -14,22 +14,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nifi.flow.resource;
+package org.apache.nifi.registry.extension;
 
 /**
- * Describes an available resource might be fetched from the external source.
- * @deprecated This interface is deprecated and will be removed in a future release. Use {@link org.apache.nifi.registry.extension.ExtensionRegistryClient} instead
+ * Indicates an error interacting with the extension registry for a reason other
+ * than IOException.
  */
-@Deprecated(forRemoval = true)
-public interface ExternalResourceDescriptor {
+public class ExtensionRegistryException extends Exception {
 
-    /**
-     * @return The location of the resource, where the format depends on the actual provider implementation.
-     */
-    String getLocation();
+    public ExtensionRegistryException(final String message) {
+        super(message);
+    }
 
-    /**
-     * @return Returns the modification time of the original resource file using Unix timestamp format.
-     */
-    long getLastModified();
+    public ExtensionRegistryException(final String message, final Throwable cause) {
+        super(message, cause);
+    }
 }

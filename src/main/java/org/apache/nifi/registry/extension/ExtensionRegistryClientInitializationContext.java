@@ -14,22 +14,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.apache.nifi.flow.resource;
+package org.apache.nifi.registry.extension;
 
-/**
- * Describes an available resource might be fetched from the external source.
- * @deprecated This interface is deprecated and will be removed in a future release. Use {@link org.apache.nifi.registry.extension.ExtensionRegistryClient} instead
- */
-@Deprecated(forRemoval = true)
-public interface ExternalResourceDescriptor {
+import org.apache.nifi.logging.ComponentLog;
 
-    /**
-     * @return The location of the resource, where the format depends on the actual provider implementation.
-     */
-    String getLocation();
+import javax.net.ssl.SSLContext;
+import java.util.Optional;
 
-    /**
-     * @return Returns the modification time of the original resource file using Unix timestamp format.
-     */
-    long getLastModified();
+public interface ExtensionRegistryClientInitializationContext {
+
+    String getIdentifier();
+
+    ComponentLog getLogger();
+
+    Optional<SSLContext> getSystemSslContext();
 }
