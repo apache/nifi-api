@@ -46,6 +46,7 @@ public class VersionedProcessGroup extends VersionedComponent {
     private ExecutionEngine executionEngine;
     private Integer maxConcurrentTasks;
     private String statelessFlowTimeout;
+    private String statelessFlowFileContentInMemoryMax;
 
     private String logFileSuffix;
 
@@ -242,5 +243,16 @@ public class VersionedProcessGroup extends VersionedComponent {
 
     public void setStatelessFlowTimeout(final String timeout) {
         this.statelessFlowTimeout = timeout;
+    }
+
+    @Schema(description = "The maximum amount of FlowFile content to buffer in memory when the Process Group is run using the Stateless Engine, specified as a data size such as " +
+            "\"0 B\" or \"100 MB\". A value of \"0 B\" (the default) causes all FlowFile content to be written to the Content Repository. Any value greater than zero causes FlowFile " +
+            "content to be buffered in memory up to the configured size, spilling to the Content Repository once the size is exceeded.")
+    public String getStatelessFlowFileContentInMemoryMax() {
+        return statelessFlowFileContentInMemoryMax;
+    }
+
+    public void setStatelessFlowFileContentInMemoryMax(final String statelessFlowFileContentInMemoryMax) {
+        this.statelessFlowFileContentInMemoryMax = statelessFlowFileContentInMemoryMax;
     }
 }
