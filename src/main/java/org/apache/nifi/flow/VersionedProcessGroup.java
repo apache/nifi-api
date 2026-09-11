@@ -46,6 +46,8 @@ public class VersionedProcessGroup extends VersionedComponent {
     private ExecutionEngine executionEngine;
     private Integer maxConcurrentTasks;
     private String statelessFlowTimeout;
+    private String statelessFlowFileContentInMemoryMax;
+    private Integer statelessFlowFileContentInMemoryHeapPercentage;
 
     private String logFileSuffix;
 
@@ -242,5 +244,27 @@ public class VersionedProcessGroup extends VersionedComponent {
 
     public void setStatelessFlowTimeout(final String timeout) {
         this.statelessFlowTimeout = timeout;
+    }
+
+    @Schema(description = "The maximum amount of FlowFile content to buffer in memory when the Process Group is run using the Stateless Engine, as a data size such as " +
+            "\"4 GB\". A value of \"0 B\" means zero bytes. When this value is not set, only the heap percentage limit is used. When both this value and the heap percentage are set, " +
+            "the smaller of the two limits is used.")
+    public String getStatelessFlowFileContentInMemoryMax() {
+        return statelessFlowFileContentInMemoryMax;
+    }
+
+    public void setStatelessFlowFileContentInMemoryMax(final String statelessFlowFileContentInMemoryMax) {
+        this.statelessFlowFileContentInMemoryMax = statelessFlowFileContentInMemoryMax;
+    }
+
+    @Schema(description = "The maximum percentage of the Java heap to use for buffering FlowFile content when the Process Group is run using the Stateless Engine, from 0 to 90. " +
+            "A value of 0 means zero percent of the heap. When this value is not set, only the data size limit is used. When both this value and the data size maximum are set, " +
+            "the smaller of the two limits is used. The default is 0.")
+    public Integer getStatelessFlowFileContentInMemoryHeapPercentage() {
+        return statelessFlowFileContentInMemoryHeapPercentage;
+    }
+
+    public void setStatelessFlowFileContentInMemoryHeapPercentage(final Integer statelessFlowFileContentInMemoryHeapPercentage) {
+        this.statelessFlowFileContentInMemoryHeapPercentage = statelessFlowFileContentInMemoryHeapPercentage;
     }
 }
