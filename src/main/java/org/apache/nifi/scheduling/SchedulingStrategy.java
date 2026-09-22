@@ -32,7 +32,13 @@ public enum SchedulingStrategy {
      * Indicates that the component will be scheduled to run according to a
      * Cron-style expression
      */
-    CRON_DRIVEN(1, "* * * * * ?");
+    CRON_DRIVEN(1, "* * * * * ?"),
+
+    /**
+     * Indicates that the framework will select the scheduling interval,
+     * concurrent tasks, and run duration based on observed work.
+     */
+    AUTO(1, "0 sec");
 
     private final int defaultConcurrentTasks;
     private final String defaultSchedulingPeriod;
