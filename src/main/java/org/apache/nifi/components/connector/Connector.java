@@ -93,11 +93,11 @@ public interface Connector {
      * </p>
      *
      * <p>
-     * This method must be idempotent and free of side effects.
+     * Build the flow from the given context's configuration, not from the live group. The method must be idempotent and
+     * must not change the flow it returns.
      * </p>
      *
-     * @param activeFlowContext the Connector's current Active Flow Context, used as the source of configuration
-     *                          from which the returned flow is built
+     * @param activeFlowContext the context whose configuration the flow is built from
      * @return the Connector's authoritative view of the flow for the given context
      */
     VersionedExternalFlow getActiveFlow(FlowContext activeFlowContext);
@@ -238,6 +238,20 @@ public interface Connector {
      * @return the list of values that are allowed to be configured for the given property.
      */
     List<DescribedValue> fetchAllowableValues(String stepName, String propertyName, FlowContext flowContext, String filter);
+
+    /**
+     * Called when a change is detected in the Connector version, while draining and before the new flow replaces the
+     * Active flow. Return a Future that completes when preparation is finished; the framework may cancel it. The
+     * default implementation does nothing. Not called when the Connector leaves Troubleshooting; the managed flow must
+     * be empty then.
+     *
+     * @param context the pre-upgrade flow and the upgraded bundle
+     * @return a Future that completes when preparation is finished
+     * @throws FlowUpdateException if the pre-upgrade flow cannot be prepared
+     */
+    default CompletableFuture<Void> prepareForFlowEvolution(final FlowEvolutionContext context) throws FlowUpdateException {
+        return CompletableFuture.completedFuture(null);
+    }
 
     /**
      * Drains any in-flight FlowFiles from the flow associated with the given Flow Context by processing the existing data
