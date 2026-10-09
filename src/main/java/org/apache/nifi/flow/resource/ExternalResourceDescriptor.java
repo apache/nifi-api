@@ -18,7 +18,9 @@ package org.apache.nifi.flow.resource;
 
 /**
  * Describes an available resource might be fetched from the external source.
+ * @deprecated This interface is deprecated and will be removed in a future release. Use {@link org.apache.nifi.registry.extension.ExtensionRegistryClient} instead
  */
+@Deprecated(forRemoval = true)
 public interface ExternalResourceDescriptor {
 
     /**

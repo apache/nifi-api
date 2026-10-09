@@ -20,7 +20,9 @@ import java.io.File;
 
 /**
  * Might be used by provider service in order to decide if an available resource should be acquired from the external provider.
+ * @deprecated This interface is deprecated and will be removed in a future release. Use {@link org.apache.nifi.registry.extension.ExtensionRegistryClient} instead
  */
+@Deprecated(forRemoval = true)
 public interface ExternalResourceConflictResolutionStrategy {
     /**
      * @param targetDirectory The target directory.

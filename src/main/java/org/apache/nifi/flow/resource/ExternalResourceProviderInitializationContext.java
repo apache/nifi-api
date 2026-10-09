@@ -22,7 +22,9 @@ import javax.net.ssl.SSLContext;
 
 /**
  * Contains necessary information for extensions of external resource provider functionality.
+ * @deprecated This interface is deprecated and will be removed in a future release. Use {@link org.apache.nifi.registry.extension.ExtensionRegistryClient} instead
  */
+@Deprecated(forRemoval = true)
 public interface ExternalResourceProviderInitializationContext {
 
     /**
