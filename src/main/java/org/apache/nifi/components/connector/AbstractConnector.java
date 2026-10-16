@@ -231,7 +231,7 @@ public abstract class AbstractConnector implements Connector {
         while (!isGroupDrained(flowContext.getRootGroup())) {
             if (result.isDone()) {
                 getLogger().info("Drain cancelled: no longer waiting for FlowFiles to drain");
-                break;
+                return;
             }
 
             // Log the current queue size every 10 seconds (20 iterations of 500ms) so that it's clear
@@ -251,10 +251,11 @@ public abstract class AbstractConnector implements Connector {
             }
         }
 
-        // Log completion unless the result was completed exceptionally or cancelled.
-        if (!result.isDone()) {
-            getLogger().info("All {} FlowFiles have drained from Connector", initialQueueSize.getObjectCount());
+        if (result.isDone()) {
+            return;
         }
+
+        getLogger().info("All {} FlowFiles have drained from Connector", initialQueueSize.getObjectCount());
 
         try {
             stop(flowContext);
@@ -414,44 +415,25 @@ public abstract class AbstractConnector implements Connector {
     }
 
     protected CompletableFuture<Void> stopSourceComponents(final FlowContext context) {
-        return stopSourceComponents(context.getRootGroup());
-    }
-
-    private CompletableFuture<Void> stopSourceComponents(final ProcessGroupFacade group) {
         final List<CompletableFuture<Void>> stopFutures = new ArrayList<>();
-
-        final List<ProcessorFacade> sourceProcessors = getSourceProcessors(group);
-        for (final ProcessorFacade sourceProcessor : sourceProcessors) {
+        for (final ProcessorFacade sourceProcessor : getSourceProcessors(context.getRootGroup())) {
             stopFutures.add(sourceProcessor.getLifecycle().stop());
-        }
-
-        for (final ProcessGroupFacade childGroup : group.getProcessGroups()) {
-            stopFutures.add(stopSourceComponents(childGroup));
         }
 
         return CompletableFuture.allOf(stopFutures.toArray(new CompletableFuture[0]));
     }
 
     protected CompletableFuture<Void> startNonSourceComponents(final FlowContext flowContext) {
-        return startNonSourceComponents(flowContext.getRootGroup());
-    }
-
-    private CompletableFuture<Void> startNonSourceComponents(final ProcessGroupFacade group) {
+        final ProcessGroupFacade rootGroup = flowContext.getRootGroup();
         final List<CompletableFuture<Void>> startFutures = new ArrayList<>();
-
-        final List<ProcessorFacade> nonSourceProcessors = getNonSourceProcessors(group);
-        for (final ProcessorFacade nonSourceProcessor : nonSourceProcessors) {
+        for (final ProcessorFacade nonSourceProcessor : getNonSourceProcessors(rootGroup)) {
             startFutures.add(nonSourceProcessor.getLifecycle().start());
         }
 
-        final ProcessGroupLifecycle lifecycle = group.getLifecycle();
-        startFutures.add(lifecycle.startPorts(ComponentHierarchyScope.IMMEDIATE_GROUP_ONLY));
-        startFutures.add(lifecycle.startRemoteProcessGroups(ComponentHierarchyScope.IMMEDIATE_GROUP_ONLY));
-        startFutures.add(lifecycle.startStatelessGroups(ComponentHierarchyScope.IMMEDIATE_GROUP_ONLY));
-
-        for (final ProcessGroupFacade childGroup : group.getProcessGroups()) {
-            startFutures.add(startNonSourceComponents(childGroup));
-        }
+        final ProcessGroupLifecycle lifecycle = rootGroup.getLifecycle();
+        startFutures.add(lifecycle.startPorts(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS));
+        startFutures.add(lifecycle.startRemoteProcessGroups(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS));
+        startFutures.add(lifecycle.startStatelessGroups(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS));
 
         return CompletableFuture.allOf(startFutures.toArray(new CompletableFuture[0]));
     }

@@ -22,9 +22,17 @@ import org.apache.nifi.components.DescribedValue;
 import org.apache.nifi.components.ValidationContext;
 import org.apache.nifi.components.ValidationResult;
 import org.apache.nifi.components.Validator;
+import org.apache.nifi.components.connector.components.ComponentHierarchyScope;
+import org.apache.nifi.components.connector.components.ConnectionFacade;
 import org.apache.nifi.components.connector.components.FlowContext;
 import org.apache.nifi.components.connector.components.ProcessGroupFacade;
+import org.apache.nifi.components.connector.components.ProcessGroupLifecycle;
+import org.apache.nifi.components.connector.components.ProcessorFacade;
+import org.apache.nifi.components.connector.components.ProcessorLifecycle;
+import org.apache.nifi.flow.ConnectableComponent;
+import org.apache.nifi.flow.VersionedConnection;
 import org.apache.nifi.flow.VersionedExternalFlow;
+import org.apache.nifi.flow.VersionedProcessor;
 import org.apache.nifi.logging.ComponentLog;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -39,12 +47,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -894,6 +909,111 @@ public class TestAbstractConnector {
         }
 
         assertFalse(connector.isCustomValidateCalled());
+    }
+
+    @Test
+    void testStartNonSourceComponentsStartsNestedProcessorsOnce() {
+        final ProcessorFacade rootGenerate = mockProcessor("root-generate");
+        final ProcessorFacade rootTerminate = mockProcessor("root-terminate");
+        final ProcessorFacade childGenerate = mockProcessor("child-generate");
+        final ProcessorFacade childTerminate = mockProcessor("child-terminate");
+        final ProcessorFacade grandchildGenerate = mockProcessor("grandchild-generate");
+        final ProcessorFacade grandchildTerminate = mockProcessor("grandchild-terminate");
+
+        final ProcessGroupFacade grandchildGroup = mockGroup(Set.of(grandchildGenerate, grandchildTerminate),
+            Set.of(mockConnection("grandchild-generate", "grandchild-terminate")), Set.of());
+        final ProcessGroupFacade childGroup = mockGroup(Set.of(childGenerate, childTerminate),
+            Set.of(mockConnection("child-generate", "child-terminate")), Set.of(grandchildGroup));
+        final ProcessGroupFacade rootGroup = mockGroup(Set.of(rootGenerate, rootTerminate),
+            Set.of(mockConnection("root-generate", "root-terminate")), Set.of(childGroup));
+        when(flowContext.getRootGroup()).thenReturn(rootGroup);
+
+        final CompletableFuture<Void> startFuture = connector.startNonSourceComponents(flowContext);
+
+        assertDoesNotThrow(() -> startFuture.get(5, TimeUnit.SECONDS));
+        for (final ProcessorFacade nonSource : List.of(rootTerminate, childTerminate, grandchildTerminate)) {
+            verify(nonSource.getLifecycle(), times(1)).start();
+        }
+        for (final ProcessorFacade source : List.of(rootGenerate, childGenerate, grandchildGenerate)) {
+            verify(source.getLifecycle(), never()).start();
+        }
+        verify(rootGroup.getLifecycle(), times(1)).startPorts(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS);
+        verify(rootGroup.getLifecycle(), times(1)).startRemoteProcessGroups(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS);
+        verify(rootGroup.getLifecycle(), times(1)).startStatelessGroups(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS);
+    }
+
+    @Test
+    void testStopSourceComponentsStopsNestedProcessorsOnce() {
+        final ProcessorFacade rootGenerate = mockProcessor("root-generate");
+        final ProcessorFacade rootTerminate = mockProcessor("root-terminate");
+        final ProcessorFacade childGenerate = mockProcessor("child-generate");
+        final ProcessorFacade childTerminate = mockProcessor("child-terminate");
+        final ProcessorFacade grandchildGenerate = mockProcessor("grandchild-generate");
+        final ProcessorFacade grandchildTerminate = mockProcessor("grandchild-terminate");
+
+        final ProcessGroupFacade grandchildGroup = mockGroup(Set.of(grandchildGenerate, grandchildTerminate),
+            Set.of(mockConnection("grandchild-generate", "grandchild-terminate")), Set.of());
+        final ProcessGroupFacade childGroup = mockGroup(Set.of(childGenerate, childTerminate),
+            Set.of(mockConnection("child-generate", "child-terminate")), Set.of(grandchildGroup));
+        final ProcessGroupFacade rootGroup = mockGroup(Set.of(rootGenerate, rootTerminate),
+            Set.of(mockConnection("root-generate", "root-terminate")), Set.of(childGroup));
+        when(flowContext.getRootGroup()).thenReturn(rootGroup);
+
+        final CompletableFuture<Void> stopFuture = connector.stopSourceComponents(flowContext);
+
+        assertDoesNotThrow(() -> stopFuture.get(5, TimeUnit.SECONDS));
+        for (final ProcessorFacade source : List.of(rootGenerate, childGenerate, grandchildGenerate)) {
+            verify(source.getLifecycle(), times(1)).stop();
+        }
+        for (final ProcessorFacade nonSource : List.of(rootTerminate, childTerminate, grandchildTerminate)) {
+            verify(nonSource.getLifecycle(), never()).stop();
+        }
+    }
+
+    private static ProcessorFacade mockProcessor(final String identifier) {
+        final VersionedProcessor definition = new VersionedProcessor();
+        definition.setIdentifier(identifier);
+
+        // Like the framework scheduler, only the first start of a stopped processor completes; a repeated
+        // start of an already running processor returns a future that never completes.
+        final ProcessorLifecycle lifecycle = mock(ProcessorLifecycle.class);
+        when(lifecycle.start()).thenReturn(CompletableFuture.completedFuture(null), new CompletableFuture<>());
+        when(lifecycle.stop()).thenReturn(CompletableFuture.completedFuture(null));
+
+        final ProcessorFacade processor = mock(ProcessorFacade.class);
+        when(processor.getDefinition()).thenReturn(definition);
+        when(processor.getLifecycle()).thenReturn(lifecycle);
+        return processor;
+    }
+
+    private static ConnectionFacade mockConnection(final String sourceId, final String destinationId) {
+        final ConnectableComponent source = new ConnectableComponent();
+        source.setId(sourceId);
+        final ConnectableComponent destination = new ConnectableComponent();
+        destination.setId(destinationId);
+
+        final VersionedConnection definition = new VersionedConnection();
+        definition.setSource(source);
+        definition.setDestination(destination);
+
+        final ConnectionFacade connection = mock(ConnectionFacade.class);
+        when(connection.getDefinition()).thenReturn(definition);
+        return connection;
+    }
+
+    private static ProcessGroupFacade mockGroup(final Set<ProcessorFacade> processors, final Set<ConnectionFacade> connections,
+                                                final Set<ProcessGroupFacade> childGroups) {
+        final ProcessGroupLifecycle lifecycle = mock(ProcessGroupLifecycle.class);
+        when(lifecycle.startPorts(any(ComponentHierarchyScope.class))).thenReturn(CompletableFuture.completedFuture(null));
+        when(lifecycle.startRemoteProcessGroups(any(ComponentHierarchyScope.class))).thenReturn(CompletableFuture.completedFuture(null));
+        when(lifecycle.startStatelessGroups(any(ComponentHierarchyScope.class))).thenReturn(CompletableFuture.completedFuture(null));
+
+        final ProcessGroupFacade group = mock(ProcessGroupFacade.class);
+        when(group.getProcessors()).thenReturn(processors);
+        when(group.getConnections()).thenReturn(connections);
+        when(group.getProcessGroups()).thenReturn(childGroups);
+        when(group.getLifecycle()).thenReturn(lifecycle);
+        return group;
     }
 
     private static class TestableAbstractConnector extends AbstractConnector {
