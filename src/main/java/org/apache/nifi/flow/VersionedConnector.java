@@ -27,7 +27,9 @@ public class VersionedConnector {
     private List<VersionedConfigurationStep> workingFlowConfiguration;
     private String type;
     private Bundle bundle;
+    private Bundle managedFlowBundle;
     private VersionedProcessGroup managedProcessGroup;
+    private VersionedParameterContext managedParameterContext;
 
     public String getInstanceIdentifier() {
         return instanceIdentifier;
@@ -77,6 +79,11 @@ public class VersionedConnector {
         this.type = type;
     }
 
+    /**
+     * Returns the Connector bundle loaded on restart.
+     *
+     * @return the Connector code to load, or {@code null} if none was persisted
+     */
     public Bundle getBundle() {
         return bundle;
     }
@@ -86,14 +93,24 @@ public class VersionedConnector {
     }
 
     /**
-     * Returns the contents of the Connector's Managed Process Group. This field is populated only when the Connector is
-     * in Troubleshooting mode at the time the flow is persisted, so that any user modifications made while in Troubleshooting
-     * survive a restart. For any other Connector state, this field is {@code null} and the Managed Process Group's contents
-     * are reconstructed by re-applying the configuration steps upon restore. If the Connector's scheduled state is not
-     * {@link VersionedConnectorState#TROUBLESHOOTING TROUBLESHOOTING}, this field is ignored.
+     * Returns the bundle that built {@link #getManagedProcessGroup()}. Differs from {@link #getBundle()} only while an
+     * upgrade is pending.
      *
-     * @return the persisted contents of the Managed Process Group, or {@code null} if the Connector was not in
-     *         Troubleshooting mode when the flow was persisted
+     * @return the bundle that built the flow, or {@code null} if it was not persisted
+     */
+    public Bundle getManagedFlowBundle() {
+        return managedFlowBundle;
+    }
+
+    public void setManagedFlowBundle(final Bundle managedFlowBundle) {
+        this.managedFlowBundle = managedFlowBundle;
+    }
+
+    /**
+     * Returns the last applied flow. While the Connector is in Troubleshooting, this holds the user's edits so they
+     * survive a restart.
+     *
+     * @return the last applied flow, or {@code null} if none was persisted
      */
     public VersionedProcessGroup getManagedProcessGroup() {
         return managedProcessGroup;
@@ -101,5 +118,16 @@ public class VersionedConnector {
 
     public void setManagedProcessGroup(final VersionedProcessGroup managedProcessGroup) {
         this.managedProcessGroup = managedProcessGroup;
+    }
+
+    /**
+     * @return the parameter context for the managed group, or {@code null} if none was persisted
+     */
+    public VersionedParameterContext getManagedParameterContext() {
+        return managedParameterContext;
+    }
+
+    public void setManagedParameterContext(final VersionedParameterContext managedParameterContext) {
+        this.managedParameterContext = managedParameterContext;
     }
 }
