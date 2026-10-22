@@ -21,7 +21,9 @@ import org.apache.nifi.annotation.behavior.Stateful;
 import org.apache.nifi.components.state.exception.StateTooLargeException;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * <p>
@@ -90,6 +92,43 @@ public interface StateManager {
      * @throws IOException if unable to communicate with the underlying storage mechanism
      */
     boolean replace(StateMap oldValue, Map<String, String> newValue, Scope scope) throws IOException;
+
+    /**
+     * Updates only the given keys of the component's state, leaving all other keys as they are.
+     * <p>
+     * Each key in the given map with a non-null value is created or overwritten. Each key with a {@code null} value is removed;
+     * removing a key that is not present has no effect on that key. An empty string is stored as a value and does not remove the key.
+     * Keys that are not in the given map are left unchanged. If no state has been stored yet, the result is the same as calling
+     * {@link #setState(Map, Scope)} with the given map after removing its {@code null} values. An empty map does nothing: no state is
+     * written and the version does not change.
+     * </p>
+     *
+     * @param updatedState a map of state keys to their new values. A key that is mapped to {@code null} is removed from the state. The map itself must not be {@code null}.
+     * @param scope the scope to use when storing the state
+     *
+     * @throws StateTooLargeException if the state that results from applying the changes is more than the backing storage mechanism allows
+     * @throws IOException if unable to communicate with the underlying storage mechanism
+     */
+    default void patchState(final Map<String, String> updatedState, final Scope scope) throws IOException {
+        Objects.requireNonNull(updatedState, "Updated State required");
+        if (updatedState.isEmpty()) {
+            return;
+        }
+
+        StateMap currentState;
+        Map<String, String> patchedState;
+        do {
+            currentState = getState(scope);
+            patchedState = new HashMap<>(currentState.toMap());
+            for (final Map.Entry<String, String> entry : updatedState.entrySet()) {
+                if (entry.getValue() == null) {
+                    patchedState.remove(entry.getKey());
+                } else {
+                    patchedState.put(entry.getKey(), entry.getValue());
+                }
+            }
+        } while (!replace(currentState, patchedState, scope));
+    }
 
     /**
      * Clears all keys and values from the component's state

@@ -931,6 +931,26 @@ public interface ProcessSession {
     boolean replaceState(StateMap oldValue, Map<String, String> newValue, Scope scope) throws IOException;
 
     /**
+     * Updates only the given keys of the component's state, leaving all other keys as they are.
+     * <p>
+     * Each key in the given map with a non-null value is created or overwritten. Each key with a {@code null} value is removed;
+     * removing a key that is not present has no effect on that key. An empty string is stored as a value and does not remove the key.
+     * Keys that are not in the given map are left unchanged. If no state has been stored yet, the result is the same as calling
+     * {@link #setState(Map, Scope)} with the given map after removing its {@code null} values. An empty map does nothing: no state is
+     * written and the version does not change.
+     * <p>
+     * This method does not update the State Provider immediately but rather caches the changes until the session is committed.
+     * When the session is committed, the given keys are updated in the State Provider, even if the stored state has been changed since this
+     * session retrieved it. Keys that are not in the given map keep whatever values are stored at the time of the commit. Until then, {@link #getState(Scope)} on this session returns the state with the changes applied, and a later call to this method applies
+     * its changes on top of the earlier ones. Rolling back the session discards the changes.
+     *
+     * @param updatedState a map of state keys to their new values. A key that is mapped to {@code null} is removed from the state. The map itself must not be {@code null}.
+     * @param scope the {@link Scope} to use for fetching the current and storing the new state
+     * @throws IOException if unable to communicate with the underlying storage mechanism
+     */
+    void patchState(Map<String, String> updatedState, Scope scope) throws IOException;
+
+    /**
      * Clears all keys and values from the component's state.
      * <p>
      * This method does not update the remote State Provider immediately but rather caches the value until the session is committed.
