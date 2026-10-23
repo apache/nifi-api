@@ -941,8 +941,15 @@ public interface ProcessSession {
      * <p>
      * This method does not update the State Provider immediately but rather caches the changes until the session is committed.
      * When the session is committed, the given keys are updated in the State Provider, even if the stored state has been changed since this
-     * session retrieved it. Keys that are not in the given map keep whatever values are stored at the time of the commit. Until then, {@link #getState(Scope)} on this session returns the state with the changes applied, and a later call to this method applies
+     * session retrieved it. Keys that are not in the given map keep whatever values are stored at the time of the commit. Until then,
+     * {@link #getState(Scope)} on this session returns the state with the changes applied, and a later call to this method applies
      * its changes on top of the earlier ones. Rolling back the session discards the changes.
+     * <p>
+     * If {@link #setState(Map, Scope)}, {@link #clearState(Scope)}, or a successful {@link #replaceState(StateMap, Map, Scope)} was already
+     * called on this session for the same scope and that update has not yet been written to the State Provider, the changes are applied
+     * to that pending state instead, and the commit stores the resulting state as a whole, as {@link #setState(Map, Scope)} would. In that case,
+     * keys that are not in the given map do not keep values that were stored by other writers since this session retrieved the state.
+     * Likewise, calling one of those methods after this one replaces the changes that have not yet been committed.
      *
      * @param updatedState a map of state keys to their new values. A key that is mapped to {@code null} is removed from the state. The map itself must not be {@code null}.
      * @param scope the {@link Scope} to use for fetching the current and storing the new state
