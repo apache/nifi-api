@@ -38,6 +38,10 @@ public class NopStateManager implements StateManager {
     }
 
     @Override
+    public void patchState(final Map<String, String> updatedState, final Scope scope) {
+    }
+
+    @Override
     public void clear(final Scope scope) {
     }
 }
