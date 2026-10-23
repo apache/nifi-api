@@ -21,7 +21,6 @@ import org.apache.nifi.annotation.behavior.Stateful;
 import org.apache.nifi.components.state.exception.StateTooLargeException;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -116,18 +115,9 @@ public interface StateManager {
         }
 
         StateMap currentState;
-        Map<String, String> patchedState;
         do {
             currentState = getState(scope);
-            patchedState = new HashMap<>(currentState.toMap());
-            for (final Map.Entry<String, String> entry : updatedState.entrySet()) {
-                if (entry.getValue() == null) {
-                    patchedState.remove(entry.getKey());
-                } else {
-                    patchedState.put(entry.getKey(), entry.getValue());
-                }
-            }
-        } while (!replace(currentState, patchedState, scope));
+        } while (!replace(currentState, currentState.toMap(updatedState), scope));
     }
 
     /**
