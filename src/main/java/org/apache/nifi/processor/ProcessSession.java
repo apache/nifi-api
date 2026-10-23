@@ -940,16 +940,17 @@ public interface ProcessSession {
      * written and the version does not change.
      * <p>
      * This method does not update the State Provider immediately but rather caches the changes until the session is committed.
-     * When the session is committed, the given keys are updated in the State Provider, even if the stored state has been changed since this
-     * session retrieved it. Keys that are not in the given map keep whatever values are stored at the time of the commit. Until then,
-     * {@link #getState(Scope)} on this session returns the state with the changes applied, and a later call to this method applies
-     * its changes on top of the earlier ones. Rolling back the session discards the changes.
+     * Unless one of the methods described below was called first, the given keys are updated in the State Provider when the session is
+     * committed, even if the stored state has been changed since this session retrieved it. Keys that are not in the given map keep whatever
+     * values are stored at the time of the commit. Until then, {@link #getState(Scope)} on this session returns the state with the changes
+     * applied, and a later call to this method applies its changes on top of the earlier ones. Rolling back the session discards the changes.
      * <p>
      * If {@link #setState(Map, Scope)}, {@link #clearState(Scope)}, or a successful {@link #replaceState(StateMap, Map, Scope)} was already
-     * called on this session for the same scope and that update has not yet been written to the State Provider, the changes are applied
-     * to that pending state instead, and the commit stores the resulting state as a whole, as {@link #setState(Map, Scope)} would. In that case,
-     * keys that are not in the given map do not keep values that were stored by other writers since this session retrieved the state.
-     * Likewise, calling one of those methods after this one replaces the changes that have not yet been committed.
+     * called on this session for the same scope and that update has not yet been written to the State Provider, the changes become part of
+     * that pending update. The commit then treats the resulting state exactly as it would treat a call to {@link #setState(Map, Scope)}:
+     * the state is stored as a whole, so keys that are not in the given map do not keep values stored by other writers, and if the commit
+     * does not store that state, as described for {@link #setState(Map, Scope)}, neither the earlier update nor these changes are stored. Likewise, calling one of those methods
+     * after this one replaces the changes that have not yet been committed.
      *
      * @param updatedState a map of state keys to their new values. A key that is mapped to {@code null} is removed from the state. The map itself must not be {@code null}.
      * @param scope the {@link Scope} to use for fetching the current and storing the new state
