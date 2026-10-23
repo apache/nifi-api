@@ -26,10 +26,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-public class TestStateManager {
+class TestStateManager {
+
+    private static final String FIRST_KEY = "first";
+    private static final String SECOND_KEY = "second";
+    private static final String THIRD_KEY = "third";
+    private static final String MISSING_KEY = "missing";
+    private static final String OTHER_WRITER_KEY = "otherWriter";
+
+    private static final String FIRST_VALUE = "1";
+    private static final String SECOND_VALUE = "2";
+    private static final String EMPTY_VALUE = "";
 
     @Test
-    public void testPatchState() throws Exception {
+    void testPatchState() throws Exception {
         final InMemoryStateManager stateManager = new InMemoryStateManager();
 
         assertThrows(NullPointerException.class, () -> stateManager.patchState(null, Scope.LOCAL));
@@ -38,36 +48,36 @@ public class TestStateManager {
         assertTrue(stateManager.getState(Scope.LOCAL).getStateVersion().isEmpty());
 
         final Map<String, String> firstPatch = new HashMap<>();
-        firstPatch.put("a", "1");
-        firstPatch.put("b", null);
-        firstPatch.put("c", "");
+        firstPatch.put(FIRST_KEY, FIRST_VALUE);
+        firstPatch.put(SECOND_KEY, null);
+        firstPatch.put(THIRD_KEY, EMPTY_VALUE);
         stateManager.patchState(firstPatch, Scope.LOCAL);
         final StateMap firstState = stateManager.getState(Scope.LOCAL);
-        assertEquals(Map.of("a", "1", "c", ""), firstState.toMap());
+        assertEquals(Map.of(FIRST_KEY, FIRST_VALUE, THIRD_KEY, EMPTY_VALUE), firstState.toMap());
         assertTrue(firstState.getStateVersion().isPresent());
 
         final Map<String, String> secondPatch = new HashMap<>();
-        secondPatch.put("a", "2");
-        secondPatch.put("missing", null);
+        secondPatch.put(FIRST_KEY, SECOND_VALUE);
+        secondPatch.put(MISSING_KEY, null);
         stateManager.patchState(secondPatch, Scope.LOCAL);
-        assertEquals(Map.of("a", "2", "c", ""), stateManager.getState(Scope.LOCAL).toMap());
+        assertEquals(Map.of(FIRST_KEY, SECOND_VALUE, THIRD_KEY, EMPTY_VALUE), stateManager.getState(Scope.LOCAL).toMap());
 
         final Map<String, String> thirdPatch = new HashMap<>();
-        thirdPatch.put("c", null);
+        thirdPatch.put(THIRD_KEY, null);
         stateManager.patchState(thirdPatch, Scope.LOCAL);
-        assertEquals(Map.of("a", "2"), stateManager.getState(Scope.LOCAL).toMap());
+        assertEquals(Map.of(FIRST_KEY, SECOND_VALUE), stateManager.getState(Scope.LOCAL).toMap());
         assertEquals(3, stateManager.replaceCount);
     }
 
     @Test
-    public void testPatchStateRetriesAfterFailedReplace() throws Exception {
+    void testPatchStateRetriesAfterFailedReplace() throws Exception {
         final InMemoryStateManager stateManager = new InMemoryStateManager();
-        stateManager.setState(Map.of("a", "1"), Scope.LOCAL);
-        stateManager.writeBeforeNextReplace = Map.of("x", "1");
+        stateManager.setState(Map.of(FIRST_KEY, FIRST_VALUE), Scope.LOCAL);
+        stateManager.writeBeforeNextReplace = Map.of(OTHER_WRITER_KEY, FIRST_VALUE);
 
-        stateManager.patchState(Map.of("b", "2"), Scope.LOCAL);
+        stateManager.patchState(Map.of(SECOND_KEY, SECOND_VALUE), Scope.LOCAL);
 
-        assertEquals(Map.of("a", "1", "b", "2", "x", "1"), stateManager.getState(Scope.LOCAL).toMap());
+        assertEquals(Map.of(FIRST_KEY, FIRST_VALUE, SECOND_KEY, SECOND_VALUE, OTHER_WRITER_KEY, FIRST_VALUE), stateManager.getState(Scope.LOCAL).toMap());
         assertEquals(2, stateManager.replaceCount);
     }
 

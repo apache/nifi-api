@@ -18,7 +18,7 @@
 package org.apache.nifi.components.state;
 
 import java.util.Collections;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -68,7 +68,7 @@ public interface StateMap {
             return toMap();
         }
 
-        final Map<String, String> patchedValues = new HashMap<>(toMap());
+        final Map<String, String> patchedValues = new LinkedHashMap<>(toMap());
         for (final Map.Entry<String, String> entry : patches.entrySet()) {
             if (entry.getValue() == null) {
                 patchedValues.remove(entry.getKey());
