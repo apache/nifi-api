@@ -955,8 +955,11 @@ public interface ProcessSession {
      * @param updatedState a map of state keys to their new values. A key that is mapped to {@code null} is removed from the state. The map itself must not be {@code null}.
      * @param scope the {@link Scope} to use for fetching the current and storing the new state
      * @throws IOException if unable to communicate with the underlying storage mechanism
+     * @throws UnsupportedOperationException if this session implementation does not support patching state
      */
-    void patchState(Map<String, String> updatedState, Scope scope) throws IOException;
+    default void patchState(final Map<String, String> updatedState, final Scope scope) throws IOException {
+        throw new UnsupportedOperationException();
+    }
 
     /**
      * Clears all keys and values from the component's state.
