@@ -17,7 +17,10 @@
 
 package org.apache.nifi.components.state;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -48,4 +51,32 @@ public interface StateMap {
      * @return an immutable Map representation of all keys and values for the state of a component.
      */
     Map<String, String> toMap();
+
+    /**
+     * Returns an immutable Map of all keys and values for the state of a component, with the given patches applied. This StateMap is not changed.
+     * <p>
+     * Each key in the given patches with a non-null value is added or overwritten. Each key with a {@code null} value is removed.
+     * Keys that are not in the given patches keep their values from this StateMap.
+     * </p>
+     *
+     * @param patches a map of state keys to their new values. A key that is mapped to {@code null} is removed from the result. The map itself must not be {@code null}.
+     * @return an immutable Map of this state's keys and values with the given patches applied
+     */
+    default Map<String, String> toMap(final Map<String, String> patches) {
+        Objects.requireNonNull(patches, "Patches required");
+        if (patches.isEmpty()) {
+            return toMap();
+        }
+
+        final Map<String, String> patchedValues = new LinkedHashMap<>(toMap());
+        for (final Map.Entry<String, String> entry : patches.entrySet()) {
+            if (entry.getValue() == null) {
+                patchedValues.remove(entry.getKey());
+            } else {
+                patchedValues.put(entry.getKey(), entry.getValue());
+            }
+        }
+
+        return Collections.unmodifiableMap(patchedValues);
+    }
 }
