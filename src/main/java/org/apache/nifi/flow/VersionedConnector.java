@@ -18,6 +18,7 @@
 package org.apache.nifi.flow;
 
 import java.util.List;
+import java.util.Map;
 
 public class VersionedConnector {
     private String instanceIdentifier;
@@ -30,6 +31,7 @@ public class VersionedConnector {
     private Bundle managedFlowBundle;
     private VersionedProcessGroup managedProcessGroup;
     private VersionedParameterContext managedParameterContext;
+    private Map<String, VersionedConnectorValueReference> managedParameterSecretReferences;
 
     public String getInstanceIdentifier() {
         return instanceIdentifier;
@@ -129,5 +131,21 @@ public class VersionedConnector {
 
     public void setManagedParameterContext(final VersionedParameterContext managedParameterContext) {
         this.managedParameterContext = managedParameterContext;
+    }
+
+    /**
+     * Returns the bindings from managed parameter names to configuration secret references. Values are restricted to
+     * {@code SECRET_REFERENCE}. An absent map means no persisted bindings. Sensitive parameter values are never stored
+     * in {@link #getManagedParameterContext()}; they are resolved from these references through the current
+     * SecretsManager.
+     *
+     * @return parameter-name-to-secret bindings, or {@code null} if none were persisted
+     */
+    public Map<String, VersionedConnectorValueReference> getManagedParameterSecretReferences() {
+        return managedParameterSecretReferences;
+    }
+
+    public void setManagedParameterSecretReferences(final Map<String, VersionedConnectorValueReference> managedParameterSecretReferences) {
+        this.managedParameterSecretReferences = managedParameterSecretReferences;
     }
 }
