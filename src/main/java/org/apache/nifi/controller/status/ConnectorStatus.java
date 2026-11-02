@@ -16,6 +16,10 @@
  */
 package org.apache.nifi.controller.status;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 /**
  * The status of a Connector, including the status of its managed root Process Group.
  *
@@ -36,6 +40,7 @@ public class ConnectorStatus implements Cloneable {
     private String id;
     private String name;
     private ProcessGroupStatus rootGroupStatus;
+    private Map<String, String> connectorAttributes = Map.of();
 
     /**
      * @return the identifier of the Connector
@@ -71,12 +76,27 @@ public class ConnectorStatus implements Cloneable {
         this.rootGroupStatus = rootGroupStatus;
     }
 
+    /**
+     * @return an immutable map of Connector-level attributes (for example, the Connector identifier, name, component
+     *         type, and bundle coordinate, along with any provider-supplied attributes). These describe the Connector
+     *         as a whole and are intended to be applied to logs and metrics emitted for its managed flow. Never
+     *         {@code null}.
+     */
+    public Map<String, String> getConnectorAttributes() {
+        return Collections.unmodifiableMap(connectorAttributes);
+    }
+
+    public void setConnectorAttributes(final Map<String, String> connectorAttributes) {
+        this.connectorAttributes = connectorAttributes == null ? Map.of() : new LinkedHashMap<>(connectorAttributes);
+    }
+
     @Override
     public ConnectorStatus clone() {
         final ConnectorStatus clonedObj = new ConnectorStatus();
         clonedObj.id = id;
         clonedObj.name = name;
         clonedObj.rootGroupStatus = rootGroupStatus == null ? null : rootGroupStatus.clone();
+        clonedObj.connectorAttributes = new LinkedHashMap<>(connectorAttributes);
         return clonedObj;
     }
 
@@ -85,6 +105,7 @@ public class ConnectorStatus implements Cloneable {
         return "ConnectorStatus [id=" + id
                 + ", name=" + name
                 + ", rootGroupStatus=" + rootGroupStatus
+                + ", connectorAttributes=" + connectorAttributes
                 + "]";
     }
 }
