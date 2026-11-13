@@ -142,6 +142,9 @@ public abstract class AbstractConnector implements Connector {
                 final ProcessGroupFacade rootGroup = context.getRootGroup();
                 final ProcessGroupLifecycle lifecycle = rootGroup.getLifecycle();
 
+                // A drain that is still being prepared could otherwise start components after they have been stopped
+                lifecycle.endDrain();
+
                 try {
                     lifecycle.stopProcessors(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS).get(1, TimeUnit.MINUTES);
                 } catch (final TimeoutException e) {
@@ -183,7 +186,8 @@ public abstract class AbstractConnector implements Connector {
     }
 
     /**
-     * Drains all FlowFiles from the Connector instance.
+     * Drains all FlowFiles from the Connector instance by draining its root Process Group using {@link ProcessGroupLifecycle#beginDrain()}.
+     * Once no FlowFiles remain, the drain is ended and the Connector is stopped.
      *
      * @param flowContext the FlowContext to use for drainage
      * @return a CompletableFuture that will be completed when drainage is complete
@@ -202,9 +206,9 @@ public abstract class AbstractConnector implements Connector {
             initialQueueSize.getObjectCount(), NumberFormat.getNumberInstance().format(initialQueueSize.getByteCount()));
 
         Thread.startVirtualThread(() -> {
+            final ProcessGroupLifecycle lifecycle = flowContext.getRootGroup().getLifecycle();
             try {
-                stopSourceComponents(flowContext).get();
-                startNonSourceComponents(result, flowContext);
+                lifecycle.beginDrain().get();
 
                 if (!result.isDone()) {
                     completeDrain(result, flowContext, initialQueueSize);
@@ -213,6 +217,8 @@ public abstract class AbstractConnector implements Connector {
                 if (!result.isDone()) {
                     result.completeExceptionally(new RuntimeException("Failed while draining FlowFiles", e));
                 }
+            } finally {
+                lifecycle.endDrain();
             }
         });
 
@@ -274,34 +280,6 @@ public abstract class AbstractConnector implements Connector {
 
         if (!result.isDone()) {
             result.complete(null);
-        }
-    }
-
-    private void startNonSourceComponents(final CompletableFuture<Void> result, final FlowContext flowContext) {
-        if (result.isDone()) {
-            return;
-        }
-
-        final CompletableFuture<Void> enableServices = flowContext.getRootGroup().getLifecycle().enableControllerServices(
-            ControllerServiceReferenceScope.INCLUDE_REFERENCED_SERVICES_ONLY,
-            ComponentHierarchyScope.INCLUDE_CHILD_GROUPS);
-
-        try {
-            // Wait for all referenced services to be enabled.
-            enableServices.get();
-
-            if (!result.isDone()) {
-                getLogger().info("Starting all non-source components to facilitate drainage of FlowFiles");
-                startNonSourceComponents(flowContext).get();
-            }
-        } catch (final Exception e) {
-            try {
-                flowContext.getRootGroup().getLifecycle().disableControllerServices(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS).get();
-            } catch (final Exception e1) {
-                e.addSuppressed(e1);
-            }
-
-            result.completeExceptionally(new RuntimeException("Failed to start non-source components while draining FlowFiles", e.getCause()));
         }
     }
 
@@ -414,15 +392,6 @@ public abstract class AbstractConnector implements Connector {
         return group.getQueueSize().getObjectCount() == 0;
     }
 
-    protected CompletableFuture<Void> stopSourceComponents(final FlowContext context) {
-        final List<CompletableFuture<Void>> stopFutures = new ArrayList<>();
-        for (final ProcessorFacade sourceProcessor : getSourceProcessors(context.getRootGroup())) {
-            stopFutures.add(sourceProcessor.getLifecycle().stop());
-        }
-
-        return CompletableFuture.allOf(stopFutures.toArray(new CompletableFuture[0]));
-    }
-
     protected CompletableFuture<Void> startNonSourceComponents(final FlowContext flowContext) {
         final ProcessGroupFacade rootGroup = flowContext.getRootGroup();
         final List<CompletableFuture<Void>> startFutures = new ArrayList<>();
@@ -436,12 +405,6 @@ public abstract class AbstractConnector implements Connector {
         startFutures.add(lifecycle.startStatelessGroups(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS));
 
         return CompletableFuture.allOf(startFutures.toArray(new CompletableFuture[0]));
-    }
-
-    protected List<ProcessorFacade> getSourceProcessors(final ProcessGroupFacade group) {
-        final Set<String> nonSourceIds = getNonSourceProcessorIds(group);
-
-        return findProcessors(group, processor -> !nonSourceIds.contains(processor.getDefinition().getIdentifier()));
     }
 
     protected List<ProcessorFacade> getNonSourceProcessors(final ProcessGroupFacade group) {

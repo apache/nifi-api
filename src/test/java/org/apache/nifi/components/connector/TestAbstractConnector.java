@@ -942,34 +942,6 @@ public class TestAbstractConnector {
         verify(rootGroup.getLifecycle(), times(1)).startStatelessGroups(ComponentHierarchyScope.INCLUDE_CHILD_GROUPS);
     }
 
-    @Test
-    void testStopSourceComponentsStopsNestedProcessorsOnce() {
-        final ProcessorFacade rootGenerate = mockProcessor("root-generate");
-        final ProcessorFacade rootTerminate = mockProcessor("root-terminate");
-        final ProcessorFacade childGenerate = mockProcessor("child-generate");
-        final ProcessorFacade childTerminate = mockProcessor("child-terminate");
-        final ProcessorFacade grandchildGenerate = mockProcessor("grandchild-generate");
-        final ProcessorFacade grandchildTerminate = mockProcessor("grandchild-terminate");
-
-        final ProcessGroupFacade grandchildGroup = mockGroup(Set.of(grandchildGenerate, grandchildTerminate),
-            Set.of(mockConnection("grandchild-generate", "grandchild-terminate")), Set.of());
-        final ProcessGroupFacade childGroup = mockGroup(Set.of(childGenerate, childTerminate),
-            Set.of(mockConnection("child-generate", "child-terminate")), Set.of(grandchildGroup));
-        final ProcessGroupFacade rootGroup = mockGroup(Set.of(rootGenerate, rootTerminate),
-            Set.of(mockConnection("root-generate", "root-terminate")), Set.of(childGroup));
-        when(flowContext.getRootGroup()).thenReturn(rootGroup);
-
-        final CompletableFuture<Void> stopFuture = connector.stopSourceComponents(flowContext);
-
-        assertDoesNotThrow(() -> stopFuture.get(5, TimeUnit.SECONDS));
-        for (final ProcessorFacade source : List.of(rootGenerate, childGenerate, grandchildGenerate)) {
-            verify(source.getLifecycle(), times(1)).stop();
-        }
-        for (final ProcessorFacade nonSource : List.of(rootTerminate, childTerminate, grandchildTerminate)) {
-            verify(nonSource.getLifecycle(), never()).stop();
-        }
-    }
-
     private static ProcessorFacade mockProcessor(final String identifier) {
         final VersionedProcessor definition = new VersionedProcessor();
         definition.setIdentifier(identifier);
@@ -978,7 +950,6 @@ public class TestAbstractConnector {
         // start of an already running processor returns a future that never completes.
         final ProcessorLifecycle lifecycle = mock(ProcessorLifecycle.class);
         when(lifecycle.start()).thenReturn(CompletableFuture.completedFuture(null), new CompletableFuture<>());
-        when(lifecycle.stop()).thenReturn(CompletableFuture.completedFuture(null));
 
         final ProcessorFacade processor = mock(ProcessorFacade.class);
         when(processor.getDefinition()).thenReturn(definition);
