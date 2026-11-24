@@ -26,6 +26,7 @@ import org.apache.nifi.migration.ConnectorPropertyConfiguration;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -251,6 +252,18 @@ public interface Connector {
      */
     default CompletableFuture<Void> prepareForFlowEvolution(final FlowEvolutionContext context) throws FlowUpdateException {
         return CompletableFuture.completedFuture(null);
+    }
+
+    /**
+     * Returns the flow that a previous version of this Connector installed, for use as the pre-upgrade flow when that flow was
+     * not persisted. The flow must use the previous version's versioned component identifiers so that queued FlowFiles can be
+     * restored and drained before the current flow replaces it.
+     *
+     * @param preUpgradeFlowContext the Active flow context, with migrated configuration and the bundle that saved it
+     * @return the flow that the previous version installed, or an empty Optional if none is needed
+     */
+    default Optional<VersionedExternalFlow> getPreUpgradeFlow(final FlowContext preUpgradeFlowContext) {
+        return Optional.empty();
     }
 
     /**
